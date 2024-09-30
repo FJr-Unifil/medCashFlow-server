@@ -1,14 +1,21 @@
 package example.medCashFlow.model;
 
+import example.medCashFlow.dto.RegisterDTO;
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
+import java.util.Collection;
+import java.util.List;
 
 @Entity(name = "employees")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode(of = "id")
-public class Employee {
+public class Employee implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -37,4 +44,55 @@ public class Employee {
     @Column(nullable = false, name = "is_active")
     private boolean isActive = true;
 
+    public Employee(RegisterDTO data, String encryptedPassword, Role role, Clinic clinic) {
+        this.name = data.name();
+        this.cpf = data.cpf();
+        this.email = data.email();
+        this.password = encryptedPassword;
+        this.role = role;
+        this.clinic = clinic;
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return switch (this.role.getName()) {
+            case "MANAGER" -> List.of(
+                    new SimpleGrantedAuthority("ROLE_MANAGER"),
+                    new SimpleGrantedAuthority("ROLE_FINANCIAL_ANALYST"),
+                    new SimpleGrantedAuthority("ROLE_DOCTOR")
+            );
+            case "FINANCIAL_ANALST" -> List.of(
+                    new SimpleGrantedAuthority("ROLE_FINANCIAL_ANALYST"),
+                    new SimpleGrantedAuthority("ROLE_DOCTOR")
+            );
+            case "DOCTOR" -> List.of(new SimpleGrantedAuthority("ROLE_DOCTOR"));
+            default -> null;
+        };
+
+    }
+
+    @Override
+    public String getUsername() {
+        return email;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return UserDetails.super.isAccountNonExpired();
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return UserDetails.super.isAccountNonLocked();
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return UserDetails.super.isCredentialsNonExpired();
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return UserDetails.super.isEnabled();
+    }
 }
