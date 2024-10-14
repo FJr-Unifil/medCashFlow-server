@@ -1,5 +1,6 @@
 package example.medCashFlow.model;
 
+import example.medCashFlow.dto.ClinicRegisterDTO;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -33,4 +34,10 @@ public class Clinic {
 
     @OneToMany(mappedBy = "clinic")
     private List<Employee> employeeList;
+
+    public Clinic(ClinicRegisterDTO clinicData) {
+        this.name = clinicData.name();
+        this.cnpj = clinicData.cnpj();
+        this.phone = clinicData.phone();
+    }
 }

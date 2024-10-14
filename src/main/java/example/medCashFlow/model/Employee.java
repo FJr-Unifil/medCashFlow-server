@@ -1,6 +1,6 @@
 package example.medCashFlow.model;
 
-import example.medCashFlow.dto.RegisterDTO;
+import example.medCashFlow.dto.EmployeeRegisterDTO;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -44,7 +44,7 @@ public class Employee implements UserDetails {
     @Column(nullable = false, name = "is_active")
     private boolean isActive = true;
 
-    public Employee(RegisterDTO data, String encryptedPassword, Role role, Clinic clinic) {
+    public Employee(EmployeeRegisterDTO data, String encryptedPassword, Role role, Clinic clinic) {
         this.name = data.name();
         this.cpf = data.cpf();
         this.email = data.email();

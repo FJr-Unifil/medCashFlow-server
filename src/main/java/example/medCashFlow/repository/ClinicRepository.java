@@ -8,4 +8,10 @@ import org.springframework.stereotype.Repository;
 public interface ClinicRepository extends JpaRepository<Clinic, Long> {
 
     boolean existsByIdAndIsActiveTrue(Long id);
+
+    boolean existsByCnpjAndIsActiveTrue(String cnpj);
+
+    boolean existsByPhoneAndIsActiveTrue(String phone);
+
+    boolean existsByNameAndIsActiveTrue(String name);
 }
