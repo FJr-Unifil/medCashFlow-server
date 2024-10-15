@@ -35,6 +35,8 @@ public class AuthenticationController {
 
     @PostMapping("/login")
     public ResponseEntity<LoginResponseDTO> login(@RequestBody AuthenticationDTO data) {
+        System.out.println("Dado: " + data);
+
         var usernamePassword = new UsernamePasswordAuthenticationToken(data.email(), data.password());
 
         var auth = this.authenticationManager.authenticate(usernamePassword);
@@ -44,9 +46,9 @@ public class AuthenticationController {
         return ResponseEntity.ok(new LoginResponseDTO(token));
     }
 
-    @CrossOrigin(origins = "*")
     @PostMapping("/register")
-    public ResponseEntity<String> register(@RequestBody RegisterDTO data) {
+    public ResponseEntity<RegisterResponseDTO> register(@RequestBody RegisterDTO data) {
+        System.out.println("Dados: " + data);
 
         ClinicRegisterDTO clinicData = new ClinicRegisterDTO(
                 data.clinic().name(),
@@ -79,6 +81,6 @@ public class AuthenticationController {
 
         Long id = employeeService.saveEmployeeOnDatabase(newEmployee);
 
-        return ResponseEntity.ok("Id do funcionário: " + id);
+        return ResponseEntity.ok(new RegisterResponseDTO(id, "Clínica cadastrada com sucesso"));
     }
 }
