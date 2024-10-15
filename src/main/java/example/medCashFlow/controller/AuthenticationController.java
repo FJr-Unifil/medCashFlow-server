@@ -14,10 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/auth")
@@ -47,39 +44,38 @@ public class AuthenticationController {
         return ResponseEntity.ok(new LoginResponseDTO(token));
     }
 
+    @CrossOrigin(origins = "*")
     @PostMapping("/register")
     public ResponseEntity<String> register(@RequestBody RegisterDTO data) {
+
         ClinicRegisterDTO clinicData = new ClinicRegisterDTO(
-                data.clinicName(),
-                unmaskInput.unmaskNumeric(data.cnpj()),
-                unmaskInput.unmaskNumeric(data.clinicPhone())
+                data.clinic().name(),
+                unmaskInput.unmaskNumeric(data.clinic().cnpj()),
+                unmaskInput.unmaskNumeric(data.clinic().phone())
         );
 
         if (!clinicService.isClinicValid(clinicData)) {
             return ResponseEntity.badRequest().build();
         }
 
-        Clinic newClinic = new Clinic(clinicData);
-        Clinic savedClinic = clinicService.saveClinic(newClinic);
+        Clinic savedClinic = clinicService.saveClinic(new Clinic(clinicData));
 
-        Role role = roleService.getRoleById(1L);
-
-        EmployeeRegisterDTO employeeData = new EmployeeRegisterDTO(
-                data.managerName(),
-                unmaskInput.unmaskNumeric(data.cpf()),
-                data.managerEmail(),
-                data.managerPassword(),
-                role.getId(),
-                savedClinic.getId()
+        ManagerRegisterDTO managerData = new ManagerRegisterDTO(
+                data.manager().name(),
+                unmaskInput.unmaskNumeric(data.manager().cpf()),
+                data.manager().email(),
+                data.manager().password()
         );
 
-        if (!employeeService.isEmployeeValid(data.cpf(), data.managerEmail())) {
+        if (!employeeService.isEmployeeValid(managerData.cpf(), managerData.email())) {
             return ResponseEntity.badRequest().build();
         }
 
-        String encryptedPassword = new BCryptPasswordEncoder().encode(data.managerPassword());
+        String encryptedPassword = new BCryptPasswordEncoder().encode(managerData.password());
 
-        Employee newEmployee = new Employee(employeeData, encryptedPassword, role, savedClinic);
+        Role role = roleService.getRoleById(1L);
+
+        Employee newEmployee = new Employee(managerData, encryptedPassword, role, savedClinic);
 
         Long id = employeeService.saveEmployeeOnDatabase(newEmployee);
 
