@@ -62,7 +62,7 @@ public class Employee implements UserDetails {
                     new SimpleGrantedAuthority("ROLE_FINANCIAL_ANALYST"),
                     new SimpleGrantedAuthority("ROLE_DOCTOR")
             );
-            case "FINANCIAL_ANALST" -> List.of(
+            case "FINANCIAL_ANALYST" -> List.of(
                     new SimpleGrantedAuthority("ROLE_FINANCIAL_ANALYST"),
                     new SimpleGrantedAuthority("ROLE_DOCTOR")
             );

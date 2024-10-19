@@ -8,7 +8,6 @@ import example.medCashFlow.services.ClinicService;
 import example.medCashFlow.services.EmployeeService;
 import example.medCashFlow.services.RoleService;
 import example.medCashFlow.services.TokenService;
-import example.medCashFlow.util.UnmaskInput;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -31,16 +30,19 @@ public class AuthenticationController {
 
     private final TokenService tokenService;
 
-    private final UnmaskInput unmaskInput;
-
     @PostMapping("/login")
     public ResponseEntity<LoginResponseDTO> login(@RequestBody AuthenticationDTO data) {
-        System.out.println("Dado: " + data);
+
+        var username = employeeService.getEmployeeByEmail(data.email());
+
+        if (username == null) {
+            return ResponseEntity.notFound().build();
+        }
 
         var usernamePassword = new UsernamePasswordAuthenticationToken(data.email(), data.password());
 
         var auth = this.authenticationManager.authenticate(usernamePassword);
-
+        
         var token = tokenService.generateToken((Employee) auth.getPrincipal());
 
         return ResponseEntity.ok(new LoginResponseDTO(token));
@@ -48,13 +50,8 @@ public class AuthenticationController {
 
     @PostMapping("/register")
     public ResponseEntity<RegisterResponseDTO> register(@RequestBody RegisterDTO data) {
-        System.out.println("Dados: " + data);
 
-        ClinicRegisterDTO clinicData = new ClinicRegisterDTO(
-                data.clinic().name(),
-                unmaskInput.unmaskNumeric(data.clinic().cnpj()),
-                unmaskInput.unmaskNumeric(data.clinic().phone())
-        );
+        ClinicRegisterDTO clinicData = data.clinic();
 
         if (!clinicService.isClinicValid(clinicData)) {
             return ResponseEntity.badRequest().build();
@@ -62,14 +59,9 @@ public class AuthenticationController {
 
         Clinic savedClinic = clinicService.saveClinic(new Clinic(clinicData));
 
-        ManagerRegisterDTO managerData = new ManagerRegisterDTO(
-                data.manager().name(),
-                unmaskInput.unmaskNumeric(data.manager().cpf()),
-                data.manager().email(),
-                data.manager().password()
-        );
+        ManagerRegisterDTO managerData = data.manager();
 
-        if (!employeeService.isEmployeeValid(managerData.cpf(), managerData.email())) {
+        if (!employeeService.isEmployeeAlreadyOnDatabase(managerData.cpf(), managerData.email())) {
             return ResponseEntity.badRequest().build();
         }
 

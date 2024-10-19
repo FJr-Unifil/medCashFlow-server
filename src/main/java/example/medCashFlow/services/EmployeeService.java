@@ -17,7 +17,7 @@ public class EmployeeService {
         return repository.findByEmail(email);
     }
 
-    public boolean isEmployeeValid(String cpf, String email) {
+    public boolean isEmployeeAlreadyOnDatabase(String cpf, String email) {
         return (repository.findByEmail(email) == null && repository.findByCpf(cpf) == null);
     }
 
