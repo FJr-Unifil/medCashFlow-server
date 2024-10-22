@@ -33,11 +33,11 @@ public class AuthenticationController {
     @PostMapping("/login")
     public ResponseEntity<LoginResponseDTO> login(@RequestBody AuthenticationDTO data) {
 
-        var username = employeeService.getEmployeeByEmail(data.email());
-
-        if (username == null) {
-            return ResponseEntity.notFound().build();
-        }
+//        var username = employeeService.getEmployeeByEmail(data.email());
+//
+//        if (username == null) {
+//            return ResponseEntity.notFound().build();
+//        }
 
         var usernamePassword = new UsernamePasswordAuthenticationToken(data.email(), data.password());
 
