@@ -9,4 +9,8 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
     UserDetails findByEmail(String email);
 
     UserDetails findByCpf(String cpf);
+
+    boolean existsByCpf(String cpf);
+
+    boolean existsByEmail(String email);
 }

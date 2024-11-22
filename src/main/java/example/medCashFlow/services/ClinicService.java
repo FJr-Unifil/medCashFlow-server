@@ -21,11 +21,7 @@ public class ClinicService {
     }
 
     public Clinic saveClinic(ClinicRegisterDTO data) {
-        if (isClinicValid(data)) {
             return repository.save(new Clinic(data));
-        }
-
-        return null;
     }
 
     public boolean isClinicValid(ClinicRegisterDTO clinicData) {

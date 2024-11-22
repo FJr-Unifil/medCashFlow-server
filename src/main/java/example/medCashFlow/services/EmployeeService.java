@@ -1,5 +1,6 @@
 package example.medCashFlow.services;
 
+import example.medCashFlow.exceptions.InvalidEmployeeException;
 import example.medCashFlow.model.Employee;
 import example.medCashFlow.repository.EmployeeRepository;
 import lombok.RequiredArgsConstructor;
@@ -17,12 +18,28 @@ public class EmployeeService {
         return repository.findByEmail(email);
     }
 
-    public boolean isEmployeeAlreadyOnDatabase(String cpf, String email) {
-        return (repository.findByEmail(email) == null && repository.findByCpf(cpf) == null);
+    public boolean isEmployeeValid(String cpf, String email) {
+        return (isEmployeeValidByCpf(cpf) && isEmployeeValidByEmail(email));
     }
 
-    public Long saveEmployeeOnDatabase(Employee employee) {
-        Employee savedEmployee = repository.save(employee);
-        return savedEmployee.getId();
+    public boolean isEmployeeValidByCpf(String cpf) {
+        if (repository.existsByCpf(cpf)) {
+            throw new InvalidEmployeeException("employee.cpf");
+        }
+
+        return true;
+    }
+
+    public boolean isEmployeeValidByEmail(String email) {
+        if (repository.existsByEmail(email)) {
+            throw new InvalidEmployeeException("employee.email");
+        }
+
+        return true;
+    }
+
+    public Long saveEmployee(Employee employee) {
+            Employee savedEmployee = repository.save(employee);
+            return savedEmployee.getId();
     }
 }

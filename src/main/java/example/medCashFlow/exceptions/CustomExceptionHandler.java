@@ -52,4 +52,14 @@ public class CustomExceptionHandler {
                 LocalDateTime.now()
         ));
     }
+
+    @ExceptionHandler(InvalidEmployeeException.class)
+    private ResponseEntity<ExceptionDTO> handleInvalidEmployeeException(InvalidEmployeeException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ExceptionDTO(
+                409,
+                "Conflito de Dados",
+                ex.getMessage(),
+                LocalDateTime.now()
+        ));
+    }
 }

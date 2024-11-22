@@ -44,25 +44,24 @@ public class AuthenticationController {
 
     @PostMapping("/register")
     public ResponseEntity<RegisterResponseDTO> register(@RequestBody RegisterDTO data) {
-
         ClinicRegisterDTO clinicData = data.clinic();
-
-        Clinic savedClinic = clinicService.saveClinic(clinicData);
 
         ManagerRegisterDTO managerData = data.manager();
 
-        if (!employeeService.isEmployeeAlreadyOnDatabase(managerData.cpf(), managerData.email())) {
-            return ResponseEntity.badRequest().build();
+        if (clinicService.isClinicValid(clinicData) && employeeService.isEmployeeValid(managerData.cpf(), managerData.email())) {
+            Clinic savedClinic = clinicService.saveClinic(clinicData);
+
+            String encryptedPassword = new BCryptPasswordEncoder().encode(managerData.password());
+
+            Role role = roleService.getRoleById(1L);
+
+            Employee manager = new Employee(managerData, encryptedPassword, role, savedClinic);
+
+            Long id = employeeService.saveEmployee(manager);
+
+            return ResponseEntity.ok(new RegisterResponseDTO(id, "Clínica cadastrada com sucesso"));
         }
 
-        String encryptedPassword = new BCryptPasswordEncoder().encode(managerData.password());
-
-        Role role = roleService.getRoleById(1L);
-
-        Employee newEmployee = new Employee(managerData, encryptedPassword, role, savedClinic);
-
-        Long id = employeeService.saveEmployeeOnDatabase(newEmployee);
-
-        return ResponseEntity.ok(new RegisterResponseDTO(id, "Clínica cadastrada com sucesso"));
+        return null;
     }
 }
