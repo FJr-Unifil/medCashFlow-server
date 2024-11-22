@@ -33,12 +33,6 @@ public class AuthenticationController {
     @PostMapping("/login")
     public ResponseEntity<LoginResponseDTO> login(@RequestBody AuthenticationDTO data) {
 
-//        var username = employeeService.getEmployeeByEmail(data.email());
-//
-//        if (username == null) {
-//            return ResponseEntity.notFound().build();
-//        }
-
         var usernamePassword = new UsernamePasswordAuthenticationToken(data.email(), data.password());
 
         var auth = this.authenticationManager.authenticate(usernamePassword);
@@ -62,6 +56,7 @@ public class AuthenticationController {
         ManagerRegisterDTO managerData = data.manager();
 
         if (!employeeService.isEmployeeAlreadyOnDatabase(managerData.cpf(), managerData.email())) {
+            System.out.println("Invalid CPF or Email");
             return ResponseEntity.badRequest().build();
         }
 

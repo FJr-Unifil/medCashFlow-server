@@ -4,10 +4,12 @@ import example.medCashFlow.model.Clinic;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-@Repository
-public interface ClinicRepository extends JpaRepository<Clinic, Long> {
+import java.util.UUID;
 
-    boolean existsByIdAndIsActiveTrue(Long id);
+@Repository
+public interface ClinicRepository extends JpaRepository<Clinic, UUID> {
+
+    boolean existsByIdAndIsActiveTrue(UUID id);
 
     boolean existsByCnpjAndIsActiveTrue(String cnpj);
 

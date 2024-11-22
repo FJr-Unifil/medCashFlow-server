@@ -23,7 +23,10 @@ public class Employee implements UserDetails {
     private Long id;
 
     @Column(nullable = false)
-    private String name;
+    private String first_name;
+
+    @Column(nullable = false)
+    private String last_name;
 
     @Column(nullable = false, unique = true)
     private String cpf;
@@ -46,7 +49,8 @@ public class Employee implements UserDetails {
     private boolean isActive = true;
 
     public Employee(ManagerRegisterDTO data, String encryptedPassword, Role role, Clinic clinic) {
-        this.name = data.name();
+        this.first_name = data.first_name();
+        this.last_name = data.last_name();
         this.cpf = data.cpf();
         this.email = data.email();
         this.password = encryptedPassword;

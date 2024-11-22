@@ -6,13 +6,15 @@ import example.medCashFlow.repository.ClinicRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.UUID;
+
 @Service
 @RequiredArgsConstructor
 public class ClinicService {
 
     private final ClinicRepository repository;
 
-    public Clinic getClinicById(Long id) {
+    public Clinic getClinicById(UUID id) {
         return repository.findById(id).orElse(null);
     }
 
@@ -24,7 +26,7 @@ public class ClinicService {
         return isClinicValidByName(clinicData.name()) && isClinicValidByCnpj(clinicData.cnpj()) && isClinicValidByPhone(clinicData.phone());
     }
 
-    public boolean isClinicValidById(Long id) {
+    public boolean isClinicValidById(UUID id) {
         return repository.existsByIdAndIsActiveTrue(id);
     }
 
