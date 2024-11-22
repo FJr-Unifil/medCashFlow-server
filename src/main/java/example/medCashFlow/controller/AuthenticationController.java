@@ -52,7 +52,6 @@ public class AuthenticationController {
         ManagerRegisterDTO managerData = data.manager();
 
         if (!employeeService.isEmployeeAlreadyOnDatabase(managerData.cpf(), managerData.email())) {
-            System.out.println("Invalid CPF or Email");
             return ResponseEntity.badRequest().build();
         }
 
