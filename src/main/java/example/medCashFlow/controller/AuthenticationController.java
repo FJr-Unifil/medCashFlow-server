@@ -47,11 +47,7 @@ public class AuthenticationController {
 
         ClinicRegisterDTO clinicData = data.clinic();
 
-        if (!clinicService.isClinicValid(clinicData)) {
-            return ResponseEntity.badRequest().build();
-        }
-
-        Clinic savedClinic = clinicService.saveClinic(new Clinic(clinicData));
+        Clinic savedClinic = clinicService.saveClinic(clinicData);
 
         ManagerRegisterDTO managerData = data.manager();
 

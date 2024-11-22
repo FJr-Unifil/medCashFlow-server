@@ -1,6 +1,8 @@
 package example.medCashFlow.services;
 
 import example.medCashFlow.dto.ClinicRegisterDTO;
+import example.medCashFlow.exceptions.ClinicNotFoundException;
+import example.medCashFlow.exceptions.InvalidClinicException;
 import example.medCashFlow.model.Clinic;
 import example.medCashFlow.repository.ClinicRepository;
 import lombok.RequiredArgsConstructor;
@@ -15,11 +17,15 @@ public class ClinicService {
     private final ClinicRepository repository;
 
     public Clinic getClinicById(UUID id) {
-        return repository.findById(id).orElse(null);
+        return repository.findById(id).orElseThrow(ClinicNotFoundException::new);
     }
 
-    public Clinic saveClinic(Clinic clinic) {
-        return repository.save(clinic);
+    public Clinic saveClinic(ClinicRegisterDTO data) {
+        if (isClinicValid(data)) {
+            return repository.save(new Clinic(data));
+        }
+
+        return null;
     }
 
     public boolean isClinicValid(ClinicRegisterDTO clinicData) {
@@ -27,18 +33,34 @@ public class ClinicService {
     }
 
     public boolean isClinicValidById(UUID id) {
-        return repository.existsByIdAndIsActiveTrue(id);
+        if (repository.existsById(id)) {
+            throw new ClinicNotFoundException();
+        }
+
+        return true;
     }
 
     public boolean isClinicValidByName(String name) {
-        return !repository.existsByNameAndIsActiveTrue(name);
+        if (repository.existsByName(name)) {
+            throw new InvalidClinicException("clinic.name");
+        }
+
+        return true;
     }
 
     public boolean isClinicValidByCnpj(String cnpj) {
-        return !repository.existsByCnpjAndIsActiveTrue(cnpj);
+        if (repository.existsByCnpj(cnpj)) {
+            throw new InvalidClinicException("clinic.cnpj");
+        }
+
+        return true;
     }
 
     public boolean isClinicValidByPhone(String phone) {
-        return !repository.existsByPhoneAndIsActiveTrue(phone);
+        if (repository.existsByPhone(phone)) {
+            throw new InvalidClinicException("clinic.phone");
+        }
+
+        return true;
     }
 }

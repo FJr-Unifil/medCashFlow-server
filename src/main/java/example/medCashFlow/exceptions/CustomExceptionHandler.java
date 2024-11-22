@@ -42,4 +42,14 @@ public class CustomExceptionHandler {
                 LocalDateTime.now()
         ));
     }
+
+    @ExceptionHandler(InvalidClinicException.class)
+    private ResponseEntity<ExceptionDTO> handleInvalidClinicException(InvalidClinicException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ExceptionDTO(
+                409,
+                "Conflito de Dados",
+                ex.getMessage(),
+                LocalDateTime.now()
+        ));
+    }
 }

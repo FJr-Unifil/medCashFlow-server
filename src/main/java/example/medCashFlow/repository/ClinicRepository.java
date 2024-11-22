@@ -10,10 +10,9 @@ import java.util.UUID;
 public interface ClinicRepository extends JpaRepository<Clinic, UUID> {
 
     boolean existsByIdAndIsActiveTrue(UUID id);
+    boolean existsByCnpj(String cnpj);
 
-    boolean existsByCnpjAndIsActiveTrue(String cnpj);
+    boolean existsByPhone(String phone);
 
-    boolean existsByPhoneAndIsActiveTrue(String phone);
-
-    boolean existsByNameAndIsActiveTrue(String name);
+    boolean existsByName(String name);
 }
