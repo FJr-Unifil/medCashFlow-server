@@ -45,7 +45,7 @@ public class CustomExceptionHandler {
 
     @ExceptionHandler(InvalidClinicException.class)
     private ResponseEntity<ExceptionDTO> handleInvalidClinicException(InvalidClinicException ex) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ExceptionDTO(
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(new ExceptionDTO(
                 409,
                 "Conflito de Dados",
                 ex.getMessage(),
@@ -55,7 +55,7 @@ public class CustomExceptionHandler {
 
     @ExceptionHandler(InvalidEmployeeException.class)
     private ResponseEntity<ExceptionDTO> handleInvalidEmployeeException(InvalidEmployeeException ex) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ExceptionDTO(
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(new ExceptionDTO(
                 409,
                 "Conflito de Dados",
                 ex.getMessage(),
