@@ -24,7 +24,7 @@ public class EmployeeService {
 
     public boolean isEmployeeValidByCpf(String cpf) {
         if (repository.existsByCpf(cpf)) {
-            throw new InvalidEmployeeException("employee.cpf");
+            throw new InvalidEmployeeException("manager.cpf");
         }
 
         return true;
@@ -32,7 +32,7 @@ public class EmployeeService {
 
     public boolean isEmployeeValidByEmail(String email) {
         if (repository.existsByEmail(email)) {
-            throw new InvalidEmployeeException("employee.email");
+            throw new InvalidEmployeeException("manager.email");
         }
 
         return true;
