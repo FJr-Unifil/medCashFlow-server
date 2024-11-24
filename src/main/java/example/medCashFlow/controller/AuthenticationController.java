@@ -17,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -45,7 +46,13 @@ public class AuthenticationController {
 
         var auth = this.authenticationManager.authenticate(usernamePassword);
 
-        var token = tokenService.generateToken((Employee) auth.getPrincipal());
+        String token;
+        if (auth.getPrincipal() instanceof Employee) {
+            token = tokenService.generateToken((Employee) auth.getPrincipal());
+        } else {
+            UserDetails userDetails = (UserDetails) auth.getPrincipal();
+            token = tokenService.generateTokenForAdmin(userDetails);
+        }
 
         return ResponseEntity.ok(new LoginResponseDTO(token));
     }
