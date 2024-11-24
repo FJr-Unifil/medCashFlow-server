@@ -1,6 +1,11 @@
 package example.medCashFlow.controller;
 
-import example.medCashFlow.dto.*;
+import example.medCashFlow.dto.auth.AuthenticationDTO;
+import example.medCashFlow.dto.auth.LoginResponseDTO;
+import example.medCashFlow.dto.auth.RegisterDTO;
+import example.medCashFlow.dto.auth.RegisterResponseDTO;
+import example.medCashFlow.dto.clinic.ClinicRegisterDTO;
+import example.medCashFlow.dto.employee.ManagerRegisterDTO;
 import example.medCashFlow.model.Clinic;
 import example.medCashFlow.model.Employee;
 import example.medCashFlow.model.Role;
@@ -13,7 +18,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/auth")
@@ -36,7 +44,7 @@ public class AuthenticationController {
         var usernamePassword = new UsernamePasswordAuthenticationToken(data.email(), data.password());
 
         var auth = this.authenticationManager.authenticate(usernamePassword);
-        
+
         var token = tokenService.generateToken((Employee) auth.getPrincipal());
 
         return ResponseEntity.ok(new LoginResponseDTO(token));

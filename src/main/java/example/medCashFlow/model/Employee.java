@@ -1,9 +1,11 @@
 package example.medCashFlow.model;
 
-import example.medCashFlow.dto.EmployeeRegisterDTO;
-import example.medCashFlow.dto.ManagerRegisterDTO;
+import example.medCashFlow.dto.employee.ManagerRegisterDTO;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
