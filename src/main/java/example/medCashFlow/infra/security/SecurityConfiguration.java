@@ -6,16 +6,12 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
@@ -38,28 +34,14 @@ public class SecurityConfiguration {
     }
 
     @Bean
-    public InMemoryUserDetailsManager inMemoryUserDetailsManager() {
-        UserDetails admin = User.builder()
-                .username(adminUsername)
-                .password(passwordEncoder().encode(adminPassword))
-                .roles("ADMIN")
-                .build();
-
-        return new InMemoryUserDetailsManager(admin);
-    }
-
-    @Bean
-    public DaoAuthenticationProvider inMemoryAuthenticationProvider() {
-        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
-        provider.setUserDetailsService(inMemoryUserDetailsManager());
-        provider.setPasswordEncoder(passwordEncoder());
-        return provider;
-    }
-
-    @Bean
     public AuthenticationManager authManager(HttpSecurity http) throws Exception {
         AuthenticationManagerBuilder authBuilder = http.getSharedObject(AuthenticationManagerBuilder.class);
-        authBuilder.authenticationProvider(inMemoryAuthenticationProvider());
+
+        authBuilder.inMemoryAuthentication()
+                .withUser(adminUsername)
+                .password(passwordEncoder().encode(adminPassword))
+                .roles("ADMIN");
+
         authBuilder.authenticationProvider(databaseAuthenticationProvider());
 
         return authBuilder.build();

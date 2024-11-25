@@ -7,12 +7,12 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -24,7 +24,12 @@ public class SecurityFilter extends OncePerRequestFilter {
 
     private final TokenService tokenService;
 
+    private final EmployeeService employeeService;
+
     private final ApplicationContext applicationContext;
+
+    @Value("${api.security.admin.username}")
+    private String adminUsername;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -32,19 +37,22 @@ public class SecurityFilter extends OncePerRequestFilter {
 
         if (token != null) {
             var username = tokenService.validateToken(token);
-            UserDetails user = null;
+            UserDetails user;
 
-            try {
-                InMemoryUserDetailsManager inMemoryManager = applicationContext.getBean(InMemoryUserDetailsManager.class);
-                user = inMemoryManager.loadUserByUsername(username);
-            } catch (UsernameNotFoundException e) {
-                EmployeeService employeeService = applicationContext.getBean(EmployeeService.class);
+            if (username.equals(adminUsername)) {
+                user = User.builder()
+                        .username(adminUsername)
+                        .password("") // Password not needed for token validation
+                        .roles("ADMIN")
+                        .build();
+            } else {
                 user = employeeService.getEmployeeByEmail(username);
             }
 
-            var authentication = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
-
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+            if (user != null) {
+                var authentication = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
+                SecurityContextHolder.getContext().setAuthentication(authentication);
+            }
         }
 
         filterChain.doFilter(request, response);
