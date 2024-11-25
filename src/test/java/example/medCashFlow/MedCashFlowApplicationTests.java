@@ -4,8 +4,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import example.medCashFlow.dto.auth.AuthenticationDTO;
 import example.medCashFlow.dto.auth.RegisterDTO;
 import example.medCashFlow.dto.clinic.ClinicRegisterDTO;
+import example.medCashFlow.dto.clinic.ClinicResponseDTO;
 import example.medCashFlow.dto.employee.ManagerRegisterDTO;
 import example.medCashFlow.model.Employee;
+import example.medCashFlow.services.ClinicService;
 import example.medCashFlow.services.EmployeeService;
 import example.medCashFlow.services.TokenService;
 import org.flywaydb.core.Flyway;
@@ -26,9 +28,10 @@ import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.List;
+import java.util.UUID;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -61,6 +64,9 @@ class MedCashFlowApplicationTests {
 
     @Autowired
     private Flyway flyway;
+
+    @Autowired
+    private ClinicService clinicService;
 
     private void createInitialData() {
         RegisterDTO initialRegisterDto = new RegisterDTO(
@@ -228,6 +234,68 @@ class MedCashFlowApplicationTests {
     @Test
     void whenManagerAccessClinics_thenForbidden() throws Exception {
         mockMvc.perform(get("/clinics")
+                        .header("Authorization", "Bearer " + managerToken))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void whenAnonymousDeleteClinics_thenUnauthorized() throws Exception {
+        List<ClinicResponseDTO> clinics = clinicService.getAllClinics();
+
+        UUID id = clinics.get(0).id();
+
+        mockMvc.perform(delete("/clinics/delete/" + id)).andExpect(status().isForbidden());
+    }
+
+    @Test
+    void whenAdminDeleteClinics_thenSucceeds() throws Exception {
+        List<ClinicResponseDTO> clinics = clinicService.getAllClinics();
+
+        UUID id = clinics.get(0).id();
+
+        mockMvc.perform(delete("/clinics/delete/" + id)
+                        .header("Authorization", "Bearer " + adminToken))
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
+    void whenManagerDeleteClinics_thenForbidden() throws Exception {
+        List<ClinicResponseDTO> clinics = clinicService.getAllClinics();
+
+        UUID id = clinics.get(0).id();
+
+        mockMvc.perform(delete("/clinics/delete/" + id)
+                        .header("Authorization", "Bearer " + managerToken))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void whenAnonymousActivateClinics_thenUnauthorized() throws Exception {
+        List<ClinicResponseDTO> clinics = clinicService.getAllClinics();
+
+        UUID id = clinics.get(0).id();
+
+        mockMvc.perform(put("/clinics/activate/" + id)).andExpect(status().isForbidden());
+    }
+
+    @Test
+    void whenAdminActivateClinics_thenSucceeds() throws Exception {
+        List<ClinicResponseDTO> clinics = clinicService.getAllClinics();
+
+        UUID id = clinics.get(0).id();
+
+        mockMvc.perform(put("/clinics/activate/" + id)
+                        .header("Authorization", "Bearer " + adminToken))
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
+    void whenManagerActivateClinics_thenForbidden() throws Exception {
+        List<ClinicResponseDTO> clinics = clinicService.getAllClinics();
+
+        UUID id = clinics.get(0).id();
+
+        mockMvc.perform(put("/clinics/activate/" + id)
                         .header("Authorization", "Bearer " + managerToken))
                 .andExpect(status().isForbidden());
     }
