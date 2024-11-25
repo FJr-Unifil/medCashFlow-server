@@ -25,6 +25,7 @@ public class ClinicService {
     public List<ClinicResponseDTO> getAllClinics() {
         return repository.findAll().stream()
                 .map(clinic -> new ClinicResponseDTO(
+                        clinic.getId(),
                         clinic.getName(),
                         clinic.getCnpj(),
                         clinic.getPhone(),
