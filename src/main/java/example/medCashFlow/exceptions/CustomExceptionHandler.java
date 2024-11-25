@@ -62,4 +62,14 @@ public class CustomExceptionHandler {
                 LocalDateTime.now()
         ));
     }
+
+    @ExceptionHandler(ClinicNotFoundException.class)
+    private ResponseEntity<ExceptionDTO> handleClinicNotFoundException(ClinicNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ExceptionDTO(
+                404,
+                "Clínica Não Encontrada",
+                ex.getMessage(),
+                LocalDateTime.now()
+        ));
+    }
 }

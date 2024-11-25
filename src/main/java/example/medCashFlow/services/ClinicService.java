@@ -34,7 +34,11 @@ public class ClinicService {
     }
 
     public Clinic saveClinic(ClinicRegisterDTO data) {
-            return repository.save(new Clinic(data));
+        return repository.save(new Clinic(data));
+    }
+
+    public void saveClinic(Clinic data) {
+        repository.save(data);
     }
 
     public boolean isClinicValid(ClinicRegisterDTO clinicData) {
