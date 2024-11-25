@@ -23,7 +23,7 @@ public class ClinicService {
     }
 
     public List<ClinicResponseDTO> getAllClinics() {
-        return repository.findAll().stream()
+        return repository.findAllByOrderByCreatedAtAsc().stream()
                 .map(clinic -> new ClinicResponseDTO(
                         clinic.getId(),
                         clinic.getName(),
