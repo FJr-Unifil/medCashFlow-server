@@ -1,5 +1,6 @@
 package example.medCashFlow.services;
 
+import example.medCashFlow.exceptions.RoleNotFoundException;
 import example.medCashFlow.model.Role;
 import example.medCashFlow.repository.RoleRepository;
 import lombok.RequiredArgsConstructor;
@@ -12,10 +13,7 @@ public class RoleService {
     private final RoleRepository repository;
 
     public Role getRoleById(Long id) {
-        return repository.findById(id).orElse(null);
+        return repository.findById(id).orElseThrow(RoleNotFoundException::new);
     }
 
-    public boolean isRoleValid(Long roleId) {
-        return repository.existsById(roleId);
-    }
 }

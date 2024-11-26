@@ -35,6 +35,10 @@ public class ClinicService {
     }
 
     public Clinic saveClinic(ClinicRegisterDTO data) {
+        if (!isClinicValid(data)) {
+            throw new InvalidClinicException();
+        }
+
         return repository.save(new Clinic(data));
     }
 

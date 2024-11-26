@@ -3,8 +3,8 @@ package example.medCashFlow.controller;
 import example.medCashFlow.dto.auth.AuthenticationDTO;
 import example.medCashFlow.dto.auth.LoginResponseDTO;
 import example.medCashFlow.dto.auth.RegisterDTO;
-import example.medCashFlow.dto.auth.RegisterResponseDTO;
 import example.medCashFlow.dto.clinic.ClinicRegisterDTO;
+import example.medCashFlow.dto.employee.EmployeeResponseDTO;
 import example.medCashFlow.dto.employee.ManagerRegisterDTO;
 import example.medCashFlow.model.Clinic;
 import example.medCashFlow.model.Employee;
@@ -58,25 +58,20 @@ public class AuthenticationController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<RegisterResponseDTO> register(@RequestBody RegisterDTO data) {
+    public ResponseEntity<EmployeeResponseDTO> register(@RequestBody RegisterDTO data) {
+
         ClinicRegisterDTO clinicData = data.clinic();
 
         ManagerRegisterDTO managerData = data.manager();
 
-        if (clinicService.isClinicValid(clinicData) && employeeService.isEmployeeValid(managerData.cpf(), managerData.email())) {
-            Clinic savedClinic = clinicService.saveClinic(clinicData);
+        Clinic savedClinic = clinicService.saveClinic(clinicData);
 
-            String encryptedPassword = new BCryptPasswordEncoder().encode(managerData.password());
+        String encryptedPassword = new BCryptPasswordEncoder().encode(managerData.password());
 
-            Role role = roleService.getRoleById(1L);
+        Role role = roleService.getRoleById(1L);
 
-            Employee manager = new Employee(managerData, encryptedPassword, role, savedClinic);
+        Employee manager = new Employee(managerData, encryptedPassword, role, savedClinic);
 
-            Long id = employeeService.saveEmployee(manager);
-
-            return ResponseEntity.ok(new RegisterResponseDTO(id, "Clínica cadastrada com sucesso"));
-        }
-
-        return null;
+        return ResponseEntity.ok(employeeService.saveEmployee(manager));
     }
 }

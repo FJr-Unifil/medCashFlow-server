@@ -14,6 +14,8 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import java.util.Optional;
+
 @Component
 @RequiredArgsConstructor
 public class DatabaseAuthenticationProvider implements AuthenticationProvider {
@@ -37,11 +39,13 @@ public class DatabaseAuthenticationProvider implements AuthenticationProvider {
             return null;
         }
 
-        Employee employee = employeeRepository.findByEmail(email);
+        Optional<Employee> optionalEmployee = employeeRepository.findByEmail(email);
 
-        if (employee == null) {
+        if (optionalEmployee.isEmpty()) {
             throw new BadCredentialsException("Invalid credentials");
         }
+
+        Employee employee = optionalEmployee.get();
 
         if (!employee.getClinic().getIsActive()) {
             throw new DisabledException("Clinic is not active");

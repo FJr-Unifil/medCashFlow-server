@@ -16,10 +16,10 @@ import java.time.LocalDateTime;
 public class CustomExceptionHandler {
 
     @ExceptionHandler(Exception.class)
-    private ResponseEntity<ExceptionDTO> handleSecurityException() {
+    private ResponseEntity<ExceptionDTO> handleSecurityException(Exception ex) {
         return ResponseEntity.status(500).body(new ExceptionDTO(500,
                 "Erro interno do servidor",
-                "Ocorreu um erro inesperado",
+                ex.getClass().getName(),
                 LocalDateTime.now()
         ));
     }
@@ -74,11 +74,31 @@ public class CustomExceptionHandler {
         ));
     }
 
+    @ExceptionHandler(EmployeeNotFoundException.class)
+    private ResponseEntity<ExceptionDTO> handleEmployeeNotFoundException(EmployeeNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ExceptionDTO(
+                404,
+                "Funcionário Não Encontrado",
+                ex.getMessage(),
+                LocalDateTime.now()
+        ));
+    }
+
     @ExceptionHandler(DisabledException.class)
     private ResponseEntity<ExceptionDTO> handleDisabledException(DisabledException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ExceptionDTO(
                 404,
                 "Não Encontrado",
+                ex.getMessage(),
+                LocalDateTime.now()
+        ));
+    }
+
+    @ExceptionHandler(ForbiddenException.class)
+    private ResponseEntity<ExceptionDTO> handleForbiddenException(ForbiddenException ex) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ExceptionDTO(
+                403,
+                "Acesso Negado",
                 ex.getMessage(),
                 LocalDateTime.now()
         ));

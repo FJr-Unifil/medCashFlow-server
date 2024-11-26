@@ -1,5 +1,6 @@
 package example.medCashFlow.model;
 
+import example.medCashFlow.dto.employee.EmployeeRegisterDTO;
 import example.medCashFlow.dto.employee.ManagerRegisterDTO;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -58,6 +59,13 @@ public class Employee implements UserDetails {
         this.password = encryptedPassword;
         this.role = role;
         this.clinic = clinic;
+    }
+
+    public Employee(EmployeeRegisterDTO data) {
+        this.first_name = data.firstName();
+        this.last_name = data.lastName();
+        this.cpf = data.cpf();
+        this.email = data.email();
     }
 
     @Override
