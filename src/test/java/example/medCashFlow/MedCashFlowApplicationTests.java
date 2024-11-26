@@ -6,6 +6,7 @@ import example.medCashFlow.dto.auth.RegisterDTO;
 import example.medCashFlow.dto.clinic.ClinicRegisterDTO;
 import example.medCashFlow.dto.clinic.ClinicResponseDTO;
 import example.medCashFlow.dto.employee.ManagerRegisterDTO;
+import example.medCashFlow.model.Clinic;
 import example.medCashFlow.model.Employee;
 import example.medCashFlow.services.ClinicService;
 import example.medCashFlow.services.EmployeeService;
@@ -298,6 +299,28 @@ class MedCashFlowApplicationTests {
         mockMvc.perform(put("/clinics/activate/" + id)
                         .header("Authorization", "Bearer " + managerToken))
                 .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void whenLoginoInactiveClinic_thenNotFound() throws Exception {
+        Employee employee = employeeService.getEmployeeByEmail("manager@manager.com");
+
+        Clinic clinic = employee.getClinic();
+
+        clinic.setIsActive(false);
+
+        clinicService.saveClinic(clinic);
+
+        AuthenticationDTO data = new AuthenticationDTO(
+                employee.getEmail(),
+                "manager"
+        );
+
+        mockMvc.perform(post("/auth/login")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(data)))
+                .andExpect(status().isNotFound());
+
     }
 
 }
