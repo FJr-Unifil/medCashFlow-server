@@ -6,6 +6,7 @@ import com.auth0.jwt.exceptions.JWTCreationException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import example.medCashFlow.model.Employee;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
@@ -26,6 +27,9 @@ public class TokenService {
             return JWT.create()
                     .withIssuer("auth-medCashFlow")
                     .withSubject(employee.getEmail())
+                    .withClaim("roles", employee.getAuthorities().stream()
+                            .map(GrantedAuthority::getAuthority)
+                            .toList())
                     .withExpiresAt(generateExpirationDate())
                     .sign(algorithm);
         } catch (JWTCreationException exception) {
@@ -40,8 +44,11 @@ public class TokenService {
             return JWT.create()
                     .withIssuer("auth-medCashFlow")
                     .withSubject(admin.getUsername())
+                    .withClaim("roles", admin.getAuthorities().stream()
+                            .map(GrantedAuthority::getAuthority)
+                            .toList())
                     .withExpiresAt(generateExpirationDate())
-                    .sign(Algorithm.HMAC256(secret));
+                    .sign(algorithm);
         } catch (JWTCreationException exception) {
             throw new RuntimeException("Error while generation token", exception);
         }
