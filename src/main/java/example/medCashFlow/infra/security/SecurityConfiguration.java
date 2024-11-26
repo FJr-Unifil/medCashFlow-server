@@ -64,6 +64,7 @@ public class SecurityConfiguration {
                         .requestMatchers(HttpMethod.POST, "/employees/create").hasAuthority("ROLE_MANAGER")
                         .requestMatchers(HttpMethod.PUT, "/employees/update/{id}").hasAuthority("ROLE_MANAGER")
                         .requestMatchers(HttpMethod.DELETE, "/employees/delete/{id}").hasAuthority("ROLE_MANAGER")
+                        .requestMatchers(HttpMethod.PUT, "/employees/activate/{id}").hasAuthority("ROLE_MANAGER")
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(securityFilter, UsernamePasswordAuthenticationFilter.class)

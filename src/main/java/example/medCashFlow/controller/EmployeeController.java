@@ -75,6 +75,20 @@ public class EmployeeController {
         return ResponseEntity.ok(employeeService.updateEmployee(employeeToUpdate, id));
     }
 
+    @PutMapping("/activate/{id}")
+    public ResponseEntity<Void> activateEmployee(
+            @AuthenticationPrincipal UserDetails loggedManager,
+            @PathVariable Long id) {
+
+        if (!(loggedManager instanceof Employee)) {
+            throw new ForbiddenException();
+        }
+
+        employeeService.activateEmployee(id);
+        return ResponseEntity.noContent().build();
+    }
+
+
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<Void> deleteEmployee(
             @AuthenticationPrincipal UserDetails loggedManager,

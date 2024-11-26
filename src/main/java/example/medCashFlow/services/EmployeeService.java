@@ -113,4 +113,11 @@ public class EmployeeService {
         employee.setActive(false);
         repository.save(employee);
     }
+
+    public void activateEmployee(Long id) {
+        Employee employee = getEmployeeById(id);
+
+        employee.setActive(true);
+        repository.save(employee);
+    }
 }

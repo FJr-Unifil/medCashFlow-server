@@ -35,6 +35,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -559,5 +560,82 @@ class MedCashFlowApplicationTests {
                 .andExpect(status().isNotFound());
     }
 
+    @Test
+    void whenAnonymousActivateEmployee_thenForbidden() throws Exception {
+        mockMvc.perform(put("/employees/activate/1"))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void whenManagerActivateEmployee_thenSucceeds() throws Exception {
+        EmployeeRegisterDTO newEmployeeDTO = new EmployeeRegisterDTO(
+                "To",
+                "Activate",
+                "12345678908",
+                "toactivate@example.com",
+                "password123",
+                2L
+        );
+
+        mockMvc.perform(post("/employees/create")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(newEmployeeDTO))
+                        .header("Authorization", "Bearer " + managerToken))
+                .andExpect(status().isOk());
+
+        Employee createdEmployee = employeeService.getEmployeeByEmail("toactivate@example.com");
+
+        mockMvc.perform(delete("/employees/delete/" + createdEmployee.getId())
+                        .header("Authorization", "Bearer " + managerToken))
+                .andExpect(status().isNoContent());
+
+        mockMvc.perform(put("/employees/activate/" + createdEmployee.getId())
+                        .header("Authorization", "Bearer " + managerToken))
+                .andExpect(status().isNoContent());
+
+        Employee activatedEmployee = employeeService.getEmployeeByEmail("toactivate@example.com");
+        assertTrue(activatedEmployee.isActive());
+    }
+
+    @Test
+    void whenAdminActivateEmployee_thenForbidden() throws Exception {
+        mockMvc.perform(put("/employees/activate/1")
+                        .header("Authorization", "Bearer " + adminToken))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void whenManagerActivateNonExistentEmployee_thenNotFound() throws Exception {
+        mockMvc.perform(put("/employees/activate/999999") // non-existent ID
+                        .header("Authorization", "Bearer " + managerToken))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void whenManagerActivateAlreadyActiveEmployee_thenSucceeds() throws Exception {
+        EmployeeRegisterDTO newEmployeeDTO = new EmployeeRegisterDTO(
+                "Already",
+                "Active",
+                "12345678909",
+                "alreadyactive@example.com",
+                "password123",
+                2L
+        );
+
+        mockMvc.perform(post("/employees/create")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(newEmployeeDTO))
+                        .header("Authorization", "Bearer " + managerToken))
+                .andExpect(status().isOk());
+
+        Employee createdEmployee = employeeService.getEmployeeByEmail("alreadyactive@example.com");
+
+        mockMvc.perform(put("/employees/activate/" + createdEmployee.getId())
+                        .header("Authorization", "Bearer " + managerToken))
+                .andExpect(status().isNoContent());
+
+        Employee stillActiveEmployee = employeeService.getEmployeeByEmail("alreadyactive@example.com");
+        assertTrue(stillActiveEmployee.isActive());
+    }
 
 }
