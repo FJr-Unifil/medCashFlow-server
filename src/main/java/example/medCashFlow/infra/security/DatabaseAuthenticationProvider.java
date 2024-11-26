@@ -43,6 +43,10 @@ public class DatabaseAuthenticationProvider implements AuthenticationProvider {
             throw new BadCredentialsException("Invalid credentials");
         }
 
+        if (!employee.getClinic().getIsActive()) {
+            throw new DisabledException("Clinic is not active");
+        }
+
         if (!employee.isActive()) {
             throw new DisabledException("User is not active");
         }

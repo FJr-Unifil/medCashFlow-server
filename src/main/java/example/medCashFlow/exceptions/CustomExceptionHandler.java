@@ -4,6 +4,7 @@ import example.medCashFlow.dto.ExceptionDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -68,6 +69,16 @@ public class CustomExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ExceptionDTO(
                 404,
                 "Clínica Não Encontrada",
+                ex.getMessage(),
+                LocalDateTime.now()
+        ));
+    }
+
+    @ExceptionHandler(DisabledException.class)
+    private ResponseEntity<ExceptionDTO> handleDisabledException(DisabledException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ExceptionDTO(
+                404,
+                "Não Encontrado",
                 ex.getMessage(),
                 LocalDateTime.now()
         ));

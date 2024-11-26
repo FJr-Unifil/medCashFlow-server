@@ -4,7 +4,6 @@ import example.medCashFlow.exceptions.InvalidEmployeeException;
 import example.medCashFlow.model.Employee;
 import example.medCashFlow.repository.EmployeeRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -14,7 +13,7 @@ public class EmployeeService {
 
     private final EmployeeRepository repository;
 
-    public UserDetails getEmployeeByEmail(String email) {
+    public Employee getEmployeeByEmail(String email) {
         return repository.findByEmail(email);
     }
 
@@ -32,14 +31,14 @@ public class EmployeeService {
 
     public boolean isEmployeeValidByEmail(String email) {
         if (repository.existsByEmail(email)) {
-            throw new InvalidEmployeeException("manager.email");
+            throw new InvalidEmployeeException("managero.email");
         }
 
         return true;
     }
 
     public Long saveEmployee(Employee employee) {
-            Employee savedEmployee = repository.save(employee);
-            return savedEmployee.getId();
+        Employee savedEmployee = repository.save(employee);
+        return savedEmployee.getId();
     }
 }
