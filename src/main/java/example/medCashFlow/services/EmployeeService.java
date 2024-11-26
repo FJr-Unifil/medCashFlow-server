@@ -29,6 +29,7 @@ public class EmployeeService {
     public List<EmployeeResponseDTO> getAllEmployeesByClinicId(UUID clinicId) {
         return repository.findAllByClinicId(clinicId).stream()
                 .map(employee -> new EmployeeResponseDTO(
+                        employee.getId(),
                         employee.getFirst_name(),
                         employee.getLast_name(),
                         employee.getCpf(),
@@ -66,6 +67,7 @@ public class EmployeeService {
         repository.save(employee);
 
         return new EmployeeResponseDTO(
+                employee.getId(),
                 employee.getFirst_name(),
                 employee.getLast_name(),
                 employee.getCpf(),
@@ -98,6 +100,7 @@ public class EmployeeService {
         repository.save(existingEmployee);
 
         return new EmployeeResponseDTO(
+                existingEmployee.getId(),
                 existingEmployee.getFirst_name(),
                 existingEmployee.getLast_name(),
                 existingEmployee.getCpf(),

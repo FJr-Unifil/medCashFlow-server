@@ -64,6 +64,16 @@ public class CustomExceptionHandler {
         ));
     }
 
+    @ExceptionHandler(InvalidInvolvedException.class)
+    private ResponseEntity<ExceptionDTO> handleInvalidInvolvedException(InvalidInvolvedException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(new ExceptionDTO(
+                409,
+                "Conflito de Dados",
+                ex.getMessage(),
+                LocalDateTime.now()
+        ));
+    }
+
     @ExceptionHandler(ClinicNotFoundException.class)
     private ResponseEntity<ExceptionDTO> handleClinicNotFoundException(ClinicNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ExceptionDTO(
