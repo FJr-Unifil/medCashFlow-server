@@ -18,7 +18,7 @@ public class ClinicController {
 
     private final ClinicService service;
 
-    @GetMapping
+    @GetMapping("/list")
     public ResponseEntity<List<ClinicResponseDTO>> getAllClinics() {
         return ResponseEntity.ok(service.getAllClinics());
     }

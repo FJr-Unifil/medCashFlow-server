@@ -229,14 +229,14 @@ class MedCashFlowApplicationTests {
 
     @Test
     void whenAdminAccessClinics_thenSucceeds() throws Exception {
-        mockMvc.perform(get("/clinics")
+        mockMvc.perform(get("/clinics/list")
                         .header("Authorization", "Bearer " + adminToken))
                 .andExpect(status().isOk());
     }
 
     @Test
     void whenManagerAccessClinics_thenForbidden() throws Exception {
-        mockMvc.perform(get("/clinics")
+        mockMvc.perform(get("/clinics/list")
                         .header("Authorization", "Bearer " + managerToken))
                 .andExpect(status().isForbidden());
     }
@@ -373,13 +373,13 @@ class MedCashFlowApplicationTests {
                 2L
         );
 
-        mockMvc.perform(post("/employees")
+        mockMvc.perform(post("/employees/create")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(employeeDTO))
                         .header("Authorization", "Bearer " + managerToken))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.first_name").value("John"))
-                .andExpect(jsonPath("$.last_name").value("Doe"))
+                .andExpect(jsonPath("$.firstName").value("John"))
+                .andExpect(jsonPath("$.lastName").value("Doe"))
                 .andExpect(jsonPath("$.email").value("john@example.com"));
     }
 
@@ -394,7 +394,7 @@ class MedCashFlowApplicationTests {
                 2L
         );
 
-        mockMvc.perform(post("/employees")
+        mockMvc.perform(post("/employees/create")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(employeeDTO))
                         .header("Authorization", "Bearer " + adminToken))
@@ -431,13 +431,13 @@ class MedCashFlowApplicationTests {
                 2L
         );
 
-        mockMvc.perform(put("/employees/" + existingEmployee.getId())
+        mockMvc.perform(put("/employees/update/" + existingEmployee.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(employeeDTO))
                         .header("Authorization", "Bearer " + managerToken))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.first_name").value("Updated"))
-                .andExpect(jsonPath("$.last_name").value("Name"));
+                .andExpect(jsonPath("$.firstName").value("Updated"))
+                .andExpect(jsonPath("$.lastName").value("Name"));
     }
 
     @Test
@@ -451,7 +451,7 @@ class MedCashFlowApplicationTests {
                 2L
         );
 
-        mockMvc.perform(post("/employees")
+        mockMvc.perform(post("/employees/create")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(newEmployeeDTO))
                         .header("Authorization", "Bearer " + managerToken))
@@ -468,7 +468,7 @@ class MedCashFlowApplicationTests {
                 2L
         );
 
-        mockMvc.perform(put("/employees/" + existingEmployee.getId())
+        mockMvc.perform(put("/employees/update/" + existingEmployee.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(updateDTO))
                         .header("Authorization", "Bearer " + managerToken))
@@ -486,7 +486,7 @@ class MedCashFlowApplicationTests {
                 2L
         );
 
-        mockMvc.perform(put("/employees/1")
+        mockMvc.perform(put("/employees/update/1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(employeeDTO))
                         .header("Authorization", "Bearer " + adminToken))
@@ -510,7 +510,7 @@ class MedCashFlowApplicationTests {
                 2L
         );
 
-        MvcResult result = mockMvc.perform(post("/employees")
+        MvcResult result = mockMvc.perform(post("/employees/create")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(newEmployeeDTO))
                         .header("Authorization", "Bearer " + managerToken))
@@ -519,7 +519,7 @@ class MedCashFlowApplicationTests {
 
         Employee createdEmployee = employeeService.getEmployeeByEmail("todelete@example.com");
 
-        mockMvc.perform(delete("/employees/" + createdEmployee.getId())
+        mockMvc.perform(delete("/employees/delete/" + createdEmployee.getId())
                         .header("Authorization", "Bearer " + managerToken))
                 .andExpect(status().isNoContent());
 
@@ -529,7 +529,7 @@ class MedCashFlowApplicationTests {
 
     @Test
     void whenAdminDeleteEmployee_thenForbidden() throws Exception {
-        mockMvc.perform(delete("/employees/1")
+        mockMvc.perform(delete("/employees/delete/1")
                         .header("Authorization", "Bearer " + adminToken))
                 .andExpect(status().isForbidden());
     }
@@ -545,7 +545,7 @@ class MedCashFlowApplicationTests {
                 2L
         );
 
-        mockMvc.perform(put("/employees/999999")
+        mockMvc.perform(put("/employees/update/999999")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(employeeDTO))
                         .header("Authorization", "Bearer " + managerToken))
@@ -554,7 +554,7 @@ class MedCashFlowApplicationTests {
 
     @Test
     void whenManagerDeleteNonExistentEmployee_thenNotFound() throws Exception {
-        mockMvc.perform(delete("/employees/999999")
+        mockMvc.perform(delete("/employees/delete/999999")
                         .header("Authorization", "Bearer " + managerToken))
                 .andExpect(status().isNotFound());
     }

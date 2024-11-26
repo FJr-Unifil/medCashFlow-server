@@ -35,7 +35,7 @@ public class EmployeeController {
         return ResponseEntity.ok(employees);
     }
 
-    @PostMapping
+    @PostMapping("/create")
     public ResponseEntity<EmployeeResponseDTO> createEmployee(@AuthenticationPrincipal UserDetails loggedManager, @RequestBody EmployeeRegisterDTO data) {
         if (!(loggedManager instanceof Employee manager)) {
             throw new ForbiddenException();
@@ -56,7 +56,7 @@ public class EmployeeController {
         return ResponseEntity.ok(employeeService.saveEmployee(newEmployee));
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/update/{id}")
     public ResponseEntity<EmployeeResponseDTO> updateEmployee(
             @AuthenticationPrincipal UserDetails loggedManager,
             @PathVariable Long id,
@@ -75,7 +75,7 @@ public class EmployeeController {
         return ResponseEntity.ok(employeeService.updateEmployee(employeeToUpdate, id));
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/delete/{id}")
     public ResponseEntity<Void> deleteEmployee(
             @AuthenticationPrincipal UserDetails loggedManager,
             @PathVariable Long id) {
