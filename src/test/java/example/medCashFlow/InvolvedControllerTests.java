@@ -2,32 +2,13 @@ package example.medCashFlow;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
-import example.medCashFlow.dto.auth.RegisterDTO;
-import example.medCashFlow.dto.clinic.ClinicRegisterDTO;
-import example.medCashFlow.dto.employee.EmployeeRegisterDTO;
-import example.medCashFlow.dto.employee.ManagerRegisterDTO;
 import example.medCashFlow.dto.involved.InvolvedRegisterDTO;
-import example.medCashFlow.model.Employee;
-import example.medCashFlow.services.EmployeeService;
-import example.medCashFlow.services.TokenService;
-import org.flywaydb.core.Flyway;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
-
-import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.Statement;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -37,89 +18,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
-class InvolvedControllerTest {
-
-    @Autowired
-    private MockMvc mockMvc;
-
-    @Autowired
-    private EmployeeService employeeService;
-
-    @Autowired
-    private TokenService tokenService;
-
-    @Autowired
-    private DataSource dataSource;
-
-    @Autowired
-    private Flyway flyway;
-
-    private String managerToken;
-    private String financialAnalystToken;
-    private String adminToken;
-
-    private static final String adminUsername = "admin@admin.com";
-    private static final String adminPassword = "admin";
-
-    private void createInitialData() {
-        RegisterDTO initialRegisterDto = new RegisterDTO(
-                new ClinicRegisterDTO("Clinic1", "12345678901234", "1234567890"),
-                new ManagerRegisterDTO("Fernando", "Junior", "12345678901", "manager@manager.com", "manager")
-        );
-
-        EmployeeRegisterDTO financialAnalystDto = new EmployeeRegisterDTO(
-                "Financial",
-                "Analyst",
-                "12345678902",
-                "financial@financial.com",
-                "financial",
-                2L
-        );
-
-        try {
-            mockMvc.perform(post("/auth/register")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(new ObjectMapper().writeValueAsString(initialRegisterDto)))
-                    .andExpect(status().isOk());
-
-            Employee manager = employeeService.getEmployeeByEmail("manager@manager.com");
-            String tempManagerToken = tokenService.generateToken(manager);
-
-            mockMvc.perform(post("/employees/create")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(new ObjectMapper().writeValueAsString(financialAnalystDto))
-                            .header("Authorization", "Bearer " + tempManagerToken))
-                    .andExpect(status().isOk());
-
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to create initial test data", e);
-        }
-    }
-
-    @BeforeEach
-    void setUp() throws SQLException {
-        try (Connection connection = dataSource.getConnection();
-             Statement statement = connection.createStatement()) {
-            statement.execute("DROP SCHEMA public CASCADE; CREATE SCHEMA public;");
-        }
-
-        flyway.migrate();
-
-        createInitialData();
-
-        UserDetails admin = User.builder()
-                .username(adminUsername)
-                .password(new BCryptPasswordEncoder().encode(adminPassword))
-                .roles("ADMIN")
-                .build();
-        adminToken = tokenService.generateTokenForAdmin(admin);
-
-        Employee manager = employeeService.getEmployeeByEmail("manager@manager.com");
-        managerToken = tokenService.generateToken(manager);
-
-        Employee financialAnalyst = employeeService.getEmployeeByEmail("financial@financial.com");
-        financialAnalystToken = tokenService.generateToken(financialAnalyst);
-    }
+class InvolvedControllerTests extends MedCashFlowApplicationTests {
 
     @Test
     void whenAnonymousListInvolveds_thenForbidden() throws Exception {

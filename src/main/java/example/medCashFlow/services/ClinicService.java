@@ -50,14 +50,6 @@ public class ClinicService {
         return isClinicValidByName(clinicData.name()) && isClinicValidByCnpj(clinicData.cnpj()) && isClinicValidByPhone(clinicData.phone());
     }
 
-    public boolean isClinicValidById(UUID id) {
-        if (repository.existsById(id)) {
-            throw new ClinicNotFoundException();
-        }
-
-        return true;
-    }
-
     public boolean isClinicValidByName(String name) {
         if (repository.existsByName(name)) {
             throw new InvalidClinicException("clinic.name");
