@@ -1,0 +1,5 @@
+CREATE TABLE payment_methods
+(
+    id   BIGSERIAL PRIMARY KEY,
+    name VARCHAR(20) NOT NULL UNIQUE
+);
