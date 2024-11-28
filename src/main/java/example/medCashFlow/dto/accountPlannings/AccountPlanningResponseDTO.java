@@ -7,6 +7,7 @@ public record AccountPlanningResponseDTO(
         String name,
         String description,
         String emoji,
+        String color,
         UUID clinicId
 ) {
 }

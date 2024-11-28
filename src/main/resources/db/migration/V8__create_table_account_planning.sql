@@ -4,6 +4,7 @@ CREATE TABLE account_planning
     name        VARCHAR(50) NOT NULL,
     description VARCHAR(255),
     emoji       VARCHAR(4),
+    color       varchar(7)  NOT NULL,
     clinic_id   UUID        NOT NULL REFERENCES clinics (id),
     UNIQUE (name, clinic_id)
 );

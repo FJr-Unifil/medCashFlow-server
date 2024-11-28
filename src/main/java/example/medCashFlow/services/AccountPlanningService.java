@@ -31,6 +31,7 @@ public class AccountPlanningService {
         accountPlanning.setName(newData.getName());
         accountPlanning.setDescription(newData.getDescription());
         accountPlanning.setEmoji(newData.getEmoji());
+        accountPlanning.setColor(newData.getColor());
 
         repository.save(accountPlanning);
         return toDTO(accountPlanning);
@@ -54,6 +55,7 @@ public class AccountPlanningService {
                 accountPlanning.getName(),
                 accountPlanning.getDescription(),
                 accountPlanning.getEmoji(),
+                accountPlanning.getColor(),
                 accountPlanning.getClinic().getId()
         );
     }

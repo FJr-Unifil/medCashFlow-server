@@ -46,6 +46,7 @@ public class AccountPlanningController {
         newAccountPlanning.setName(data.name());
         newAccountPlanning.setDescription(data.description());
         newAccountPlanning.setEmoji(data.emoji());
+        newAccountPlanning.setColor(data.color());
         newAccountPlanning.setClinic(manager.getClinic());
 
         return ResponseEntity.ok(accountPlanningService.saveAccountPlanning(newAccountPlanning));
@@ -64,6 +65,7 @@ public class AccountPlanningController {
         accountPlanningToUpdate.setName(data.name());
         accountPlanningToUpdate.setDescription(data.description());
         accountPlanningToUpdate.setEmoji(data.emoji());
+        accountPlanningToUpdate.setColor(data.color());
         accountPlanningToUpdate.setClinic(manager.getClinic());
 
         return ResponseEntity.ok(accountPlanningService.updateAccountPlanning(accountPlanningToUpdate, id));

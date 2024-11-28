@@ -28,6 +28,9 @@ public class AccountPlanning {
     @Column(length = 4)
     private String emoji;
 
+    @Column(nullable = false)
+    private String color;
+
     @ManyToOne
     @JoinColumn(name = "clinic_id", nullable = false)
     private Clinic clinic;
