@@ -2,7 +2,7 @@ package example.medCashFlow;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
-import example.medCashFlow.dto.accountPlannings.AccountPlanningRegisterDTO;
+import example.medCashFlow.dto.accountPlanning.AccountPlanningRegisterDTO;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -44,7 +44,8 @@ public class AccountPlanningControllerTests extends MedCashFlowApplicationTests 
         AccountPlanningRegisterDTO planningDTO = new AccountPlanningRegisterDTO(
                 "Test Planning",
                 "Test Description",
-                "💰"
+                "💰",
+                "green"
         );
 
         mockMvc.perform(post("/account-plannings/create")
@@ -58,7 +59,8 @@ public class AccountPlanningControllerTests extends MedCashFlowApplicationTests 
         AccountPlanningRegisterDTO planningDTO = new AccountPlanningRegisterDTO(
                 "Test Planning",
                 "Test Description",
-                "💰"
+                "💰",
+                "green"
         );
 
         mockMvc.perform(post("/account-plannings/create")
@@ -76,7 +78,8 @@ public class AccountPlanningControllerTests extends MedCashFlowApplicationTests 
         AccountPlanningRegisterDTO planningDTO = new AccountPlanningRegisterDTO(
                 "Test Planning",
                 "Test Description",
-                "💰"
+                "💰",
+                "green"
         );
 
         mockMvc.perform(post("/account-plannings/create")
@@ -91,7 +94,8 @@ public class AccountPlanningControllerTests extends MedCashFlowApplicationTests 
         AccountPlanningRegisterDTO planningDTO = new AccountPlanningRegisterDTO(
                 "Updated Planning",
                 "Updated Description",
-                "🏦"
+                "🏦",
+                "green"
         );
 
         mockMvc.perform(put("/account-plannings/update/1")
@@ -105,7 +109,8 @@ public class AccountPlanningControllerTests extends MedCashFlowApplicationTests 
         AccountPlanningRegisterDTO createDTO = new AccountPlanningRegisterDTO(
                 "Original Planning",
                 "Original Description",
-                "💰"
+                "💰",
+                "green"
         );
 
         MvcResult createResult = mockMvc.perform(post("/account-plannings/create")
@@ -121,7 +126,8 @@ public class AccountPlanningControllerTests extends MedCashFlowApplicationTests 
         AccountPlanningRegisterDTO updateDTO = new AccountPlanningRegisterDTO(
                 "Updated Planning",
                 "Updated Description",
-                "🏦"
+                "🏦",
+                "green"
         );
 
         mockMvc.perform(put("/account-plannings/update/" + planningId)
@@ -139,7 +145,8 @@ public class AccountPlanningControllerTests extends MedCashFlowApplicationTests 
         AccountPlanningRegisterDTO planningDTO = new AccountPlanningRegisterDTO(
                 "Updated Planning",
                 "Updated Description",
-                "🏦"
+                "🏦",
+                "green"
         );
 
         mockMvc.perform(put("/account-plannings/update/1")
@@ -160,7 +167,8 @@ public class AccountPlanningControllerTests extends MedCashFlowApplicationTests 
         AccountPlanningRegisterDTO createDTO = new AccountPlanningRegisterDTO(
                 "To Delete",
                 "Will be deleted",
-                "❌"
+                "❌",
+                "green"
         );
 
         MvcResult createResult = mockMvc.perform(post("/account-plannings/create")
@@ -190,7 +198,8 @@ public class AccountPlanningControllerTests extends MedCashFlowApplicationTests 
         AccountPlanningRegisterDTO planningDTO = new AccountPlanningRegisterDTO(
                 "Updated Planning",
                 "Updated Description",
-                "🏦"
+                "🏦",
+                "green"
         );
 
         mockMvc.perform(put("/account-plannings/update/999999")

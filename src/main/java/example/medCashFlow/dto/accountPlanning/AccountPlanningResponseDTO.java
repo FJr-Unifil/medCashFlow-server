@@ -1,4 +1,4 @@
-package example.medCashFlow.dto.accountPlannings;
+package example.medCashFlow.dto.accountPlanning;
 
 import java.util.UUID;
 

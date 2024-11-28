@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-// InvolvedController.java
+
 @RestController
 @RequestMapping("/involveds")
 @RequiredArgsConstructor
@@ -92,6 +92,6 @@ public class InvolvedController {
         involvedService.activateInvolved(id);
         return ResponseEntity.noContent().build();
     }
-    
+
 }
 

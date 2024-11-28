@@ -1,10 +1,14 @@
 package example.medCashFlow;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import example.medCashFlow.dto.accountPlanning.AccountPlanningRegisterDTO;
 import example.medCashFlow.dto.auth.RegisterDTO;
 import example.medCashFlow.dto.clinic.ClinicRegisterDTO;
 import example.medCashFlow.dto.employee.EmployeeRegisterDTO;
 import example.medCashFlow.dto.employee.ManagerRegisterDTO;
+import example.medCashFlow.dto.involved.InvolvedRegisterDTO;
 import example.medCashFlow.exceptions.ClinicNotFoundException;
 import example.medCashFlow.model.Clinic;
 import example.medCashFlow.model.Employee;
@@ -74,6 +78,10 @@ public abstract class MedCashFlowApplicationTests {
     @Autowired
     protected ClinicRepository clinicRepository;
 
+    protected final ObjectMapper objectMapper = new ObjectMapper()
+            .registerModule(new JavaTimeModule())
+            .configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+
     protected void createInitialData() {
         createActiveClinic();
         createInactiveClinic();
@@ -99,6 +107,8 @@ public abstract class MedCashFlowApplicationTests {
             createInactiveFinancialAnalyst();
             createActiveDoctor();
             createInactiveDoctor();
+            createActiveInvolved();
+            createAccountPlanning();
         } catch (Exception e) {
             throw new RuntimeException("Failed to create initial test data", e);
         }
@@ -196,6 +206,48 @@ public abstract class MedCashFlowApplicationTests {
             mockMvc.perform(delete("/employees/delete/" + id)
                             .header("Authorization", "Bearer " + managerToken))
                     .andExpect(status().isNoContent());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    protected void createActiveInvolved() {
+        InvolvedRegisterDTO involvedRegisterDTO = new InvolvedRegisterDTO(
+                "Saúde Equipamentos LTDA",
+                "99999999999999",
+                "9999999999",
+                "saudeequipamentos@gmail.com"
+        );
+
+        try {
+            mockMvc.perform(post("/involveds/create")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(new ObjectMapper().writeValueAsString(involvedRegisterDTO))
+                            .header("Authorization", "Bearer " + managerToken))
+                    .andExpect(status().isOk());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    protected void createAccountPlanning() {
+        AccountPlanningRegisterDTO planningDTO = new AccountPlanningRegisterDTO(
+                "Test Planning",
+                "Test Description",
+                "💰",
+                "green"
+        );
+
+        try {
+            try {
+                mockMvc.perform(post("/employees/create")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(new ObjectMapper().writeValueAsString(planningDTO))
+                                .header("Authorization", "Bearer " + managerToken))
+                        .andExpect(status().isOk());
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

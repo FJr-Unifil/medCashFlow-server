@@ -1,7 +1,7 @@
 package example.medCashFlow.controller;
 
-import example.medCashFlow.dto.accountPlannings.AccountPlanningRegisterDTO;
-import example.medCashFlow.dto.accountPlannings.AccountPlanningResponseDTO;
+import example.medCashFlow.dto.accountPlanning.AccountPlanningRegisterDTO;
+import example.medCashFlow.dto.accountPlanning.AccountPlanningResponseDTO;
 import example.medCashFlow.exceptions.ForbiddenException;
 import example.medCashFlow.model.AccountPlanning;
 import example.medCashFlow.model.Employee;

@@ -12,6 +12,5 @@ CREATE TABLE bills
     created_at        TIMESTAMP                                        NOT NULL DEFAULT CURRENT_TIMESTAMP,
     due_date          TIMESTAMP                                        NOT NULL,
     qntd_parcelas     INT                                              NOT NULL,
-    is_paid           BOOLEAN                                          NOT NULL DEFAULT FALSE,
-    UNIQUE (name, clinic_id)
+    is_paid           BOOLEAN                                          NOT NULL DEFAULT FALSE
 );

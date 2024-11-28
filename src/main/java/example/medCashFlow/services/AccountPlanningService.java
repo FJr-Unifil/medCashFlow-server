@@ -1,6 +1,6 @@
 package example.medCashFlow.services;
 
-import example.medCashFlow.dto.accountPlannings.AccountPlanningResponseDTO;
+import example.medCashFlow.dto.accountPlanning.AccountPlanningResponseDTO;
 import example.medCashFlow.exceptions.AccountPlanningNotFoundException;
 import example.medCashFlow.model.AccountPlanning;
 import example.medCashFlow.repository.AccountPlanningRepository;

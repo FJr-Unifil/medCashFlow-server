@@ -8,7 +8,6 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.UUID;
 
 @Entity(name = "clinics")
@@ -36,9 +35,6 @@ public class Clinic {
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
-
-    @OneToMany(mappedBy = "clinic")
-    private List<Employee> employeeList;
 
     public Clinic(ClinicRegisterDTO clinicData) {
         this.name = clinicData.name();

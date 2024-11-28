@@ -104,6 +104,17 @@ public class CustomExceptionHandler {
         ));
     }
 
+    @ExceptionHandler(BillNotFoundException.class)
+    public ResponseEntity<ExceptionDTO> handleBillNotFoundException(BillNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ExceptionDTO(
+                404,
+                "Conta Não Encontrada",
+                ex.getMessage(),
+                LocalDateTime.now()
+        ));
+    }
+
+
     @ExceptionHandler(DisabledException.class)
     private ResponseEntity<ExceptionDTO> handleDisabledException(DisabledException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ExceptionDTO(
