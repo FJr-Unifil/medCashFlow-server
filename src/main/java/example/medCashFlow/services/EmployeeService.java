@@ -29,7 +29,7 @@ public class EmployeeService {
     }
 
     public List<EmployeeResponseDTO> getAllEmployeesByClinicId(UUID clinicId) {
-        return repository.findAllByClinicId(clinicId).stream()
+        return repository.findAllByClinicIdOrderById(clinicId).stream()
                 .map(employee -> new EmployeeResponseDTO(
                         employee.getId(),
                         employee.getFirst_name(),

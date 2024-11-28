@@ -19,6 +19,6 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
 
     boolean existsByEmail(String email);
 
-    List<Employee> findAllByClinicId(UUID clinicId);
+    List<Employee> findAllByClinicIdOrderById(UUID clinicId);
 
 }

@@ -42,7 +42,7 @@ public class AccountPlanningService {
     }
 
     public List<AccountPlanningResponseDTO> getAllAccountPlanningsByClinicId(UUID clinicId) {
-        return repository.findByClinicId(clinicId)
+        return repository.findByClinicIdOrderById(clinicId)
                 .stream()
                 .map(this::toDTO)
                 .toList();

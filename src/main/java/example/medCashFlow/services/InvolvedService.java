@@ -20,7 +20,7 @@ public class InvolvedService {
     }
 
     public List<InvolvedResponseDTO> getAllInvolvedsByClinicId(UUID clinicId) {
-        return repository.findAllByClinicId(clinicId).stream()
+        return repository.findAllByClinicIdOrderById(clinicId).stream()
                 .map(involved -> new InvolvedResponseDTO(
                         involved.getId(),
                         involved.getName(),
@@ -106,6 +106,6 @@ public class InvolvedService {
         involved.setActive(true);
         repository.save(involved);
     }
-    
+
 }
 
