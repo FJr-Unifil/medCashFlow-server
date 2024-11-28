@@ -240,7 +240,7 @@ public abstract class MedCashFlowApplicationTests {
 
         try {
             try {
-                mockMvc.perform(post("/employees/create")
+                mockMvc.perform(post("/account-plannings/create")
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(new ObjectMapper().writeValueAsString(planningDTO))
                                 .header("Authorization", "Bearer " + managerToken))

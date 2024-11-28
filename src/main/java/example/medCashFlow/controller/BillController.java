@@ -6,7 +6,10 @@ import example.medCashFlow.exceptions.ForbiddenException;
 import example.medCashFlow.model.Bill;
 import example.medCashFlow.model.BillType;
 import example.medCashFlow.model.Employee;
-import example.medCashFlow.services.*;
+import example.medCashFlow.services.AccountPlanningService;
+import example.medCashFlow.services.BillService;
+import example.medCashFlow.services.InvolvedService;
+import example.medCashFlow.services.PaymentMethodService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -22,8 +25,6 @@ import java.util.List;
 public class BillController {
 
     private final BillService billService;
-
-    private final ClinicService clinicService;
 
     private final InvolvedService involvedService;
 

@@ -57,10 +57,10 @@ public class AccountPlanningControllerTests extends MedCashFlowApplicationTests 
     @Test
     void whenManagerCreateAccountPlanning_thenSucceeds() throws Exception {
         AccountPlanningRegisterDTO planningDTO = new AccountPlanningRegisterDTO(
-                "Test Planning",
-                "Test Description",
-                "💰",
-                "green"
+                "Test Planning 2",
+                "Test Description 2",
+                "\uD83D\uDC8A",
+                "yellow"
         );
 
         mockMvc.perform(post("/account-plannings/create")
@@ -68,9 +68,9 @@ public class AccountPlanningControllerTests extends MedCashFlowApplicationTests 
                         .content(new ObjectMapper().writeValueAsString(planningDTO))
                         .header("Authorization", "Bearer " + managerToken))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.name").value("Test Planning"))
-                .andExpect(jsonPath("$.description").value("Test Description"))
-                .andExpect(jsonPath("$.emoji").value("💰"));
+                .andExpect(jsonPath("$.name").value("Test Planning 2"))
+                .andExpect(jsonPath("$.description").value("Test Description 2"))
+                .andExpect(jsonPath("$.emoji").value("\uD83D\uDC8A"));
     }
 
     @Test

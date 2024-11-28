@@ -4,7 +4,6 @@ import example.medCashFlow.dto.bill.BillRegisterDTO;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -37,7 +36,7 @@ public class BillControllerTests extends MedCashFlowApplicationTests {
     void whenAnonymousCreateBill_thenForbidden() throws Exception {
         BillRegisterDTO billDTO = new BillRegisterDTO(
                 "Test Bill",
-                new BigDecimal("100.00"),
+                100.00,
                 "INCOME",
                 1L,
                 1L,
@@ -56,7 +55,7 @@ public class BillControllerTests extends MedCashFlowApplicationTests {
     void whenManagerCreateBill_thenSucceeds() throws Exception {
         BillRegisterDTO billDTO = new BillRegisterDTO(
                 "Test Bill",
-                new BigDecimal(100),
+                100.00,
                 "INCOME",
                 1L,
                 1L,
@@ -79,7 +78,7 @@ public class BillControllerTests extends MedCashFlowApplicationTests {
     void whenAdminCreateBill_thenForbidden() throws Exception {
         BillRegisterDTO billDTO = new BillRegisterDTO(
                 "Test Bill",
-                new BigDecimal("100.00"),
+                100.00,
                 "INCOME",
                 1L,
                 1L,
@@ -99,7 +98,7 @@ public class BillControllerTests extends MedCashFlowApplicationTests {
     void whenAnonymousUpdateBill_thenForbidden() throws Exception {
         BillRegisterDTO billDTO = new BillRegisterDTO(
                 "Updated Bill",
-                new BigDecimal("200.00"),
+                200.00,
                 "OUTCOME",
                 1L,
                 1L,
@@ -118,7 +117,7 @@ public class BillControllerTests extends MedCashFlowApplicationTests {
     void whenManagerUpdateBill_thenSucceeds() throws Exception {
         BillRegisterDTO createDTO = new BillRegisterDTO(
                 "Original Bill",
-                new BigDecimal("100.00"),
+                100.00,
                 "INCOME",
                 1L,
                 1L,
@@ -134,11 +133,11 @@ public class BillControllerTests extends MedCashFlowApplicationTests {
                 .andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString();
 
-        Long billId = objectMapper.readTree(createResponse).get("id").asLong();
+        long billId = objectMapper.readTree(createResponse).get("id").asLong();
 
         BillRegisterDTO updateDTO = new BillRegisterDTO(
                 "Updated Bill",
-                new BigDecimal("200.00"),
+                200.00,
                 "OUTCOME",
                 1L,
                 1L,
@@ -167,7 +166,7 @@ public class BillControllerTests extends MedCashFlowApplicationTests {
     void whenManagerDeleteBill_thenSucceeds() throws Exception {
         BillRegisterDTO createDTO = new BillRegisterDTO(
                 "Bill to Delete",
-                new BigDecimal("100.00"),
+                100.00,
                 "INCOME",
                 1L,
                 1L,
@@ -183,7 +182,7 @@ public class BillControllerTests extends MedCashFlowApplicationTests {
                 .andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString();
 
-        Long billId = objectMapper.readTree(createResponse).get("id").asLong();
+        long billId = objectMapper.readTree(createResponse).get("id").asLong();
 
         mockMvc.perform(delete("/bills/delete/" + billId)
                         .header("Authorization", "Bearer " + managerToken))
@@ -201,7 +200,7 @@ public class BillControllerTests extends MedCashFlowApplicationTests {
     void whenManagerMarkBillAsPaid_thenSucceeds() throws Exception {
         BillRegisterDTO createDTO = new BillRegisterDTO(
                 "Bill to Mark as Paid",
-                new BigDecimal("100.00"),
+                100.00,
                 "INCOME",
                 1L,
                 1L,
@@ -217,7 +216,7 @@ public class BillControllerTests extends MedCashFlowApplicationTests {
                 .andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString();
 
-        Long billId = objectMapper.readTree(createResponse).get("id").asLong();
+        long billId = objectMapper.readTree(createResponse).get("id").asLong();
 
         // Then mark as paid
         mockMvc.perform(put("/bills/mark-as-paid/" + billId)
@@ -230,7 +229,7 @@ public class BillControllerTests extends MedCashFlowApplicationTests {
         // First create a bill and mark it as paid
         BillRegisterDTO createDTO = new BillRegisterDTO(
                 "Bill to Mark as Unpaid",
-                new BigDecimal("100.00"),
+                100.00,
                 "INCOME",
                 1L,
                 1L,
@@ -246,7 +245,7 @@ public class BillControllerTests extends MedCashFlowApplicationTests {
                 .andExpect(status().isOk())
                 .andReturn().getResponse().getContentAsString();
 
-        Long billId = objectMapper.readTree(createResponse).get("id").asLong();
+        long billId = objectMapper.readTree(createResponse).get("id").asLong();
 
         mockMvc.perform(put("/bills/mark-as-paid/" + billId)
                         .header("Authorization", "Bearer " + managerToken))
@@ -262,7 +261,7 @@ public class BillControllerTests extends MedCashFlowApplicationTests {
     void whenManagerUpdateNonExistentBill_thenNotFound() throws Exception {
         BillRegisterDTO billDTO = new BillRegisterDTO(
                 "Non-existent Bill",
-                new BigDecimal("100.00"),
+                100.00,
                 "INCOME",
                 1L,
                 1L,
