@@ -4,7 +4,6 @@ import example.medCashFlow.dto.employee.EmployeeRegisterDTO;
 import example.medCashFlow.dto.employee.EmployeeResponseDTO;
 import example.medCashFlow.exceptions.ForbiddenException;
 import example.medCashFlow.model.Employee;
-import example.medCashFlow.model.Role;
 import example.medCashFlow.services.EmployeeService;
 import example.medCashFlow.services.RoleService;
 import lombok.RequiredArgsConstructor;
@@ -36,21 +35,15 @@ public class EmployeeController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<EmployeeResponseDTO> createEmployee(@AuthenticationPrincipal UserDetails loggedManager, @RequestBody EmployeeRegisterDTO data) {
-        if (!(loggedManager instanceof Employee manager)) {
+    public ResponseEntity<EmployeeResponseDTO> createEmployee(@AuthenticationPrincipal UserDetails loggedUser, @RequestBody EmployeeRegisterDTO data) {
+        if (!(loggedUser instanceof Employee manager)) {
             throw new ForbiddenException();
         }
 
         Employee newEmployee = new Employee(data);
-
         String encryptedPassword = new BCryptPasswordEncoder().encode(data.password());
-
         newEmployee.setPassword(encryptedPassword);
-
-        Role role = roleService.getRoleById(data.roleId());
-
-        newEmployee.setRole(role);
-
+        newEmployee.setRole(roleService.getRoleById(data.roleId()));
         newEmployee.setClinic(manager.getClinic());
 
         return ResponseEntity.ok(employeeService.saveEmployee(newEmployee));
@@ -58,11 +51,11 @@ public class EmployeeController {
 
     @PutMapping("/update/{id}")
     public ResponseEntity<EmployeeResponseDTO> updateEmployee(
-            @AuthenticationPrincipal UserDetails loggedManager,
+            @AuthenticationPrincipal UserDetails loggedUser,
             @PathVariable Long id,
             @RequestBody EmployeeRegisterDTO data) {
 
-        if (!(loggedManager instanceof Employee manager)) {
+        if (!(loggedUser instanceof Employee manager)) {
             throw new ForbiddenException();
         }
 

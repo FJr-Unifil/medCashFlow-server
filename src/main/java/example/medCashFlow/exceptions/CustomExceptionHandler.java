@@ -94,6 +94,16 @@ public class CustomExceptionHandler {
         ));
     }
 
+    @ExceptionHandler(AccountPlanningNotFoundException.class)
+    private ResponseEntity<ExceptionDTO> handleAccountPlanningNotFoundException(AccountPlanningNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ExceptionDTO(
+                404,
+                "Plano de Contas Não Encontrado",
+                ex.getMessage(),
+                LocalDateTime.now()
+        ));
+    }
+
     @ExceptionHandler(DisabledException.class)
     private ResponseEntity<ExceptionDTO> handleDisabledException(DisabledException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ExceptionDTO(

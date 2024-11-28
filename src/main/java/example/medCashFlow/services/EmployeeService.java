@@ -18,6 +18,8 @@ public class EmployeeService {
 
     private final EmployeeRepository repository;
 
+    private final RoleService roleService;
+
     public Employee getEmployeeById(Long Id) {
         return repository.findById(Id).orElseThrow(EmployeeNotFoundException::new);
     }
