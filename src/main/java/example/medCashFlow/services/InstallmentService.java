@@ -28,8 +28,9 @@ public class InstallmentService {
         LocalDateTime dueDate = bill.getDueDate();
 
         List<Installment> installmentList = new ArrayList<>();
-        for (int i = 1; i <= installmentAmount; i++) {
+        for (int i = 0; i < installmentAmount; i++) {
             Installment installment = new Installment();
+            installment.setId(repository.getNextId() + i);
             installment.setBill(bill);
             installment.setInstallmentNumber(installmentAmount);
             installment.setPricing(installmentPrice);

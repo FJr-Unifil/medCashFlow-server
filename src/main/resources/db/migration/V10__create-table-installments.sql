@@ -1,6 +1,6 @@
 CREATE TABLE installments
 (
-    id                 BIGSERIAL PRIMARY KEY,
+    id                 BIGINT PRIMARY KEY,
     bill_id            BIGINT         NOT NULL REFERENCES bills (id),
     installment_number INT            NOT NULL,
     pricing            NUMERIC(10, 2) NOT NULL,
