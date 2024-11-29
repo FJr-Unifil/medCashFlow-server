@@ -94,6 +94,7 @@ public class BillControllerTests extends MedCashFlowApplicationTests {
                 .andExpect(status().isForbidden());
     }
 
+
     @Test
     void whenAnonymousUpdateBill_thenForbidden() throws Exception {
         BillRegisterDTO billDTO = new BillRegisterDTO(
@@ -194,67 +195,6 @@ public class BillControllerTests extends MedCashFlowApplicationTests {
         mockMvc.perform(delete("/bills/delete/1")
                         .header("Authorization", "Bearer " + adminToken))
                 .andExpect(status().isForbidden());
-    }
-
-    @Test
-    void whenManagerMarkBillAsPaid_thenSucceeds() throws Exception {
-        BillRegisterDTO createDTO = new BillRegisterDTO(
-                "Bill to Mark as Paid",
-                100.00,
-                "INCOME",
-                1L,
-                1L,
-                1L,
-                LocalDateTime.now().plusDays(30),
-                1
-        );
-
-        String createResponse = mockMvc.perform(post("/bills/create")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(createDTO))
-                        .header("Authorization", "Bearer " + managerToken))
-                .andExpect(status().isOk())
-                .andReturn().getResponse().getContentAsString();
-
-        long billId = objectMapper.readTree(createResponse).get("id").asLong();
-
-        // Then mark as paid
-        mockMvc.perform(put("/bills/mark-as-paid/" + billId)
-                        .header("Authorization", "Bearer " + managerToken))
-                .andExpect(status().isNoContent());
-    }
-
-    @Test
-    void whenManagerMarkBillAsUnpaid_thenSucceeds() throws Exception {
-        // First create a bill and mark it as paid
-        BillRegisterDTO createDTO = new BillRegisterDTO(
-                "Bill to Mark as Unpaid",
-                100.00,
-                "INCOME",
-                1L,
-                1L,
-                1L,
-                LocalDateTime.now().plusDays(30),
-                1
-        );
-
-        String createResponse = mockMvc.perform(post("/bills/create")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(createDTO))
-                        .header("Authorization", "Bearer " + managerToken))
-                .andExpect(status().isOk())
-                .andReturn().getResponse().getContentAsString();
-
-        long billId = objectMapper.readTree(createResponse).get("id").asLong();
-
-        mockMvc.perform(put("/bills/mark-as-paid/" + billId)
-                        .header("Authorization", "Bearer " + managerToken))
-                .andExpect(status().isNoContent());
-
-        // Then mark as unpaid
-        mockMvc.perform(put("/bills/mark-as-unpaid/" + billId)
-                        .header("Authorization", "Bearer " + managerToken))
-                .andExpect(status().isNoContent());
     }
 
     @Test

@@ -11,6 +11,7 @@ import example.medCashFlow.services.BillService;
 import example.medCashFlow.services.InvolvedService;
 import example.medCashFlow.services.PaymentMethodService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -44,7 +45,7 @@ public class BillController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<BillResponseDTO> createBill(
+    public ResponseEntity<Void> createBill(
             @AuthenticationPrincipal UserDetails loggedUser,
             @RequestBody BillRegisterDTO data) {
         if (!(loggedUser instanceof Employee employee)) {
@@ -69,11 +70,11 @@ public class BillController {
         bill.setPaymentMethod(paymentMethodService.getPaymentMethodById(data.paymentMethodId()));
         bill.setCreatedAt(LocalDateTime.now());
         bill.setDueDate(data.dueDate());
-        bill.setInstallments(data.installments());
-        bill.setPaid(false);
+        bill.setInstallmentsAmount(data.installments());
 
-        BillResponseDTO newBill = billService.saveBill(bill);
-        return ResponseEntity.ok(newBill);
+        billService.saveBill(bill);
+
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @PutMapping("/update/{id}")
@@ -81,12 +82,12 @@ public class BillController {
             @AuthenticationPrincipal UserDetails loggedUser,
             @PathVariable Long id,
             @RequestBody BillRegisterDTO data) {
-        if (!(loggedUser instanceof Employee employee)) {
+        if (!(loggedUser instanceof Employee)) {
             throw new ForbiddenException();
         }
 
-        BillResponseDTO bill = billService.updateBill(id, data, employee);
-        return ResponseEntity.ok(bill);
+        billService.updateBill(id, data);
+        return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/delete/{id}")
@@ -101,27 +102,4 @@ public class BillController {
         return ResponseEntity.noContent().build();
     }
 
-    @PutMapping("/mark-as-paid/{id}")
-    public ResponseEntity<Void> markBillAsPaid(
-            @AuthenticationPrincipal UserDetails loggedUser,
-            @PathVariable Long id) {
-        if (!(loggedUser instanceof Employee)) {
-            throw new ForbiddenException();
-        }
-
-        billService.markAsPaid(id);
-        return ResponseEntity.noContent().build();
-    }
-
-    @PutMapping("/mark-as-unpaid/{id}")
-    public ResponseEntity<Void> markBillAsUnpaid(
-            @AuthenticationPrincipal UserDetails loggedUser,
-            @PathVariable Long id) {
-        if (!(loggedUser instanceof Employee)) {
-            throw new ForbiddenException();
-        }
-
-        billService.markAsUnpaid(id);
-        return ResponseEntity.noContent().build();
-    }
 }

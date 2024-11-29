@@ -7,6 +7,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity(name = "bills")
 @Data
@@ -38,7 +39,7 @@ public class Bill {
     private Clinic clinic;
 
     @ManyToOne
-    @JoinColumn(name = "envolvido_id", nullable = false)
+    @JoinColumn(name = "involved_id", nullable = false)
     private Involved involved;
 
     @ManyToOne
@@ -55,9 +56,10 @@ public class Bill {
     @Column(name = "due_date", nullable = false)
     private LocalDateTime dueDate;
 
-    @Column(name = "qntd_parcelas", nullable = false)
-    private Integer installments;
+    @Column(name = "installment_amount", nullable = false)
+    private Integer installmentsAmount;
 
-    @Column(name = "is_paid", nullable = false)
-    private boolean isPaid = false;
+    @OneToMany(mappedBy = "bill")
+    private List<Installment> installments;
+
 }

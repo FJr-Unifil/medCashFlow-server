@@ -3,7 +3,9 @@ package example.medCashFlow.dto.bill;
 import java.time.LocalDateTime;
 
 public record BillResponseDTO(
-        Long id,
+        Long billId,
+        Long installmentId,
+        boolean isPaid,
         String name,
         Double pricing,
         String type,
@@ -11,9 +13,6 @@ public record BillResponseDTO(
         Long involvedId,
         Long accountPlanningId,
         Long paymentMethodId,
-        LocalDateTime createdAt,
-        LocalDateTime dueDate,
-        Integer installments,
-        boolean isPaid
+        LocalDateTime dueDate
 ) {
 }
