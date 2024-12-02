@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import example.medCashFlow.dto.accountPlanning.AccountPlanningRegisterDTO;
 import example.medCashFlow.dto.auth.RegisterDTO;
+import example.medCashFlow.dto.bill.BillRegisterDTO;
 import example.medCashFlow.dto.clinic.ClinicRegisterDTO;
 import example.medCashFlow.dto.employee.EmployeeRegisterDTO;
 import example.medCashFlow.dto.employee.ManagerRegisterDTO;
@@ -33,6 +34,7 @@ import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.LocalDateTime;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -109,6 +111,7 @@ public abstract class MedCashFlowApplicationTests {
             createInactiveDoctor();
             createActiveInvolved();
             createAccountPlanning();
+            createBill();
         } catch (Exception e) {
             throw new RuntimeException("Failed to create initial test data", e);
         }
@@ -239,15 +242,34 @@ public abstract class MedCashFlowApplicationTests {
         );
 
         try {
-            try {
-                mockMvc.perform(post("/account-plannings/create")
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(new ObjectMapper().writeValueAsString(planningDTO))
-                                .header("Authorization", "Bearer " + managerToken))
-                        .andExpect(status().isOk());
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
+            mockMvc.perform(post("/account-plannings/create")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(new ObjectMapper().writeValueAsString(planningDTO))
+                            .header("Authorization", "Bearer " + managerToken))
+                    .andExpect(status().isOk());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    protected void createBill() {
+        BillRegisterDTO billDTO = new BillRegisterDTO(
+                "Conta 1",
+                200.50,
+                "INCOME",
+                1L,
+                1L,
+                1L,
+                LocalDateTime.now(),
+                5
+        );
+
+        try {
+            mockMvc.perform(post("/bills/create")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(billDTO))
+                            .header("Authorization", "Bearer " + managerToken))
+                    .andExpect(status().isCreated());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

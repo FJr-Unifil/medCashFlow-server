@@ -21,23 +21,56 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class InvolvedControllerTests extends MedCashFlowApplicationTests {
 
     @Test
+    void whenAnonymousGetInvolvedById_thenForbidden() throws Exception {
+        mockMvc.perform(get("/involveds/1"))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void whenAllowedEmployeeGetInvolvedById_thenSucceeds() throws Exception {
+        mockMvc.perform(get("/involveds/1")
+                        .header("Authorization", "Bearer " + managerToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.name").value("Saúde Equipamentos LTDA"))
+                .andExpect(jsonPath("$.document").value("99999999999999"))
+                .andExpect(jsonPath("$.phone").value("9999999999"))
+                .andExpect(jsonPath("$.email").value("saudeequipamentos@gmail.com"))
+                .andExpect(jsonPath("$.isActive").value(true));
+    }
+
+    @Test
+    void whenAllowedEmployeeGetNonExistentInvolvedById_thenSucceeds() throws Exception {
+        mockMvc.perform(get("/involveds/999")
+                        .header("Authorization", "Bearer " + managerToken))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void whenAdminGetInvolvedById_thenForbidden() throws Exception {
+        mockMvc.perform(get("/involveds/1")
+                        .header("Authorization", "Bearer " + adminToken))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
     void whenAnonymousListInvolveds_thenForbidden() throws Exception {
         mockMvc.perform(get("/involveds/list"))
                 .andExpect(status().isForbidden());
     }
 
     @Test
-    void whenManagerListInvolveds_thenSucceeds() throws Exception {
+    void whenAllowedEmployeeListInvolveds_thenSucceeds() throws Exception {
         mockMvc.perform(get("/involveds/list")
                         .header("Authorization", "Bearer " + managerToken))
-                .andExpect(status().isOk());
-    }
-
-    @Test
-    void whenFinancialAnalystListInvolveds_thenSucceeds() throws Exception {
-        mockMvc.perform(get("/involveds/list")
-                        .header("Authorization", "Bearer " + financialAnalystToken))
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$[0].id").exists())
+                .andExpect(jsonPath("$[0].name").exists())
+                .andExpect(jsonPath("$[0].document").exists())
+                .andExpect(jsonPath("$[0].phone").exists())
+                .andExpect(jsonPath("$[0].email").exists())
+                .andExpect(jsonPath("$[0].isActive").exists());
     }
 
     @Test
@@ -48,7 +81,7 @@ class InvolvedControllerTests extends MedCashFlowApplicationTests {
     }
 
     @Test
-    void whenManagerCreateInvolved_thenSucceeds() throws Exception {
+    void whenAllowedEmployeeCreateInvolved_thenSucceeds() throws Exception {
         InvolvedRegisterDTO involvedDTO = new InvolvedRegisterDTO(
                 "Test Involved",
                 "12345678901",
@@ -61,25 +94,12 @@ class InvolvedControllerTests extends MedCashFlowApplicationTests {
                         .content(new ObjectMapper().writeValueAsString(involvedDTO))
                         .header("Authorization", "Bearer " + managerToken))
                 .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").exists())
                 .andExpect(jsonPath("$.name").value("Test Involved"))
-                .andExpect(jsonPath("$.document").value("12345678901"));
-    }
-
-    @Test
-    void whenFinancialAnalystCreateInvolved_thenSucceeds() throws Exception {
-        InvolvedRegisterDTO involvedDTO = new InvolvedRegisterDTO(
-                "Financial Test",
-                "12345678902",
-                "1234567890",
-                "financial.involved@test.com"
-        );
-
-        mockMvc.perform(post("/involveds/create")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(new ObjectMapper().writeValueAsString(involvedDTO))
-                        .header("Authorization", "Bearer " + financialAnalystToken))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.name").value("Financial Test"));
+                .andExpect(jsonPath("$.document").value("12345678901"))
+                .andExpect(jsonPath("$.phone").value("1234567890"))
+                .andExpect(jsonPath("$.email").value("involved@test.com"))
+                .andExpect(jsonPath("$.isActive").value(true));
     }
 
     @Test
@@ -112,65 +132,64 @@ class InvolvedControllerTests extends MedCashFlowApplicationTests {
     }
 
     @Test
-    void whenManagerUpdateInvolved_thenSucceeds() throws Exception {
-        InvolvedRegisterDTO createDTO = new InvolvedRegisterDTO(
-                "To Update",
-                "12345678904",
-                "1234567890",
-                "toupdate@test.com"
-        );
-
-        MvcResult createResult = mockMvc.perform(post("/involveds/create")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(new ObjectMapper().writeValueAsString(createDTO))
-                        .header("Authorization", "Bearer " + managerToken))
-                .andExpect(status().isOk())
-                .andReturn();
-
-        String response = createResult.getResponse().getContentAsString();
-        Integer involvedId = JsonPath.parse(response).read("$.id");
-
+    void whenAllowedEmployeeUpdateInvolved_thenSucceeds() throws Exception {
         InvolvedRegisterDTO updateDTO = new InvolvedRegisterDTO(
                 "Updated Name",
                 "12345678904",
-                "1234567890",
-                "toupdate@test.com"
+                "9876543210",
+                "updated@test.com"
         );
 
-        mockMvc.perform(put("/involveds/" + involvedId)
+        mockMvc.perform(put("/involveds/1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(updateDTO))
                         .header("Authorization", "Bearer " + managerToken))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.name").value("Updated Name"));
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.name").value("Updated Name"))
+                .andExpect(jsonPath("$.document").value("12345678904"))
+                .andExpect(jsonPath("$.phone").value("9876543210"))
+                .andExpect(jsonPath("$.email").value("updated@test.com"))
+                .andExpect(jsonPath("$.isActive").value(true));
     }
 
     @Test
-    void whenManagerDeleteInvolved_thenSucceeds() throws Exception {
-        InvolvedRegisterDTO createDTO = new InvolvedRegisterDTO(
-                "To Delete",
-                "12345678905",
+    void whenUpdateNonExistentInvolved_thenNotFound() throws Exception {
+        InvolvedRegisterDTO updateDTO = new InvolvedRegisterDTO(
+                "Non Existent",
+                "12345678909",
                 "1234567890",
-                "todelete@test.com"
+                "nonexistent@test.com"
         );
 
-        MvcResult createResult = mockMvc.perform(post("/involveds/create")
+        mockMvc.perform(put("/involveds/999999")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(new ObjectMapper().writeValueAsString(createDTO))
+                        .content(new ObjectMapper().writeValueAsString(updateDTO))
                         .header("Authorization", "Bearer " + managerToken))
-                .andExpect(status().isOk())
-                .andReturn();
-
-        String response = createResult.getResponse().getContentAsString();
-        Integer involvedId = JsonPath.parse(response).read("$.id");
-
-        mockMvc.perform(delete("/involveds/" + involvedId)
-                        .header("Authorization", "Bearer " + managerToken))
-                .andExpect(status().isNoContent());
+                .andExpect(status().isNotFound());
     }
 
     @Test
-    void whenManagerActivateInvolved_thenSucceeds() throws Exception {
+    void whenAllowedEmployeeDeleteAnActivateInvolved_thenSucceeds() throws Exception {
+        mockMvc.perform(delete("/involveds/1")
+                        .header("Authorization", "Bearer " + managerToken))
+                .andExpect(status().isNoContent());
+
+        mockMvc.perform(get("/involveds/1")
+                        .header("Authorization", "Bearer " + managerToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.isActive").value(false));
+    }
+
+    @Test
+    void whenDeleteNonExistentInvolved_thenNotFound() throws Exception {
+        mockMvc.perform(delete("/involveds/999999")
+                        .header("Authorization", "Bearer " + managerToken))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void whenAllowedEmployeeActivateInvolved_thenSucceeds() throws Exception {
         InvolvedRegisterDTO createDTO = new InvolvedRegisterDTO(
                 "To Activate",
                 "12345678906",
@@ -198,31 +217,11 @@ class InvolvedControllerTests extends MedCashFlowApplicationTests {
     }
 
     @Test
-    void whenFinancialAnalystActivateInvolved_thenSucceeds() throws Exception {
-        InvolvedRegisterDTO createDTO = new InvolvedRegisterDTO(
-                "Financial To Activate",
-                "12345678907",
-                "1234567890",
-                "financial.activate@test.com"
-        );
-
-        MvcResult createResult = mockMvc.perform(post("/involveds/create")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(new ObjectMapper().writeValueAsString(createDTO))
-                        .header("Authorization", "Bearer " + financialAnalystToken))
-                .andExpect(status().isOk())
-                .andReturn();
-
-        String response = createResult.getResponse().getContentAsString();
-        Integer involvedId = JsonPath.parse(response).read("$.id");
-
-        mockMvc.perform(delete("/involveds/" + involvedId)
-                        .header("Authorization", "Bearer " + financialAnalystToken))
-                .andExpect(status().isNoContent());
-
-        mockMvc.perform(put("/involveds/activate/" + involvedId)
-                        .header("Authorization", "Bearer " + financialAnalystToken))
-                .andExpect(status().isNoContent());
+    void whenActivateNonExistentInvolved_thenNotFound() throws Exception {
+        mockMvc.perform(put("/involveds/activate/999999")
+                        .header("Authorization", "Bearer " + managerToken))
+                .andExpect(status().isNotFound());
     }
+
 }
 

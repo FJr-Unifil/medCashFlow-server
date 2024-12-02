@@ -22,7 +22,7 @@ public interface BillRepository extends JpaRepository<Bill, Long> {
             "b.employee.id, " +
             "b.involved.id, " +
             "b.accountPlanning.id, " +
-            "b.paymentMethod.id, " +
+            "b.paymentMethod.name, " +
             "i.dueDate " +
             ") " +
             "FROM bills b " +

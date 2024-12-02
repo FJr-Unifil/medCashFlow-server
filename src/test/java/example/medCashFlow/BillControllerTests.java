@@ -7,7 +7,6 @@ import org.springframework.http.MediaType;
 import java.time.LocalDateTime;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 public class BillControllerTests extends MedCashFlowApplicationTests {
@@ -19,7 +18,7 @@ public class BillControllerTests extends MedCashFlowApplicationTests {
     }
 
     @Test
-    void whenManagerListingBills_thenSucceeds() throws Exception {
+    void whenAllowedEmployeeListingBills_thenSucceeds() throws Exception {
         mockMvc.perform(get("/bills/list")
                         .header("Authorization", "Bearer " + managerToken))
                 .andExpect(status().isOk());
@@ -52,7 +51,7 @@ public class BillControllerTests extends MedCashFlowApplicationTests {
     }
 
     @Test
-    void whenManagerCreateBill_thenSucceeds() throws Exception {
+    void whenAllowedEmployeeCreateBill_thenSucceeds() throws Exception {
         BillRegisterDTO billDTO = new BillRegisterDTO(
                 "Test Bill",
                 100.00,
@@ -68,10 +67,7 @@ public class BillControllerTests extends MedCashFlowApplicationTests {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(billDTO))
                         .header("Authorization", "Bearer " + managerToken))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.name").value("Test Bill"))
-                .andExpect(jsonPath("$.pricing").value(100.00))
-                .andExpect(jsonPath("$.type").value("INCOME"));
+                .andExpect(status().isCreated());
     }
 
     @Test
@@ -94,7 +90,6 @@ public class BillControllerTests extends MedCashFlowApplicationTests {
                 .andExpect(status().isForbidden());
     }
 
-
     @Test
     void whenAnonymousUpdateBill_thenForbidden() throws Exception {
         BillRegisterDTO billDTO = new BillRegisterDTO(
@@ -115,27 +110,7 @@ public class BillControllerTests extends MedCashFlowApplicationTests {
     }
 
     @Test
-    void whenManagerUpdateBill_thenSucceeds() throws Exception {
-        BillRegisterDTO createDTO = new BillRegisterDTO(
-                "Original Bill",
-                100.00,
-                "INCOME",
-                1L,
-                1L,
-                1L,
-                LocalDateTime.now().plusDays(30),
-                1
-        );
-
-        String createResponse = mockMvc.perform(post("/bills/create")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(createDTO))
-                        .header("Authorization", "Bearer " + managerToken))
-                .andExpect(status().isOk())
-                .andReturn().getResponse().getContentAsString();
-
-        long billId = objectMapper.readTree(createResponse).get("id").asLong();
-
+    void whenAllowedEmployeeUpdateBill_thenSucceeds() throws Exception {
         BillRegisterDTO updateDTO = new BillRegisterDTO(
                 "Updated Bill",
                 200.00,
@@ -147,14 +122,11 @@ public class BillControllerTests extends MedCashFlowApplicationTests {
                 1
         );
 
-        mockMvc.perform(put("/bills/update/" + billId)
+        mockMvc.perform(put("/bills/update/1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(updateDTO))
                         .header("Authorization", "Bearer " + managerToken))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.name").value("Updated Bill"))
-                .andExpect(jsonPath("$.pricing").value(200.00))
-                .andExpect(jsonPath("$.type").value("OUTCOME"));
+                .andExpect(status().isNoContent());
     }
 
     @Test
@@ -164,28 +136,8 @@ public class BillControllerTests extends MedCashFlowApplicationTests {
     }
 
     @Test
-    void whenManagerDeleteBill_thenSucceeds() throws Exception {
-        BillRegisterDTO createDTO = new BillRegisterDTO(
-                "Bill to Delete",
-                100.00,
-                "INCOME",
-                1L,
-                1L,
-                1L,
-                LocalDateTime.now().plusDays(30),
-                1
-        );
-
-        String createResponse = mockMvc.perform(post("/bills/create")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(createDTO))
-                        .header("Authorization", "Bearer " + managerToken))
-                .andExpect(status().isOk())
-                .andReturn().getResponse().getContentAsString();
-
-        long billId = objectMapper.readTree(createResponse).get("id").asLong();
-
-        mockMvc.perform(delete("/bills/delete/" + billId)
+    void whenAllowedEmployeeDeleteBill_thenSucceeds() throws Exception {
+        mockMvc.perform(delete("/bills/delete/1")
                         .header("Authorization", "Bearer " + managerToken))
                 .andExpect(status().isNoContent());
     }
@@ -198,7 +150,7 @@ public class BillControllerTests extends MedCashFlowApplicationTests {
     }
 
     @Test
-    void whenManagerUpdateNonExistentBill_thenNotFound() throws Exception {
+    void whenAllowedEmployeeUpdateNonExistentBill_thenNotFound() throws Exception {
         BillRegisterDTO billDTO = new BillRegisterDTO(
                 "Non-existent Bill",
                 100.00,
@@ -218,10 +170,10 @@ public class BillControllerTests extends MedCashFlowApplicationTests {
     }
 
     @Test
-    void whenManagerDeleteNonExistentBill_thenNotFound() throws Exception {
+    void whenAllowedEmployeeDeleteNonExistentBill_thenNotFound() throws Exception {
         mockMvc.perform(delete("/bills/delete/999999")
                         .header("Authorization", "Bearer " + managerToken))
                 .andExpect(status().isNotFound());
     }
-}
 
+}

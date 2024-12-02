@@ -21,23 +21,43 @@ import java.util.List;
 public class InvolvedController {
     private final InvolvedService involvedService;
 
+    @GetMapping("/{id}")
+    public ResponseEntity<InvolvedResponseDTO> getInvolvedById(@AuthenticationPrincipal UserDetails loggedUser, @PathVariable("id") Long id) {
+        if (!(loggedUser instanceof Employee)) {
+            throw new ForbiddenException();
+        }
+
+        Involved involved = involvedService.getInvolvedById(id);
+
+        InvolvedResponseDTO involvedResponseDTO = new InvolvedResponseDTO(
+                involved.getId(),
+                involved.getName(),
+                involved.getDocument(),
+                involved.getPhone(),
+                involved.getEmail(),
+                involved.isActive()
+        );
+
+        return ResponseEntity.ok(involvedResponseDTO);
+    }
+
     @GetMapping("/list")
     public ResponseEntity<List<InvolvedResponseDTO>> listAllInvolveds(
-            @AuthenticationPrincipal UserDetails loggedManager) {
-        if (!(loggedManager instanceof Employee)) {
+            @AuthenticationPrincipal UserDetails loggedUser) {
+        if (!(loggedUser instanceof Employee)) {
             throw new ForbiddenException();
         }
 
         List<InvolvedResponseDTO> involveds = involvedService.getAllInvolvedsByClinicId(
-                ((Employee) loggedManager).getClinic().getId());
+                ((Employee) loggedUser).getClinic().getId());
         return ResponseEntity.ok(involveds);
     }
 
     @PostMapping("/create")
     public ResponseEntity<InvolvedResponseDTO> createInvolved(
-            @AuthenticationPrincipal UserDetails loggedManager,
+            @AuthenticationPrincipal UserDetails loggedUser,
             @RequestBody InvolvedRegisterDTO data) {
-        if (!(loggedManager instanceof Employee manager)) {
+        if (!(loggedUser instanceof Employee employee)) {
             throw new ForbiddenException();
         }
 
@@ -46,17 +66,17 @@ public class InvolvedController {
         newInvolved.setDocument(data.document());
         newInvolved.setPhone(data.phone());
         newInvolved.setEmail(data.email());
-        newInvolved.setClinic(manager.getClinic());
+        newInvolved.setClinic(employee.getClinic());
 
         return ResponseEntity.ok(involvedService.saveInvolved(newInvolved));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<InvolvedResponseDTO> updateInvolved(
-            @AuthenticationPrincipal UserDetails loggedManager,
+            @AuthenticationPrincipal UserDetails loggedUser,
             @PathVariable Long id,
             @RequestBody InvolvedRegisterDTO data) {
-        if (!(loggedManager instanceof Employee)) {
+        if (!(loggedUser instanceof Employee)) {
             throw new ForbiddenException();
         }
 
@@ -71,9 +91,9 @@ public class InvolvedController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteInvolved(
-            @AuthenticationPrincipal UserDetails loggedManager,
+            @AuthenticationPrincipal UserDetails loggedUser,
             @PathVariable Long id) {
-        if (!(loggedManager instanceof Employee)) {
+        if (!(loggedUser instanceof Employee)) {
             throw new ForbiddenException();
         }
 
@@ -83,9 +103,9 @@ public class InvolvedController {
 
     @PutMapping("/activate/{id}")
     public ResponseEntity<Void> activateInvolved(
-            @AuthenticationPrincipal UserDetails loggedManager,
+            @AuthenticationPrincipal UserDetails loggedUser,
             @PathVariable Long id) {
-        if (!(loggedManager instanceof Employee)) {
+        if (!(loggedUser instanceof Employee)) {
             throw new ForbiddenException();
         }
 

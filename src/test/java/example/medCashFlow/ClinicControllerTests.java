@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -36,7 +37,14 @@ public class ClinicControllerTests extends MedCashFlowApplicationTests {
     void whenAdminAccessClinics_thenSucceeds() throws Exception {
         mockMvc.perform(get("/clinics/list")
                         .header("Authorization", "Bearer " + adminToken))
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$[0].id").exists())
+                .andExpect(jsonPath("$[0].name").exists())
+                .andExpect(jsonPath("$[0].cnpj").exists())
+                .andExpect(jsonPath("$[0].phone").exists())
+                .andExpect(jsonPath("$[0].createdAt").exists())
+                .andExpect(jsonPath("$[0].isActive").exists());
     }
 
     @Test
@@ -58,12 +66,21 @@ public class ClinicControllerTests extends MedCashFlowApplicationTests {
     @Test
     void whenAdminDeleteClinics_thenSucceeds() throws Exception {
         List<ClinicResponseDTO> clinics = clinicService.getAllClinics();
-
         UUID id = clinics.get(0).id();
+
+        mockMvc.perform(get("/clinics/list")
+                        .header("Authorization", "Bearer " + adminToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[?(@.id == '" + id + "')].isActive").value(true));
 
         mockMvc.perform(delete("/clinics/delete/" + id)
                         .header("Authorization", "Bearer " + adminToken))
                 .andExpect(status().isNoContent());
+
+        mockMvc.perform(get("/clinics/list")
+                        .header("Authorization", "Bearer " + adminToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[?(@.id == '" + id + "')].isActive").value(false));
     }
 
     @Test
@@ -89,12 +106,16 @@ public class ClinicControllerTests extends MedCashFlowApplicationTests {
     @Test
     void whenAdminActivateClinics_thenSucceeds() throws Exception {
         List<ClinicResponseDTO> clinics = clinicService.getAllClinics();
-
-        UUID id = clinics.get(0).id();
+        UUID id = clinics.get(1).id();
 
         mockMvc.perform(put("/clinics/activate/" + id)
                         .header("Authorization", "Bearer " + adminToken))
                 .andExpect(status().isNoContent());
+
+        mockMvc.perform(get("/clinics/list")
+                        .header("Authorization", "Bearer " + adminToken))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[?(@.id == '" + id + "')].isActive").value(true));
     }
 
     @Test
@@ -107,4 +128,5 @@ public class ClinicControllerTests extends MedCashFlowApplicationTests {
                         .header("Authorization", "Bearer " + managerToken))
                 .andExpect(status().isForbidden());
     }
+
 }

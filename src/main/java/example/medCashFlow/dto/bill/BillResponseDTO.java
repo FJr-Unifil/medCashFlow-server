@@ -12,7 +12,7 @@ public record BillResponseDTO(
         Long employeeId,
         Long involvedId,
         Long accountPlanningId,
-        Long paymentMethodId,
+        String paymentMethod,
         LocalDateTime dueDate
 ) {
 }

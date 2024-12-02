@@ -49,7 +49,7 @@ public class AccountPlanningService {
                 .toList();
     }
 
-    private AccountPlanningResponseDTO toDTO(AccountPlanning accountPlanning) {
+    public AccountPlanningResponseDTO toDTO(AccountPlanning accountPlanning) {
         return new AccountPlanningResponseDTO(
                 accountPlanning.getId(),
                 accountPlanning.getName(),

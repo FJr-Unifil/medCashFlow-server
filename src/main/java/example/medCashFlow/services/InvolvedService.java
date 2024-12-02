@@ -2,6 +2,7 @@ package example.medCashFlow.services;
 
 import example.medCashFlow.dto.involved.InvolvedResponseDTO;
 import example.medCashFlow.exceptions.InvalidInvolvedException;
+import example.medCashFlow.exceptions.InvolvedNotFoundException;
 import example.medCashFlow.model.Involved;
 import example.medCashFlow.repository.InvolvedRepository;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +17,7 @@ public class InvolvedService {
     private final InvolvedRepository repository;
 
     public Involved getInvolvedById(Long id) {
-        return repository.findById(id).orElseThrow(InvalidInvolvedException::new);
+        return repository.findById(id).orElseThrow(InvolvedNotFoundException::new);
     }
 
     public List<InvolvedResponseDTO> getAllInvolvedsByClinicId(UUID clinicId) {

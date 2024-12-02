@@ -21,24 +21,35 @@ public class AccountPlanningController {
 
     private final AccountPlanningService accountPlanningService;
 
+    @GetMapping("/{id}")
+    public ResponseEntity<AccountPlanningResponseDTO> getAccountPlanningById(@AuthenticationPrincipal UserDetails loggedUser, @PathVariable("id") Long id) {
+        if (!(loggedUser instanceof Employee)) {
+            throw new ForbiddenException();
+        }
+
+        AccountPlanning accountPlanning = accountPlanningService.getAccountPlanningById(id);
+
+        return ResponseEntity.ok(accountPlanningService.toDTO(accountPlanning));
+    }
+
     @GetMapping("/list")
     public ResponseEntity<List<AccountPlanningResponseDTO>> listAllAccountPlannings(
-            @AuthenticationPrincipal UserDetails loggedManager) {
-        if (!(loggedManager instanceof Employee)) {
+            @AuthenticationPrincipal UserDetails loggedUser) {
+        if (!(loggedUser instanceof Employee)) {
             throw new ForbiddenException();
         }
 
         List<AccountPlanningResponseDTO> accountPlannings = accountPlanningService
-                .getAllAccountPlanningsByClinicId(((Employee) loggedManager).getClinic().getId());
+                .getAllAccountPlanningsByClinicId(((Employee) loggedUser).getClinic().getId());
         return ResponseEntity.ok(accountPlannings);
     }
 
     @PostMapping("/create")
     public ResponseEntity<AccountPlanningResponseDTO> createAccountPlanning(
-            @AuthenticationPrincipal UserDetails loggedManager,
+            @AuthenticationPrincipal UserDetails loggedUser,
             @RequestBody AccountPlanningRegisterDTO data) {
 
-        if (!(loggedManager instanceof Employee manager)) {
+        if (!(loggedUser instanceof Employee employee)) {
             throw new ForbiddenException();
         }
 
@@ -47,17 +58,17 @@ public class AccountPlanningController {
         newAccountPlanning.setDescription(data.description());
         newAccountPlanning.setEmoji(data.emoji());
         newAccountPlanning.setColor(data.color());
-        newAccountPlanning.setClinic(manager.getClinic());
+        newAccountPlanning.setClinic(employee.getClinic());
 
         return ResponseEntity.ok(accountPlanningService.saveAccountPlanning(newAccountPlanning));
     }
 
     @PutMapping("/update/{id}")
     public ResponseEntity<AccountPlanningResponseDTO> updateAccountPlanning(
-            @AuthenticationPrincipal UserDetails loggedManager,
+            @AuthenticationPrincipal UserDetails loggedUser,
             @PathVariable Long id,
             @RequestBody AccountPlanningRegisterDTO data) {
-        if (!(loggedManager instanceof Employee manager)) {
+        if (!(loggedUser instanceof Employee employee)) {
             throw new ForbiddenException();
         }
 
@@ -66,16 +77,16 @@ public class AccountPlanningController {
         accountPlanningToUpdate.setDescription(data.description());
         accountPlanningToUpdate.setEmoji(data.emoji());
         accountPlanningToUpdate.setColor(data.color());
-        accountPlanningToUpdate.setClinic(manager.getClinic());
+        accountPlanningToUpdate.setClinic(employee.getClinic());
 
         return ResponseEntity.ok(accountPlanningService.updateAccountPlanning(accountPlanningToUpdate, id));
     }
 
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<Void> deleteAccountPlanning(
-            @AuthenticationPrincipal UserDetails loggedManager,
+            @AuthenticationPrincipal UserDetails loggedUser,
             @PathVariable Long id) {
-        if (!(loggedManager instanceof Employee)) {
+        if (!(loggedUser instanceof Employee)) {
             throw new ForbiddenException();
         }
 

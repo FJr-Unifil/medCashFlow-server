@@ -94,6 +94,16 @@ public class CustomExceptionHandler {
         ));
     }
 
+    @ExceptionHandler(InvolvedNotFoundException.class)
+    private ResponseEntity<ExceptionDTO> handleInvolvedNotFoundException(InvolvedNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ExceptionDTO(
+                404,
+                "Envolvido não Encontrado",
+                ex.getMessage(),
+                LocalDateTime.now()
+        ));
+    }
+
     @ExceptionHandler(AccountPlanningNotFoundException.class)
     private ResponseEntity<ExceptionDTO> handleAccountPlanningNotFoundException(AccountPlanningNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ExceptionDTO(

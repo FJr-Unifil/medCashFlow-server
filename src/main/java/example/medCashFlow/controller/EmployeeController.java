@@ -24,6 +24,27 @@ public class EmployeeController {
 
     private final RoleService roleService;
 
+    @GetMapping("/{id}")
+    public ResponseEntity<EmployeeResponseDTO> getEmployeeById(@AuthenticationPrincipal UserDetails loggedManager, @PathVariable Long id) {
+        if (!(loggedManager instanceof Employee)) {
+            throw new ForbiddenException();
+        }
+
+        Employee employee = employeeService.getEmployeeById(id);
+
+        EmployeeResponseDTO employeeResponseDTO = new EmployeeResponseDTO(
+                employee.getId(),
+                employee.getFirst_name(),
+                employee.getLast_name(),
+                employee.getCpf(),
+                employee.getEmail(),
+                employee.getRole().getName(),
+                employee.isActive()
+        );
+
+        return ResponseEntity.ok(employeeResponseDTO);
+    }
+
     @GetMapping("/list")
     public ResponseEntity<List<EmployeeResponseDTO>> listAllEmployees(@AuthenticationPrincipal UserDetails loggedManager) {
         if (!(loggedManager instanceof Employee)) {
@@ -35,8 +56,8 @@ public class EmployeeController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<EmployeeResponseDTO> createEmployee(@AuthenticationPrincipal UserDetails loggedUser, @RequestBody EmployeeRegisterDTO data) {
-        if (!(loggedUser instanceof Employee manager)) {
+    public ResponseEntity<EmployeeResponseDTO> createEmployee(@AuthenticationPrincipal UserDetails loggedManager, @RequestBody EmployeeRegisterDTO data) {
+        if (!(loggedManager instanceof Employee manager)) {
             throw new ForbiddenException();
         }
 
@@ -51,11 +72,11 @@ public class EmployeeController {
 
     @PutMapping("/update/{id}")
     public ResponseEntity<EmployeeResponseDTO> updateEmployee(
-            @AuthenticationPrincipal UserDetails loggedUser,
+            @AuthenticationPrincipal UserDetails loggedManager,
             @PathVariable Long id,
             @RequestBody EmployeeRegisterDTO data) {
 
-        if (!(loggedUser instanceof Employee manager)) {
+        if (!(loggedManager instanceof Employee manager)) {
             throw new ForbiddenException();
         }
 
