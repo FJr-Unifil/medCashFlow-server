@@ -1,5 +1,6 @@
 package example.medCashFlow.services;
 
+import example.medCashFlow.dto.bill.BillOnlyResponseDTO;
 import example.medCashFlow.dto.bill.BillRegisterDTO;
 import example.medCashFlow.dto.bill.BillResponseDTO;
 import example.medCashFlow.exceptions.BillNotFoundException;
@@ -61,6 +62,20 @@ public class BillService {
         Bill bill = getBillById(id);
         installmentService.deleteInstallmentByBillId(id);
         repository.delete(bill);
+    }
+
+    public BillOnlyResponseDTO getBillOnlyResponseDTO(Long id) {
+        Bill bill = getBillById(id);
+        return new BillOnlyResponseDTO(
+                bill.getName(),
+                bill.getPricing(),
+                bill.getType().name(),
+                bill.getInvolved().getId(),
+                bill.getAccountPlanning().getId(),
+                bill.getPaymentMethod().getId(),
+                bill.getDueDate(),
+                bill.getInstallmentsAmount()
+        );
     }
 
 }

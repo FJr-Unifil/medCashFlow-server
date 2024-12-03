@@ -88,6 +88,8 @@ public class SecurityConfiguration {
                         .hasAnyAuthority("ROLE_MANAGER", "ROLE_FINANCIAL_ANALYST")
                         .requestMatchers(HttpMethod.DELETE, "/account-plannings/delete/{id}")
                         .hasAnyAuthority("ROLE_MANAGER", "ROLE_FINANCIAL_ANALYST")
+                        .requestMatchers(HttpMethod.GET, "/bills/{id}")
+                        .hasAnyAuthority("ROLE_MANAGER", "ROLE_FINANCIAL_ANALYST")
                         .requestMatchers(HttpMethod.GET, "/bills/list")
                         .hasAnyAuthority("ROLE_MANAGER", "ROLE_FINANCIAL_ANALYST")
                         .requestMatchers(HttpMethod.POST, "/bills/create")

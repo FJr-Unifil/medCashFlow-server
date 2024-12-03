@@ -1,5 +1,6 @@
 package example.medCashFlow.controller;
 
+import example.medCashFlow.dto.bill.BillOnlyResponseDTO;
 import example.medCashFlow.dto.bill.BillRegisterDTO;
 import example.medCashFlow.dto.bill.BillResponseDTO;
 import example.medCashFlow.exceptions.ForbiddenException;
@@ -32,6 +33,18 @@ public class BillController {
     private final AccountPlanningService accountPlanningService;
 
     private final PaymentMethodService paymentMethodService;
+
+    @GetMapping("/{id}")
+    public ResponseEntity<BillOnlyResponseDTO> getBillById(
+            @AuthenticationPrincipal UserDetails loggedUser,
+            @PathVariable Long id) {
+        if (!(loggedUser instanceof Employee employee)) {
+            throw new ForbiddenException();
+        }
+
+        BillOnlyResponseDTO bill = billService.getBillOnlyResponseDTO(id);
+        return ResponseEntity.ok(bill);
+    }
 
     @GetMapping("/list")
     public ResponseEntity<List<BillResponseDTO>> listAllBills(
