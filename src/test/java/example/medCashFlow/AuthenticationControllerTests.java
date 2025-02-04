@@ -23,13 +23,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class AuthenticationControllerTests extends MedCashFlowApplicationTests {
 
     @Test
-    void whenAnonymousGetBillById_thenForbidden() throws Exception {
+    void whenAnonymousGetBillByIdThenForbidden() throws Exception {
         mockMvc.perform(get("/involveds/1"))
                 .andExpect(status().isForbidden());
     }
 
     @Test
-    void whenAllowedEmployeeGetInvolvedById_thenSucceeds() throws Exception {
+    void whenAllowedEmployeeGetInvolvedByIdThenSucceeds() throws Exception {
         mockMvc.perform(get("/involveds/1")
                         .header("Authorization", "Bearer " + managerToken))
                 .andExpect(status().isOk())
@@ -42,21 +42,21 @@ class AuthenticationControllerTests extends MedCashFlowApplicationTests {
     }
 
     @Test
-    void whenAllowedEmployeeGetNonExistentInvolvedById_thenSucceeds() throws Exception {
+    void whenAllowedEmployeeGetNonExistentInvolvedByIdThenSucceeds() throws Exception {
         mockMvc.perform(get("/involveds/999")
                         .header("Authorization", "Bearer " + managerToken))
                 .andExpect(status().isNotFound());
     }
 
     @Test
-    void whenAdminGetInvolvedById_thenForbidden() throws Exception {
+    void whenAdminGetInvolvedByIdThenForbidden() throws Exception {
         mockMvc.perform(get("/involveds/1")
                         .header("Authorization", "Bearer " + adminToken))
                 .andExpect(status().isForbidden());
     }
 
     @Test
-    void whenRegisteringNonExistingClinic_thenSucceeds() throws Exception {
+    void whenRegisteringNonExistingClinicThenSucceeds() throws Exception {
         RegisterDTO registerDto = new RegisterDTO(
                 new ClinicRegisterDTO("Clinic 2", "12345678901236", "1234567892"),
                 new ManagerRegisterDTO("John", "Doe", "34567890123", "clinicateste@manager.com", "manager")
@@ -76,7 +76,7 @@ class AuthenticationControllerTests extends MedCashFlowApplicationTests {
     }
 
     @Test
-    void whenRegisteringExistingClinic_thenConflict() throws Exception {
+    void whenRegisteringExistingClinicThenConflict() throws Exception {
         RegisterDTO registerDTO = new RegisterDTO(
                 new ClinicRegisterDTO("Clinic1", "12345678901234", "1234567890"),
                 new ManagerRegisterDTO("João", "Lucas", "12345678903", "manager3@manager.com", "manager3")
@@ -88,7 +88,7 @@ class AuthenticationControllerTests extends MedCashFlowApplicationTests {
     }
 
     @Test
-    void whenRegisteringExistingEmployee_thenConflict() throws Exception {
+    void whenRegisteringExistingEmployeeThenConflict() throws Exception {
         RegisterDTO registerDTO = new RegisterDTO(
                 new ClinicRegisterDTO("Clinic3", "12345678901236", "1234567892"),
                 new ManagerRegisterDTO("Pedro", "Arthur", "12345678901", "manager@manager.com", "manager")
@@ -100,7 +100,7 @@ class AuthenticationControllerTests extends MedCashFlowApplicationTests {
     }
 
     @Test
-    void whenLoginExistingEmployee_thenSucceeds() throws Exception {
+    void whenLoginExistingEmployeeThenSucceeds() throws Exception {
         AuthenticationDTO authenticationDTO = new AuthenticationDTO(
                 "manager@manager.com",
                 "manager"
@@ -116,7 +116,7 @@ class AuthenticationControllerTests extends MedCashFlowApplicationTests {
     }
 
     @Test
-    void whenLoggingInactiveClinic_thenNotFound() throws Exception {
+    void whenLoggingInactiveClinicThenNotFound() throws Exception {
         AuthenticationDTO data = new AuthenticationDTO(
                 "manager@manager.com.in",
                 "manager"
@@ -130,7 +130,7 @@ class AuthenticationControllerTests extends MedCashFlowApplicationTests {
     }
 
     @Test
-    void whenLoginInvalidEmailEmployee_thenBadCredentials() throws Exception {
+    void whenLoginInvalidEmailEmployeeThenBadCredentials() throws Exception {
         AuthenticationDTO authenticationDTO = new AuthenticationDTO(
                 "manager@manager.com.br",
                 "manager"
@@ -142,7 +142,7 @@ class AuthenticationControllerTests extends MedCashFlowApplicationTests {
     }
 
     @Test
-    void whenLoginExistingInvalidPasswordEmployee_thenBadCredentials() throws Exception {
+    void whenLoginExistingInvalidPasswordEmployeeThenBadCredentials() throws Exception {
         AuthenticationDTO authenticationDTO = new AuthenticationDTO(
                 "manager@manager.com",
                 "manager2"
@@ -154,7 +154,7 @@ class AuthenticationControllerTests extends MedCashFlowApplicationTests {
     }
 
     @Test
-    void whenLoginExistingAdmin_thenSucceeds() throws Exception {
+    void whenLoginExistingAdminThenSucceeds() throws Exception {
         AuthenticationDTO authenticationDTO = new AuthenticationDTO(
                 "admin@admin.com",
                 "admin123"
@@ -170,7 +170,7 @@ class AuthenticationControllerTests extends MedCashFlowApplicationTests {
     }
 
     @Test
-    void whenLoginInvalidEmailAdmin_thenBadCredentials() throws Exception {
+    void whenLoginInvalidEmailAdminThenBadCredentials() throws Exception {
         AuthenticationDTO authenticationDTO = new AuthenticationDTO(
                 "admin@admin.com.br",
                 "admin123"
@@ -182,7 +182,7 @@ class AuthenticationControllerTests extends MedCashFlowApplicationTests {
     }
 
     @Test
-    void whenLoginInvalidPasswordAdmin_thenBadCredentials() throws Exception {
+    void whenLoginInvalidPasswordAdminThenBadCredentials() throws Exception {
         AuthenticationDTO authenticationDTO = new AuthenticationDTO(
                 "admin@admin.com",
                 "admin"

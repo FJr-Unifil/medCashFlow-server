@@ -21,13 +21,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 class InvolvedControllerTests extends MedCashFlowApplicationTests {
 
     @Test
-    void whenAnonymousGetInvolvedById_thenForbidden() throws Exception {
+    void whenAnonymousGetInvolvedByIdThenForbidden() throws Exception {
         mockMvc.perform(get("/involveds/1"))
                 .andExpect(status().isForbidden());
     }
 
     @Test
-    void whenAllowedEmployeeGetInvolvedById_thenSucceeds() throws Exception {
+    void whenAllowedEmployeeGetInvolvedByIdThenSucceeds() throws Exception {
         mockMvc.perform(get("/involveds/1")
                         .header("Authorization", "Bearer " + managerToken))
                 .andExpect(status().isOk())
@@ -40,27 +40,27 @@ class InvolvedControllerTests extends MedCashFlowApplicationTests {
     }
 
     @Test
-    void whenAllowedEmployeeGetNonExistentInvolvedById_thenSucceeds() throws Exception {
+    void whenAllowedEmployeeGetNonExistentInvolvedByIdThenSucceeds() throws Exception {
         mockMvc.perform(get("/involveds/999")
                         .header("Authorization", "Bearer " + managerToken))
                 .andExpect(status().isNotFound());
     }
 
     @Test
-    void whenAdminGetInvolvedById_thenForbidden() throws Exception {
+    void whenAdminGetInvolvedByIdThenForbidden() throws Exception {
         mockMvc.perform(get("/involveds/1")
                         .header("Authorization", "Bearer " + adminToken))
                 .andExpect(status().isForbidden());
     }
 
     @Test
-    void whenAnonymousListInvolveds_thenForbidden() throws Exception {
+    void whenAnonymousListInvolvedsThenForbidden() throws Exception {
         mockMvc.perform(get("/involveds/list"))
                 .andExpect(status().isForbidden());
     }
 
     @Test
-    void whenAllowedEmployeeListInvolveds_thenSucceeds() throws Exception {
+    void whenAllowedEmployeeListInvolvedsThenSucceeds() throws Exception {
         mockMvc.perform(get("/involveds/list")
                         .header("Authorization", "Bearer " + managerToken))
                 .andExpect(status().isOk())
@@ -74,14 +74,14 @@ class InvolvedControllerTests extends MedCashFlowApplicationTests {
     }
 
     @Test
-    void whenAdminListInvolveds_thenForbidden() throws Exception {
+    void whenAdminListInvolvedsThenForbidden() throws Exception {
         mockMvc.perform(get("/involveds/list")
                         .header("Authorization", "Bearer " + adminToken))
                 .andExpect(status().isForbidden());
     }
 
     @Test
-    void whenAllowedEmployeeCreateInvolved_thenSucceeds() throws Exception {
+    void whenAllowedEmployeeCreateInvolvedThenSucceeds() throws Exception {
         InvolvedRegisterDTO involvedDTO = new InvolvedRegisterDTO(
                 "Test Involved",
                 "12345678901",
@@ -103,7 +103,7 @@ class InvolvedControllerTests extends MedCashFlowApplicationTests {
     }
 
     @Test
-    void whenCreateInvolvedWithExistingDocument_thenConflict() throws Exception {
+    void whenCreateInvolvedWithExistingDocumentThenConflict() throws Exception {
         InvolvedRegisterDTO firstInvolved = new InvolvedRegisterDTO(
                 "First Involved",
                 "12345678903",
@@ -132,7 +132,7 @@ class InvolvedControllerTests extends MedCashFlowApplicationTests {
     }
 
     @Test
-    void whenAllowedEmployeeUpdateInvolved_thenSucceeds() throws Exception {
+    void whenAllowedEmployeeUpdateInvolvedThenSucceeds() throws Exception {
         InvolvedRegisterDTO updateDTO = new InvolvedRegisterDTO(
                 "Updated Name",
                 "12345678904",
@@ -154,7 +154,7 @@ class InvolvedControllerTests extends MedCashFlowApplicationTests {
     }
 
     @Test
-    void whenUpdateNonExistentInvolved_thenNotFound() throws Exception {
+    void whenUpdateNonExistentInvolvedThenNotFound() throws Exception {
         InvolvedRegisterDTO updateDTO = new InvolvedRegisterDTO(
                 "Non Existent",
                 "12345678909",
@@ -170,7 +170,7 @@ class InvolvedControllerTests extends MedCashFlowApplicationTests {
     }
 
     @Test
-    void whenAllowedEmployeeDeleteAnActivateInvolved_thenSucceeds() throws Exception {
+    void whenAllowedEmployeeDeleteAnActivateInvolvedThenSucceeds() throws Exception {
         mockMvc.perform(delete("/involveds/1")
                         .header("Authorization", "Bearer " + managerToken))
                 .andExpect(status().isNoContent());
@@ -182,14 +182,14 @@ class InvolvedControllerTests extends MedCashFlowApplicationTests {
     }
 
     @Test
-    void whenDeleteNonExistentInvolved_thenNotFound() throws Exception {
+    void whenDeleteNonExistentInvolvedThenNotFound() throws Exception {
         mockMvc.perform(delete("/involveds/999999")
                         .header("Authorization", "Bearer " + managerToken))
                 .andExpect(status().isNotFound());
     }
 
     @Test
-    void whenAllowedEmployeeActivateInvolved_thenSucceeds() throws Exception {
+    void whenAllowedEmployeeActivateInvolvedThenSucceeds() throws Exception {
         InvolvedRegisterDTO createDTO = new InvolvedRegisterDTO(
                 "To Activate",
                 "12345678906",
@@ -217,7 +217,7 @@ class InvolvedControllerTests extends MedCashFlowApplicationTests {
     }
 
     @Test
-    void whenActivateNonExistentInvolved_thenNotFound() throws Exception {
+    void whenActivateNonExistentInvolvedThenNotFound() throws Exception {
         mockMvc.perform(put("/involveds/activate/999999")
                         .header("Authorization", "Bearer " + managerToken))
                 .andExpect(status().isNotFound());

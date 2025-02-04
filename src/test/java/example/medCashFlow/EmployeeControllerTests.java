@@ -20,13 +20,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class EmployeeControllerTests extends MedCashFlowApplicationTests {
 
     @Test
-    void whenAnonymousGettingEmployeeById_thenForbidden() throws Exception {
+    void whenAnonymousGettingEmployeeByIdThenForbidden() throws Exception {
         mockMvc.perform(get("/employees/1"))
                 .andExpect(status().isForbidden());
     }
 
     @Test
-    void whenAllowedEmployeeGettingEmployeeById_thenSucceeds() throws Exception {
+    void whenAllowedEmployeeGettingEmployeeByIdThenSucceeds() throws Exception {
         mockMvc.perform(get("/employees/1")
                         .header("Authorization", "Bearer " + managerToken))
                 .andExpect(status().isOk())
@@ -40,27 +40,27 @@ public class EmployeeControllerTests extends MedCashFlowApplicationTests {
     }
 
     @Test
-    void whenAllowedEmployeeGettingNonExistentEmployeeById_thenSucceeds() throws Exception {
+    void whenAllowedEmployeeGettingNonExistentEmployeeByIdThenSucceeds() throws Exception {
         mockMvc.perform(get("/employees/999")
                         .header("Authorization", "Bearer " + managerToken))
                 .andExpect(status().isNotFound());
     }
 
     @Test
-    void whenNotAllowedEmployeeGettingEmployeeById_thenForbidden() throws Exception {
+    void whenNotAllowedEmployeeGettingEmployeeByIdThenForbidden() throws Exception {
         mockMvc.perform(get("/employees/1")
                         .header("Authorization", "Bearer " + adminToken))
                 .andExpect(status().isForbidden());
     }
 
     @Test
-    void whenAnonymousListingEmployees_thenForbidden() throws Exception {
+    void whenAnonymousListingEmployeesThenForbidden() throws Exception {
         mockMvc.perform(get("/employees/list"))
                 .andExpect(status().isForbidden());
     }
 
     @Test
-    void whenAllowedEmployeeListingEmployees_thenSucceeds() throws Exception {
+    void whenAllowedEmployeeListingEmployeesThenSucceeds() throws Exception {
         mockMvc.perform(get("/employees/list")
                         .header("Authorization", "Bearer " + managerToken))
                 .andExpect(status().isOk())
@@ -75,14 +75,14 @@ public class EmployeeControllerTests extends MedCashFlowApplicationTests {
     }
 
     @Test
-    void whenNotAllowedEmployeeListingEmployees_thenForbidden() throws Exception {
+    void whenNotAllowedEmployeeListingEmployeesThenForbidden() throws Exception {
         mockMvc.perform(get("/employees/list")
                         .header("Authorization", "Bearer " + adminToken))
                 .andExpect(status().isForbidden());
     }
 
     @Test
-    void whenAnonymousCreateEmployee_thenForbidden() throws Exception {
+    void whenAnonymousCreateEmployeeThenForbidden() throws Exception {
         EmployeeRegisterDTO employeeDTO = new EmployeeRegisterDTO(
                 "John",
                 "Doe",
@@ -99,7 +99,7 @@ public class EmployeeControllerTests extends MedCashFlowApplicationTests {
     }
 
     @Test
-    void whenAllowedEmployeeCreateEmployee_thenSucceeds() throws Exception {
+    void whenAllowedEmployeeCreateEmployeeThenSucceeds() throws Exception {
         EmployeeRegisterDTO employeeDTO = new EmployeeRegisterDTO(
                 "John",
                 "Doe",
@@ -122,7 +122,7 @@ public class EmployeeControllerTests extends MedCashFlowApplicationTests {
     }
 
     @Test
-    void whenNotAllowedEmployeeCreateEmployee_thenForbidden() throws Exception {
+    void whenNotAllowedEmployeeCreateEmployeeThenForbidden() throws Exception {
         EmployeeRegisterDTO employeeDTO = new EmployeeRegisterDTO(
                 "John",
                 "Doe",
@@ -140,7 +140,7 @@ public class EmployeeControllerTests extends MedCashFlowApplicationTests {
     }
 
     @Test
-    void whenAnonymousUpdateEmployee_thenForbidden() throws Exception {
+    void whenAnonymousUpdateEmployeeThenForbidden() throws Exception {
         EmployeeRegisterDTO employeeDTO = new EmployeeRegisterDTO(
                 "Updated",
                 "Name",
@@ -157,7 +157,7 @@ public class EmployeeControllerTests extends MedCashFlowApplicationTests {
     }
 
     @Test
-    void whenAllowedEmployeeUpdateEmployee_thenSucceeds() throws Exception {
+    void whenAllowedEmployeeUpdateEmployeeThenSucceeds() throws Exception {
         Employee existingEmployee = employeeService.getEmployeeByEmail("manager@manager.com");
 
         EmployeeRegisterDTO employeeDTO = new EmployeeRegisterDTO(
@@ -183,7 +183,7 @@ public class EmployeeControllerTests extends MedCashFlowApplicationTests {
     }
 
     @Test
-    void whenAllowedEmployeeUpdateEmployeeWithExistingEmail_thenConflict() throws Exception {
+    void whenAllowedEmployeeUpdateEmployeeWithExistingEmailThenConflict() throws Exception {
         EmployeeRegisterDTO newEmployeeDTO = new EmployeeRegisterDTO(
                 "New",
                 "Employee",
@@ -218,7 +218,7 @@ public class EmployeeControllerTests extends MedCashFlowApplicationTests {
     }
 
     @Test
-    void whenNotAllowedEmployeeUpdateEmployee_thenForbidden() throws Exception {
+    void whenNotAllowedEmployeeUpdateEmployeeThenForbidden() throws Exception {
         EmployeeRegisterDTO employeeDTO = new EmployeeRegisterDTO(
                 "Updated",
                 "Name",
@@ -236,13 +236,13 @@ public class EmployeeControllerTests extends MedCashFlowApplicationTests {
     }
 
     @Test
-    void whenAnonymousDeleteEmployee_thenForbidden() throws Exception {
+    void whenAnonymousDeleteEmployeeThenForbidden() throws Exception {
         mockMvc.perform(delete("/employees/1"))
                 .andExpect(status().isForbidden());
     }
 
     @Test
-    void whenAllowedEmployeeDeleteEmployee_thenSucceeds() throws Exception {
+    void whenAllowedEmployeeDeleteEmployeeThenSucceeds() throws Exception {
         Employee employeeToDelete = employeeService.getEmployeeByEmail("financial@financial.com");
 
         assertTrue(employeeToDelete.isActive());
@@ -260,14 +260,14 @@ public class EmployeeControllerTests extends MedCashFlowApplicationTests {
     }
 
     @Test
-    void whenNotAllowedEmployeeDeleteEmployee_thenForbidden() throws Exception {
+    void whenNotAllowedEmployeeDeleteEmployeeThenForbidden() throws Exception {
         mockMvc.perform(delete("/employees/delete/1")
                         .header("Authorization", "Bearer " + adminToken))
                 .andExpect(status().isForbidden());
     }
 
     @Test
-    void whenAllowedEmployeeUpdateNonExistentEmployee_thenNotFound() throws Exception {
+    void whenAllowedEmployeeUpdateNonExistentEmployeeThenNotFound() throws Exception {
         EmployeeRegisterDTO employeeDTO = new EmployeeRegisterDTO(
                 "Updated",
                 "Name",
@@ -285,20 +285,20 @@ public class EmployeeControllerTests extends MedCashFlowApplicationTests {
     }
 
     @Test
-    void whenAllowedEmployeeDeleteNonExistentEmployee_thenNotFound() throws Exception {
+    void whenAllowedEmployeeDeleteNonExistentEmployeeThenNotFound() throws Exception {
         mockMvc.perform(delete("/employees/delete/999999")
                         .header("Authorization", "Bearer " + managerToken))
                 .andExpect(status().isNotFound());
     }
 
     @Test
-    void whenAnonymousActivateEmployee_thenForbidden() throws Exception {
+    void whenAnonymousActivateEmployeeThenForbidden() throws Exception {
         mockMvc.perform(put("/employees/activate/1"))
                 .andExpect(status().isForbidden());
     }
 
     @Test
-    void whenAllowedEmployeeActivateEmployee_thenSucceeds() throws Exception {
+    void whenAllowedEmployeeActivateEmployeeThenSucceeds() throws Exception {
         Employee employeeToActivate = employeeService.getEmployeeByEmail("financial2@financial.com");
 
         assertFalse(employeeToActivate.isActive());
@@ -316,21 +316,21 @@ public class EmployeeControllerTests extends MedCashFlowApplicationTests {
     }
 
     @Test
-    void whenNotAllowedEmployeeActivateEmployee_thenForbidden() throws Exception {
+    void whenNotAllowedEmployeeActivateEmployeeThenForbidden() throws Exception {
         mockMvc.perform(put("/employees/activate/1")
                         .header("Authorization", "Bearer " + adminToken))
                 .andExpect(status().isForbidden());
     }
 
     @Test
-    void whenAllowedEmployeeActivateNonExistentEmployee_thenNotFound() throws Exception {
+    void whenAllowedEmployeeActivateNonExistentEmployeeThenNotFound() throws Exception {
         mockMvc.perform(put("/employees/activate/999999") // non-existent ID
                         .header("Authorization", "Bearer " + managerToken))
                 .andExpect(status().isNotFound());
     }
 
     @Test
-    void whenAllowedEmployeeActivateAlreadyActiveEmployee_thenSucceeds() throws Exception {
+    void whenAllowedEmployeeActivateAlreadyActiveEmployeeThenSucceeds() throws Exception {
         EmployeeRegisterDTO newEmployeeDTO = new EmployeeRegisterDTO(
                 "Already",
                 "Active",
