@@ -25,11 +25,11 @@ public class Employee implements UserDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    private String first_name;
+    @Column(name = "firstName", nullable = false)
+    private String firstName;
 
-    @Column(nullable = false)
-    private String last_name;
+    @Column(name = "lastName",nullable = false)
+    private String lastName;
 
     @Column(nullable = false, unique = true)
     private String cpf;
@@ -52,8 +52,8 @@ public class Employee implements UserDetails {
     private boolean isActive = true;
 
     public Employee(ManagerRegisterDTO data, String encryptedPassword, Role role, Clinic clinic) {
-        this.first_name = data.first_name();
-        this.last_name = data.last_name();
+        this.firstName = data.firstName();
+        this.lastName = data.lastName();
         this.cpf = data.cpf();
         this.email = data.email();
         this.password = encryptedPassword;
@@ -62,8 +62,8 @@ public class Employee implements UserDetails {
     }
 
     public Employee(EmployeeRegisterDTO data) {
-        this.first_name = data.firstName();
-        this.last_name = data.lastName();
+        this.firstName = data.firstName();
+        this.lastName = data.lastName();
         this.cpf = data.cpf();
         this.email = data.email();
     }

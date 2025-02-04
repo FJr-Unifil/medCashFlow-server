@@ -34,8 +34,8 @@ public class EmployeeController {
 
         EmployeeResponseDTO employeeResponseDTO = new EmployeeResponseDTO(
                 employee.getId(),
-                employee.getFirst_name(),
-                employee.getLast_name(),
+                employee.getFirstName(),
+                employee.getLastName(),
                 employee.getCpf(),
                 employee.getEmail(),
                 employee.getRole().getName(),
