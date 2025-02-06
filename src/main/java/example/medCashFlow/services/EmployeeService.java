@@ -32,8 +32,8 @@ public class EmployeeService {
         return repository.findAllByClinicIdOrderById(clinicId).stream()
                 .map(employee -> new EmployeeResponseDTO(
                         employee.getId(),
-                        employee.getFirst_name(),
-                        employee.getLast_name(),
+                        employee.getFirstName(),
+                        employee.getLastName(),
                         employee.getCpf(),
                         employee.getEmail(),
                         employee.getRole().getName(),
@@ -70,8 +70,8 @@ public class EmployeeService {
 
         return new EmployeeResponseDTO(
                 employee.getId(),
-                employee.getFirst_name(),
-                employee.getLast_name(),
+                employee.getFirstName(),
+                employee.getLastName(),
                 employee.getCpf(),
                 employee.getEmail(),
                 employee.getRole().getName(),
@@ -92,8 +92,8 @@ public class EmployeeService {
             throw new InvalidEmployeeException("manager.cpf");
         }
 
-        existingEmployee.setFirst_name(employee.getFirst_name());
-        existingEmployee.setLast_name(employee.getLast_name());
+        existingEmployee.setFirstName(employee.getFirstName());
+        existingEmployee.setLastName(employee.getLastName());
         existingEmployee.setEmail(employee.getEmail());
         existingEmployee.setCpf(employee.getCpf());
         existingEmployee.setPassword(employee.getPassword());
@@ -103,8 +103,8 @@ public class EmployeeService {
 
         return new EmployeeResponseDTO(
                 existingEmployee.getId(),
-                existingEmployee.getFirst_name(),
-                existingEmployee.getLast_name(),
+                existingEmployee.getFirstName(),
+                existingEmployee.getLastName(),
                 existingEmployee.getCpf(),
                 existingEmployee.getEmail(),
                 existingEmployee.getRole().getName(),

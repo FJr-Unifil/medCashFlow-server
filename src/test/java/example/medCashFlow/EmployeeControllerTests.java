@@ -254,8 +254,8 @@ public class EmployeeControllerTests extends MedCashFlowApplicationTests {
         Employee deletedEmployee = employeeService.getEmployeeByEmail("financial@financial.com");
         assertFalse(deletedEmployee.isActive());
         assertNotNull(deletedEmployee.getId());
-        assertEquals("João", deletedEmployee.getFirst_name());
-        assertEquals("Pé de Feijão", deletedEmployee.getLast_name());
+        assertEquals("João", deletedEmployee.getFirstName());
+        assertEquals("Pé de Feijão", deletedEmployee.getLastName());
         assertEquals("financial@financial.com", deletedEmployee.getEmail());
     }
 
@@ -310,8 +310,8 @@ public class EmployeeControllerTests extends MedCashFlowApplicationTests {
         Employee activatedEmployee = employeeService.getEmployeeByEmail("financial2@financial.com");
         assertTrue(activatedEmployee.isActive());
         assertNotNull(activatedEmployee.getId());
-        assertEquals("Francisco", activatedEmployee.getFirst_name());
-        assertEquals("Xavier", activatedEmployee.getLast_name());
+        assertEquals("Francisco", activatedEmployee.getFirstName());
+        assertEquals("Xavier", activatedEmployee.getLastName());
         assertEquals("financial2@financial.com", activatedEmployee.getEmail());
     }
 
