@@ -25,10 +25,10 @@ public class Employee implements UserDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "firstName", nullable = false)
+    @Column(name = "first_name", nullable = false)
     private String firstName;
 
-    @Column(name = "lastName",nullable = false)
+    @Column(name = "last_name",nullable = false)
     private String lastName;
 
     @Column(nullable = false, unique = true)
