@@ -18,13 +18,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class InstallmentControllerTests extends MedCashFlowApplicationTests {
 
     @Test
-    void whenAnonymousUpdateInstallmentThenForbidden() throws Exception {
+    void whenAnonymousUpdateInstallment_thenForbidden() throws Exception {
         mockMvc.perform(put("/installments//update/1"))
                 .andExpect(status().isForbidden());
     }
 
     @Test
-    void whenAllowedEmployeeUpdateInstallmentThenNoContent() throws Exception {
+    void whenAllowedEmployeeUpdateInstallment_thenNoContent() throws Exception {
         InstallmentUpdateDTO installmentUpdateDTO = new InstallmentUpdateDTO(LocalDateTime.now().plusDays(7));
 
         mockMvc.perform(put("/installments/update/1")
@@ -35,40 +35,40 @@ public class InstallmentControllerTests extends MedCashFlowApplicationTests {
     }
 
     @Test
-    void whenAdminUpdateInstallmentThenForbidden() throws Exception {
+    void whenAdminUpdateInstallment_thenForbidden() throws Exception {
         mockMvc.perform(put("/installments/update/1")
                         .header("Authorization", "Bearer " + adminToken))
                 .andExpect(status().isForbidden());
     }
 
     @Test
-    void whenAnonymousMarksInstallmentAsPaidThenForbidden() throws Exception {
+    void whenAnonymousMarksInstallmentAsPaid_thenForbidden() throws Exception {
         mockMvc.perform(put("/installments/mark-as-paid/1"))
                 .andExpect(status().isForbidden());
     }
 
     @Test
-    void whenAllowedEmployeeMarksInstallmentAsPaidThenNoContent() throws Exception {
+    void whenAllowedEmployeeMarksInstallmentAsPaid_thenNoContent() throws Exception {
         mockMvc.perform(put("/installments/mark-as-paid/1")
                         .header("Authorization", "Bearer " + managerToken))
                 .andExpect(status().isNoContent());
     }
 
     @Test
-    void whenAdminMarksInstallmentAsPaidThenForbidden() throws Exception {
+    void whenAdminMarksInstallmentAsPaid_thenForbidden() throws Exception {
         mockMvc.perform(put("/installments/mark-as-paid/1")
                         .header("Authorization", "Bearer " + adminToken))
                 .andExpect(status().isForbidden());
     }
 
     @Test
-    void whenAnonymousMarkInstallmentAsUnpaidThenForbidden() throws Exception {
+    void whenAnonymousMarkInstallmentAsUnpaid_thenForbidden() throws Exception {
         mockMvc.perform(put("/installments/mark-as-unpaid/1"))
                 .andExpect(status().isForbidden());
     }
 
     @Test
-    void whenAllowedEmployeeMarkInstallmentAsUnpaidThenNoContent() throws Exception {
+    void whenAllowedEmployeeMarkInstallmentAsUnpaid_thenNoContent() throws Exception {
         mockMvc.perform(put("/installments/mark-as-paid/1")
                         .header("Authorization", "Bearer " + managerToken))
                 .andExpect(status().isNoContent());
@@ -79,7 +79,7 @@ public class InstallmentControllerTests extends MedCashFlowApplicationTests {
     }
 
     @Test
-    void whenAdminMarkInstallmentAsUnpaidThenForbidden() throws Exception {
+    void whenAdminMarkInstallmentAsUnpaid_thenForbidden() throws Exception {
         mockMvc.perform(put("/installments/mark-as-unpaid/1")
                         .header("Authorization", "Bearer " + adminToken))
                 .andExpect(status().isForbidden());

@@ -28,13 +28,13 @@ public class ClinicControllerTests extends MedCashFlowApplicationTests {
     private MockMvc mockMvc;
 
     @Test
-    void whenAnonymousAccessClinicsThenUnauthorized() throws Exception {
+    void whenAnonymousAccessClinics_thenUnauthorized() throws Exception {
         mockMvc.perform(get("/clinics"))
                 .andExpect(status().isForbidden());
     }
 
     @Test
-    void whenAdminAccessClinicsThenSucceeds() throws Exception {
+    void whenAdminAccessClinics_thenSucceeds() throws Exception {
         mockMvc.perform(get("/clinics/list")
                         .header("Authorization", "Bearer " + adminToken))
                 .andExpect(status().isOk())
@@ -48,14 +48,14 @@ public class ClinicControllerTests extends MedCashFlowApplicationTests {
     }
 
     @Test
-    void whenEmployeeAccessClinicsThenForbidden() throws Exception {
+    void whenEmployeeAccessClinics_thenForbidden() throws Exception {
         mockMvc.perform(get("/clinics/list")
                         .header("Authorization", "Bearer " + managerToken))
                 .andExpect(status().isForbidden());
     }
 
     @Test
-    void whenAnonymousDeleteClinicsThenUnauthorized() throws Exception {
+    void whenAnonymousDeleteClinics_thenUnauthorized() throws Exception {
         List<ClinicResponseDTO> clinics = clinicService.getAllClinics();
 
         UUID id = clinics.get(0).id();
@@ -64,7 +64,7 @@ public class ClinicControllerTests extends MedCashFlowApplicationTests {
     }
 
     @Test
-    void whenAdminDeleteClinicsThenSucceeds() throws Exception {
+    void whenAdminDeleteClinics_thenSucceeds() throws Exception {
         List<ClinicResponseDTO> clinics = clinicService.getAllClinics();
         UUID id = clinics.get(0).id();
 
@@ -84,7 +84,7 @@ public class ClinicControllerTests extends MedCashFlowApplicationTests {
     }
 
     @Test
-    void whenEmployeeDeleteClinicsThenForbidden() throws Exception {
+    void whenEmployeeDeleteClinics_thenForbidden() throws Exception {
         List<ClinicResponseDTO> clinics = clinicService.getAllClinics();
 
         UUID id = clinics.get(0).id();
@@ -95,7 +95,7 @@ public class ClinicControllerTests extends MedCashFlowApplicationTests {
     }
 
     @Test
-    void whenAnonymousActivateClinicsThenUnauthorized() throws Exception {
+    void whenAnonymousActivateClinics_thenUnauthorized() throws Exception {
         List<ClinicResponseDTO> clinics = clinicService.getAllClinics();
 
         UUID id = clinics.get(0).id();
@@ -104,7 +104,7 @@ public class ClinicControllerTests extends MedCashFlowApplicationTests {
     }
 
     @Test
-    void whenAdminActivateClinicsThenSucceeds() throws Exception {
+    void whenAdminActivateClinics_thenSucceeds() throws Exception {
         List<ClinicResponseDTO> clinics = clinicService.getAllClinics();
         UUID id = clinics.get(1).id();
 
@@ -119,7 +119,7 @@ public class ClinicControllerTests extends MedCashFlowApplicationTests {
     }
 
     @Test
-    void whenEmployeeActivateClinicsThenForbidden() throws Exception {
+    void whenEmployeeActivateClinics_thenForbidden() throws Exception {
         List<ClinicResponseDTO> clinics = clinicService.getAllClinics();
 
         UUID id = clinics.get(0).id();

@@ -20,13 +20,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class AccountPlanningControllerTests extends MedCashFlowApplicationTests {
 
     @Test
-    void whenAnonymousGettingAccountPlanningByIdThenForbidden() throws Exception {
+    void whenAnonymousGettingAccountPlanningById_thenForbidden() throws Exception {
         mockMvc.perform(get("/account-plannings/1"))
                 .andExpect(status().isForbidden());
     }
 
     @Test
-    void whenAllowedEmployeeGettingAccountPlanningByIdThenSucceeds() throws Exception {
+    void whenAllowedEmployeeGettingAccountPlanningById_thenSucceeds() throws Exception {
         mockMvc.perform(get("/account-plannings/1")
                         .header("Authorization", "Bearer " + managerToken))
                 .andExpect(status().isOk())
@@ -38,41 +38,41 @@ public class AccountPlanningControllerTests extends MedCashFlowApplicationTests 
     }
 
     @Test
-    void whenAllowedEmployeeGettingNonExistentAccountPlanningByIdThenNotFound() throws Exception {
+    void whenAllowedEmployeeGettingNonExistentAccountPlanningById_thenNotFound() throws Exception {
         mockMvc.perform(get("/account-plannings/2")
                         .header("Authorization", "Bearer " + managerToken))
                 .andExpect(status().isNotFound());
     }
 
     @Test
-    void whenAdminGettingAccountPlanningByIdThenForbidden() throws Exception {
+    void whenAdminGettingAccountPlanningById_thenForbidden() throws Exception {
         mockMvc.perform(get("/account-plannings/1")
                         .header("Authorization", "Bearer " + adminToken))
                 .andExpect(status().isForbidden());
     }
 
     @Test
-    void whenAnonymousListingAccountPlanningsThenForbidden() throws Exception {
+    void whenAnonymousListingAccountPlannings_thenForbidden() throws Exception {
         mockMvc.perform(get("/account-plannings/list"))
                 .andExpect(status().isForbidden());
     }
 
     @Test
-    void whenAllowedEmployeeListingAccountPlanningsThenSucceeds() throws Exception {
+    void whenAllowedEmployeeListingAccountPlannings_thenSucceeds() throws Exception {
         mockMvc.perform(get("/account-plannings/list")
                         .header("Authorization", "Bearer " + managerToken))
                 .andExpect(status().isOk());
     }
 
     @Test
-    void whenAdminListingAccountPlanningsThenForbidden() throws Exception {
+    void whenAdminListingAccountPlannings_thenForbidden() throws Exception {
         mockMvc.perform(get("/account-plannings/list")
                         .header("Authorization", "Bearer " + adminToken))
                 .andExpect(status().isForbidden());
     }
 
     @Test
-    void whenAnonymousCreateAccountPlanningThenForbidden() throws Exception {
+    void whenAnonymousCreateAccountPlanning_thenForbidden() throws Exception {
         AccountPlanningRegisterDTO planningDTO = new AccountPlanningRegisterDTO(
                 "Test Planning",
                 "Test Description",
@@ -87,7 +87,7 @@ public class AccountPlanningControllerTests extends MedCashFlowApplicationTests 
     }
 
     @Test
-    void whenAllowedEmployeeCreateAccountPlanningThenSucceeds() throws Exception {
+    void whenAllowedEmployeeCreateAccountPlanning_thenSucceeds() throws Exception {
         AccountPlanningRegisterDTO planningDTO = new AccountPlanningRegisterDTO(
                 "Test Planning 2",
                 "Test Description 2",
@@ -106,7 +106,7 @@ public class AccountPlanningControllerTests extends MedCashFlowApplicationTests 
     }
 
     @Test
-    void whenAdminCreateAccountPlanningThenForbidden() throws Exception {
+    void whenAdminCreateAccountPlanning_thenForbidden() throws Exception {
         AccountPlanningRegisterDTO planningDTO = new AccountPlanningRegisterDTO(
                 "Test Planning",
                 "Test Description",
@@ -122,7 +122,7 @@ public class AccountPlanningControllerTests extends MedCashFlowApplicationTests 
     }
 
     @Test
-    void whenAnonymousUpdateAccountPlanningThenForbidden() throws Exception {
+    void whenAnonymousUpdateAccountPlanning_thenForbidden() throws Exception {
         AccountPlanningRegisterDTO planningDTO = new AccountPlanningRegisterDTO(
                 "Updated Planning",
                 "Updated Description",
@@ -137,7 +137,7 @@ public class AccountPlanningControllerTests extends MedCashFlowApplicationTests 
     }
 
     @Test
-    void whenAllowedEmployeeUpdateAccountPlanningThenSucceeds() throws Exception {
+    void whenAllowedEmployeeUpdateAccountPlanning_thenSucceeds() throws Exception {
         AccountPlanningRegisterDTO createDTO = new AccountPlanningRegisterDTO(
                 "Original Planning",
                 "Original Description",
@@ -173,7 +173,7 @@ public class AccountPlanningControllerTests extends MedCashFlowApplicationTests 
     }
 
     @Test
-    void whenAllowedEmployeeUpdateNonExistentAccountPlanningThenNotFound() throws Exception {
+    void whenAllowedEmployeeUpdateNonExistentAccountPlanning_thenNotFound() throws Exception {
         AccountPlanningRegisterDTO planningDTO = new AccountPlanningRegisterDTO(
                 "Updated Planning",
                 "Updated Description",
@@ -189,7 +189,7 @@ public class AccountPlanningControllerTests extends MedCashFlowApplicationTests 
     }
 
     @Test
-    void whenAdminUpdateAccountPlanningThenForbidden() throws Exception {
+    void whenAdminUpdateAccountPlanning_thenForbidden() throws Exception {
         AccountPlanningRegisterDTO planningDTO = new AccountPlanningRegisterDTO(
                 "Updated Planning",
                 "Updated Description",
@@ -205,13 +205,13 @@ public class AccountPlanningControllerTests extends MedCashFlowApplicationTests 
     }
 
     @Test
-    void whenAnonymousDeleteAccountPlanningThenForbidden() throws Exception {
+    void whenAnonymousDeleteAccountPlanning_thenForbidden() throws Exception {
         mockMvc.perform(delete("/account-plannings/delete/1"))
                 .andExpect(status().isForbidden());
     }
 
     @Test
-    void whenAllowedEmployeeDeleteAccountPlanningThenSucceeds() throws Exception {
+    void whenAllowedEmployeeDeleteAccountPlanning_thenSucceeds() throws Exception {
         AccountPlanningRegisterDTO createDTO = new AccountPlanningRegisterDTO(
                 "To Delete",
                 "Will be deleted",
@@ -235,14 +235,14 @@ public class AccountPlanningControllerTests extends MedCashFlowApplicationTests 
     }
 
     @Test
-    void whenAllowedEmployeeDeleteNonExistentAccountPlanningThenNotFound() throws Exception {
+    void whenAllowedEmployeeDeleteNonExistentAccountPlanning_thenNotFound() throws Exception {
         mockMvc.perform(delete("/account-plannings/delete/999999")
                         .header("Authorization", "Bearer " + managerToken))
                 .andExpect(status().isNotFound());
     }
 
     @Test
-    void whenAdminDeleteAccountPlanningThenForbidden() throws Exception {
+    void whenAdminDeleteAccountPlanning_thenForbidden() throws Exception {
         mockMvc.perform(delete("/account-plannings/delete/1")
                         .header("Authorization", "Bearer " + adminToken))
                 .andExpect(status().isForbidden());

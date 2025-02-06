@@ -12,27 +12,27 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class BillControllerTests extends MedCashFlowApplicationTests {
 
     @Test
-    void whenAnonymousListingBillsThenForbidden() throws Exception {
+    void whenAnonymousListingBills_thenForbidden() throws Exception {
         mockMvc.perform(get("/bills/list"))
                 .andExpect(status().isForbidden());
     }
 
     @Test
-    void whenAllowedEmployeeListingBillsThenSucceeds() throws Exception {
+    void whenAllowedEmployeeListingBills_thenSucceeds() throws Exception {
         mockMvc.perform(get("/bills/list")
                         .header("Authorization", "Bearer " + managerToken))
                 .andExpect(status().isOk());
     }
 
     @Test
-    void whenAdminListingBillsThenForbidden() throws Exception {
+    void whenAdminListingBills_thenForbidden() throws Exception {
         mockMvc.perform(get("/bills/list")
                         .header("Authorization", "Bearer " + adminToken))
                 .andExpect(status().isForbidden());
     }
 
     @Test
-    void whenAnonymousCreateBillThenForbidden() throws Exception {
+    void whenAnonymousCreateBill_thenForbidden() throws Exception {
         BillRegisterDTO billDTO = new BillRegisterDTO(
                 "Test Bill",
                 100.00,
@@ -51,7 +51,7 @@ public class BillControllerTests extends MedCashFlowApplicationTests {
     }
 
     @Test
-    void whenAllowedEmployeeCreateBillThenSucceeds() throws Exception {
+    void whenAllowedEmployeeCreateBill_thenSucceeds() throws Exception {
         BillRegisterDTO billDTO = new BillRegisterDTO(
                 "Test Bill",
                 100.00,
@@ -71,7 +71,7 @@ public class BillControllerTests extends MedCashFlowApplicationTests {
     }
 
     @Test
-    void whenAdminCreateBillThenForbidden() throws Exception {
+    void whenAdminCreateBill_thenForbidden() throws Exception {
         BillRegisterDTO billDTO = new BillRegisterDTO(
                 "Test Bill",
                 100.00,
@@ -91,7 +91,7 @@ public class BillControllerTests extends MedCashFlowApplicationTests {
     }
 
     @Test
-    void whenAnonymousUpdateBillThenForbidden() throws Exception {
+    void whenAnonymousUpdateBill_thenForbidden() throws Exception {
         BillRegisterDTO billDTO = new BillRegisterDTO(
                 "Updated Bill",
                 200.00,
@@ -110,7 +110,7 @@ public class BillControllerTests extends MedCashFlowApplicationTests {
     }
 
     @Test
-    void whenAllowedEmployeeUpdateBillThenSucceeds() throws Exception {
+    void whenAllowedEmployeeUpdateBill_thenSucceeds() throws Exception {
         BillRegisterDTO updateDTO = new BillRegisterDTO(
                 "Updated Bill",
                 200.00,
@@ -130,27 +130,27 @@ public class BillControllerTests extends MedCashFlowApplicationTests {
     }
 
     @Test
-    void whenAnonymousDeleteBillThenForbidden() throws Exception {
+    void whenAnonymousDeleteBill_thenForbidden() throws Exception {
         mockMvc.perform(delete("/bills/delete/1"))
                 .andExpect(status().isForbidden());
     }
 
     @Test
-    void whenAllowedEmployeeDeleteBillThenSucceeds() throws Exception {
+    void whenAllowedEmployeeDeleteBill_thenSucceeds() throws Exception {
         mockMvc.perform(delete("/bills/delete/1")
                         .header("Authorization", "Bearer " + managerToken))
                 .andExpect(status().isNoContent());
     }
 
     @Test
-    void whenAdminDeleteBillThenForbidden() throws Exception {
+    void whenAdminDeleteBill_thenForbidden() throws Exception {
         mockMvc.perform(delete("/bills/delete/1")
                         .header("Authorization", "Bearer " + adminToken))
                 .andExpect(status().isForbidden());
     }
 
     @Test
-    void whenAllowedEmployeeUpdateNonExistentBillThenNotFound() throws Exception {
+    void whenAllowedEmployeeUpdateNonExistentBill_thenNotFound() throws Exception {
         BillRegisterDTO billDTO = new BillRegisterDTO(
                 "Non-existent Bill",
                 100.00,
@@ -170,7 +170,7 @@ public class BillControllerTests extends MedCashFlowApplicationTests {
     }
 
     @Test
-    void whenAllowedEmployeeDeleteNonExistentBillThenNotFound() throws Exception {
+    void whenAllowedEmployeeDeleteNonExistentBill_thenNotFound() throws Exception {
         mockMvc.perform(delete("/bills/delete/999999")
                         .header("Authorization", "Bearer " + managerToken))
                 .andExpect(status().isNotFound());
