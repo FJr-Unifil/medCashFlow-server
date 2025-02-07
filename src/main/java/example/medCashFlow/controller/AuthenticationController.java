@@ -61,16 +61,15 @@ public class AuthenticationController {
     public ResponseEntity<EmployeeResponseDTO> register(@RequestBody RegisterDTO data) {
 
         ClinicRegisterDTO clinicData = data.clinic();
-
         ManagerRegisterDTO managerData = data.manager();
 
         Clinic savedClinic = clinicService.saveClinic(clinicData);
 
-        String encryptedPassword = new BCryptPasswordEncoder().encode(managerData.password());
-
         Role role = roleService.getRoleById(1L);
 
-        Employee manager = new Employee(managerData, encryptedPassword, role, savedClinic);
+        Employee manager = employeeService.toManager(managerData);
+        manager.setRole(role);
+        manager.setClinic(savedClinic);
 
         return ResponseEntity.ok(employeeService.saveEmployee(manager));
     }

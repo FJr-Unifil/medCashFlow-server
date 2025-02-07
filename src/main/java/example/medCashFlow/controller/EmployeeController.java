@@ -22,8 +22,6 @@ public class EmployeeController {
 
     private final EmployeeService employeeService;
 
-    private final RoleService roleService;
-
     @GetMapping("/{id}")
     public ResponseEntity<EmployeeResponseDTO> getEmployeeById(@AuthenticationPrincipal UserDetails loggedManager, @PathVariable Long id) {
         if (!(loggedManager instanceof Employee)) {
@@ -61,10 +59,7 @@ public class EmployeeController {
             throw new ForbiddenException();
         }
 
-        Employee newEmployee = new Employee(data);
-        String encryptedPassword = new BCryptPasswordEncoder().encode(data.password());
-        newEmployee.setPassword(encryptedPassword);
-        newEmployee.setRole(roleService.getRoleById(data.roleId()));
+        Employee newEmployee = employeeService.toEmployee(data);;
         newEmployee.setClinic(manager.getClinic());
 
         return ResponseEntity.ok(employeeService.saveEmployee(newEmployee));
@@ -80,13 +75,11 @@ public class EmployeeController {
             throw new ForbiddenException();
         }
 
-        Employee employeeToUpdate = new Employee(data);
-        String encryptedPassword = new BCryptPasswordEncoder().encode(data.password());
-        employeeToUpdate.setPassword(encryptedPassword);
-        employeeToUpdate.setRole(roleService.getRoleById(data.roleId()));
+        Employee employeeToUpdate = employeeService.toEmployee(data);
+        employeeToUpdate.setId(id);
         employeeToUpdate.setClinic(manager.getClinic());
 
-        return ResponseEntity.ok(employeeService.updateEmployee(employeeToUpdate, id));
+        return ResponseEntity.ok(employeeService.updateEmployee(employeeToUpdate));
     }
 
     @PutMapping("/activate/{id}")

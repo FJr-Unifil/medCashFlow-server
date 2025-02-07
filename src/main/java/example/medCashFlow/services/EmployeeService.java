@@ -1,8 +1,11 @@
 package example.medCashFlow.services;
 
+import example.medCashFlow.dto.employee.EmployeeRegisterDTO;
 import example.medCashFlow.dto.employee.EmployeeResponseDTO;
+import example.medCashFlow.dto.employee.ManagerRegisterDTO;
 import example.medCashFlow.exceptions.EmployeeNotFoundException;
 import example.medCashFlow.exceptions.InvalidEmployeeException;
+import example.medCashFlow.mappers.EmployeeMapper;
 import example.medCashFlow.model.Employee;
 import example.medCashFlow.repository.EmployeeRepository;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +21,19 @@ public class EmployeeService {
 
     private final EmployeeRepository repository;
 
-    private final RoleService roleService;
+    private final EmployeeMapper mapper;
+
+    public Employee toEmployee(EmployeeRegisterDTO data) {
+        return mapper.toEmployee(data);
+    }
+
+    public Employee toManager(ManagerRegisterDTO data) {
+        return mapper.toManager(data);
+    }
+
+    public EmployeeResponseDTO toResponseDTO(Employee employee) {
+        return mapper.toResponseDTO(employee);
+    }
 
     public Employee getEmployeeById(Long Id) {
         return repository.findById(Id).orElseThrow(EmployeeNotFoundException::new);
@@ -30,15 +45,7 @@ public class EmployeeService {
 
     public List<EmployeeResponseDTO> getAllEmployeesByClinicId(UUID clinicId) {
         return repository.findAllByClinicIdOrderById(clinicId).stream()
-                .map(employee -> new EmployeeResponseDTO(
-                        employee.getId(),
-                        employee.getFirstName(),
-                        employee.getLastName(),
-                        employee.getCpf(),
-                        employee.getEmail(),
-                        employee.getRole().getName(),
-                        employee.isActive()
-                )).toList();
+                .map(this::toResponseDTO).toList();
     }
 
     public boolean isEmployeeValid(String cpf, String email) {
@@ -66,21 +73,11 @@ public class EmployeeService {
             throw new InvalidEmployeeException();
         }
 
-        repository.save(employee);
-
-        return new EmployeeResponseDTO(
-                employee.getId(),
-                employee.getFirstName(),
-                employee.getLastName(),
-                employee.getCpf(),
-                employee.getEmail(),
-                employee.getRole().getName(),
-                employee.isActive()
-        );
+        return toResponseDTO(repository.save(employee));
     }
 
-    public EmployeeResponseDTO updateEmployee(Employee employee, Long id) {
-        Employee existingEmployee = getEmployeeById(id);
+    public EmployeeResponseDTO updateEmployee(Employee employee) {
+        Employee existingEmployee = getEmployeeById(employee.getId());
 
         if (!employee.getEmail().equals(existingEmployee.getEmail())
                 && repository.existsByEmail(employee.getEmail())) {
@@ -92,24 +89,7 @@ public class EmployeeService {
             throw new InvalidEmployeeException("manager.cpf");
         }
 
-        existingEmployee.setFirstName(employee.getFirstName());
-        existingEmployee.setLastName(employee.getLastName());
-        existingEmployee.setEmail(employee.getEmail());
-        existingEmployee.setCpf(employee.getCpf());
-        existingEmployee.setPassword(employee.getPassword());
-        existingEmployee.setRole(employee.getRole());
-
-        repository.save(existingEmployee);
-
-        return new EmployeeResponseDTO(
-                existingEmployee.getId(),
-                existingEmployee.getFirstName(),
-                existingEmployee.getLastName(),
-                existingEmployee.getCpf(),
-                existingEmployee.getEmail(),
-                existingEmployee.getRole().getName(),
-                existingEmployee.isActive()
-        );
+        return toResponseDTO(repository.save(employee));
     }
 
     public void deleteEmployee(Long id) {
