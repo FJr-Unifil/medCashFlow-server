@@ -21,11 +21,11 @@ public class ClinicService {
 
     private final ClinicMapper mapper;
 
-    public ClinicResponseDTO getClinicResponseDTO(Clinic clinic) {
+    public ClinicResponseDTO toClinicResponseDTO(Clinic clinic) {
         return mapper.toResponseDTO(clinic);
     }
 
-    public Clinic getClinicByClinicRegisterDTO(ClinicRegisterDTO clinicData) {
+    public Clinic toClinic(ClinicRegisterDTO clinicData) {
         return mapper.toClinic(clinicData);
     }
 
@@ -35,7 +35,7 @@ public class ClinicService {
 
     public List<ClinicResponseDTO> getAllClinics() {
         return repository.findAllByOrderByCreatedAtAsc().stream()
-                .map(this::getClinicResponseDTO)
+                .map(this::toClinicResponseDTO)
                 .toList();
     }
 
@@ -44,7 +44,7 @@ public class ClinicService {
             throw new InvalidClinicException();
         }
 
-        return repository.save(getClinicByClinicRegisterDTO(data));
+        return repository.save(toClinic(data));
     }
 
     public void saveClinic(Clinic data) {
