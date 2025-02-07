@@ -27,9 +27,7 @@ public class AccountPlanningController {
             throw new ForbiddenException();
         }
 
-        AccountPlanning accountPlanning = accountPlanningService.getAccountPlanningById(id);
-
-        return ResponseEntity.ok(accountPlanningService.toDTO(accountPlanning));
+        return ResponseEntity.ok(accountPlanningService.getAccountPlanningByIdDTO(id));
     }
 
     @GetMapping("/list")
@@ -53,11 +51,7 @@ public class AccountPlanningController {
             throw new ForbiddenException();
         }
 
-        AccountPlanning newAccountPlanning = new AccountPlanning();
-        newAccountPlanning.setName(data.name());
-        newAccountPlanning.setDescription(data.description());
-        newAccountPlanning.setEmoji(data.emoji());
-        newAccountPlanning.setColor(data.color());
+        AccountPlanning newAccountPlanning = accountPlanningService.toAccountPlanning(data);
         newAccountPlanning.setClinic(employee.getClinic());
 
         return ResponseEntity.ok(accountPlanningService.saveAccountPlanning(newAccountPlanning));
@@ -72,14 +66,11 @@ public class AccountPlanningController {
             throw new ForbiddenException();
         }
 
-        AccountPlanning accountPlanningToUpdate = new AccountPlanning();
-        accountPlanningToUpdate.setName(data.name());
-        accountPlanningToUpdate.setDescription(data.description());
-        accountPlanningToUpdate.setEmoji(data.emoji());
-        accountPlanningToUpdate.setColor(data.color());
+        AccountPlanning accountPlanningToUpdate = accountPlanningService.toAccountPlanning(data);
         accountPlanningToUpdate.setClinic(employee.getClinic());
+        accountPlanningToUpdate.setId(id);
 
-        return ResponseEntity.ok(accountPlanningService.updateAccountPlanning(accountPlanningToUpdate, id));
+        return ResponseEntity.ok(accountPlanningService.updateAccountPlanning(accountPlanningToUpdate));
     }
 
     @DeleteMapping("/delete/{id}")
