@@ -4,6 +4,7 @@ import example.medCashFlow.dto.clinic.ClinicRegisterDTO;
 import example.medCashFlow.dto.clinic.ClinicResponseDTO;
 import example.medCashFlow.exceptions.ClinicNotFoundException;
 import example.medCashFlow.exceptions.InvalidClinicException;
+import example.medCashFlow.mappers.ClinicMapper;
 import example.medCashFlow.model.Clinic;
 import example.medCashFlow.repository.ClinicRepository;
 import lombok.RequiredArgsConstructor;
@@ -18,19 +19,23 @@ public class ClinicService {
 
     private final ClinicRepository repository;
 
+    private final ClinicMapper mapper;
+
+    public ClinicResponseDTO getClinicResponseDTO(Clinic clinic) {
+        return mapper.toResponseDTO(clinic);
+    }
+
+    public Clinic getClinicByClinicRegisterDTO(ClinicRegisterDTO clinicData) {
+        return mapper.toClinic(clinicData);
+    }
+
     public Clinic getClinicById(UUID id) {
         return repository.findById(id).orElseThrow(ClinicNotFoundException::new);
     }
 
     public List<ClinicResponseDTO> getAllClinics() {
         return repository.findAllByOrderByCreatedAtAsc().stream()
-                .map(clinic -> new ClinicResponseDTO(
-                        clinic.getId(),
-                        clinic.getName(),
-                        clinic.getCnpj(),
-                        clinic.getPhone(),
-                        clinic.getCreatedAt(),
-                        clinic.getIsActive()))
+                .map(this::getClinicResponseDTO)
                 .toList();
     }
 
@@ -39,7 +44,7 @@ public class ClinicService {
             throw new InvalidClinicException();
         }
 
-        return repository.save(new Clinic(data));
+        return repository.save(getClinicByClinicRegisterDTO(data));
     }
 
     public void saveClinic(Clinic data) {
