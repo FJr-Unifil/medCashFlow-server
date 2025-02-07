@@ -65,26 +65,10 @@ public class BillController {
             throw new ForbiddenException();
         }
 
-        Bill bill = new Bill();
-        bill.setName(data.name());
-        bill.setPricing(data.pricing());
-        bill.setType(BillType.valueOf(data.type()));
+        Bill bill = billService.toBill(data);
         bill.setEmployee(employee);
-
-
         bill.setClinic(employee.getClinic());
-
-        bill.setInvolved(involvedService.getInvolvedById(data.involvedId()));
-
-        if (data.accountPlanningId() != null) {
-            bill.setAccountPlanning(accountPlanningService.getAccountPlanningById(data.accountPlanningId()));
-        }
-
-        bill.setPaymentMethod(paymentMethodService.getPaymentMethodById(data.paymentMethodId()));
         bill.setCreatedAt(LocalDateTime.now());
-        bill.setDueDate(data.dueDate());
-        bill.setInstallmentsAmount(data.installments());
-
         billService.saveBill(bill);
 
         return ResponseEntity.status(HttpStatus.CREATED).build();
@@ -95,11 +79,17 @@ public class BillController {
             @AuthenticationPrincipal UserDetails loggedUser,
             @PathVariable Long id,
             @RequestBody BillRegisterDTO data) {
-        if (!(loggedUser instanceof Employee)) {
+        if (!(loggedUser instanceof Employee employee)) {
             throw new ForbiddenException();
         }
 
-        billService.updateBill(id, data);
+        Bill bill = billService.toBill(data);
+        bill.setId(id);
+        bill.setEmployee(employee);
+        bill.setClinic(employee.getClinic());
+        bill.setCreatedAt(LocalDateTime.now());
+
+        billService.updateBill(bill);
         return ResponseEntity.noContent().build();
     }
 

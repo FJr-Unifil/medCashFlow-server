@@ -5,9 +5,9 @@ import example.medCashFlow.dto.bill.BillRegisterDTO;
 import example.medCashFlow.dto.bill.BillResponseDTO;
 import example.medCashFlow.exceptions.BillNotFoundException;
 import example.medCashFlow.model.Bill;
-import example.medCashFlow.model.BillType;
 import example.medCashFlow.repository.BillRepository;
 import lombok.RequiredArgsConstructor;
+import example.medCashFlow.mappers.BillMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,11 +17,18 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class BillService {
 
-    private final BillRepository repository;
-    private final InvolvedService involvedService;
-    private final AccountPlanningService accountPlanningService;
-    private final PaymentMethodService paymentMethodService;
     private final InstallmentService installmentService;
+
+    private final BillRepository repository;
+    private final BillMapper billMapper;
+
+    public Bill toBill(BillRegisterDTO data) {
+        return billMapper.toBill(data);
+    }
+
+    public BillOnlyResponseDTO toOnlyResponseDTO(Bill bill) {
+        return billMapper.toBillOnlyResponseDTO(bill);
+    }
 
     public Bill getBillById(Long id) {
         return repository.findById(id).orElseThrow(BillNotFoundException::new);
@@ -36,26 +43,13 @@ public class BillService {
         installmentService.saveInstallments(savedBill);
     }
 
-    public void updateBill(Long id, BillRegisterDTO data) {
-        Bill existingBill = getBillById(id);
-
-        existingBill.setName(data.name());
-        existingBill.setPricing(data.pricing());
-        existingBill.setType(BillType.valueOf(data.type()));
-        existingBill.setInvolved(involvedService.getInvolvedById(data.involvedId()));
-
-        if (data.accountPlanningId() != null) {
-            existingBill.setAccountPlanning(accountPlanningService.getAccountPlanningById(data.accountPlanningId()));
-        } else {
-            existingBill.setAccountPlanning(null);
+    public void updateBill(Bill bill) {
+        if (!repository.existsById(bill.getId())) {
+            throw new BillNotFoundException();
         }
 
-        existingBill.setPaymentMethod(paymentMethodService.getPaymentMethodById(data.paymentMethodId()));
-        existingBill.setDueDate(data.dueDate());
-        existingBill.setInstallmentsAmount(data.installments());
-
-        installmentService.deleteInstallmentByBillId(existingBill.getId());
-        saveBill(existingBill);
+        installmentService.deleteInstallmentByBillId(bill.getId());
+        saveBill(bill);
     }
 
     public void deleteBill(Long id) {
@@ -66,16 +60,7 @@ public class BillService {
 
     public BillOnlyResponseDTO getBillOnlyResponseDTO(Long id) {
         Bill bill = getBillById(id);
-        return new BillOnlyResponseDTO(
-                bill.getName(),
-                bill.getPricing(),
-                bill.getType().name(),
-                bill.getInvolved().getId(),
-                bill.getAccountPlanning().getId(),
-                bill.getPaymentMethod().getId(),
-                bill.getDueDate(),
-                bill.getInstallmentsAmount()
-        );
+        return toOnlyResponseDTO(bill);
     }
 
 }
