@@ -31,14 +31,9 @@ public class Clinic {
     private String phone;
 
     @Column(name = "is_active", nullable = false)
-    private Boolean isActive = true;
+    private boolean isActive = true;
 
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
-    public Clinic(ClinicRegisterDTO clinicData) {
-        this.name = clinicData.name();
-        this.cnpj = clinicData.cnpj();
-        this.phone = clinicData.phone();
-    }
 }

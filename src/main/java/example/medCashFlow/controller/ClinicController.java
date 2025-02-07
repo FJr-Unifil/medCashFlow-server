@@ -27,11 +27,11 @@ public class ClinicController {
     public ResponseEntity<Void> deleteClinic(@PathVariable UUID id) {
         Clinic clinic = service.getClinicById(id);
 
-        if (!clinic.getIsActive()) {
+        if (!clinic.isActive()) {
             throw new ClinicNotFoundException("Clínica já estava inativa");
         }
 
-        clinic.setIsActive(false);
+        clinic.setActive(false);
         service.saveClinic(clinic);
 
         return ResponseEntity.noContent().build();
@@ -41,7 +41,7 @@ public class ClinicController {
     public ResponseEntity<Void> activateClinic(@PathVariable UUID id) {
         Clinic clinic = service.getClinicById(id);
 
-        clinic.setIsActive(true);
+        clinic.setActive(true);
         service.saveClinic(clinic);
 
         return ResponseEntity.noContent().build();

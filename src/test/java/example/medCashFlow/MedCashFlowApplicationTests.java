@@ -290,7 +290,7 @@ public abstract class MedCashFlowApplicationTests {
 
             Clinic clinic = clinicRepository.findByCnpj("12345678901235").orElseThrow(ClinicNotFoundException::new);
 
-            clinic.setIsActive(false);
+            clinic.setActive(false);
             clinicRepository.save(clinic);
         } catch (Exception e) {
             throw new RuntimeException("Failed to create initial test data", e);
