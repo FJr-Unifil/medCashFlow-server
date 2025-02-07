@@ -19,6 +19,7 @@ import java.util.List;
 @RequestMapping("/involveds")
 @RequiredArgsConstructor
 public class InvolvedController {
+
     private final InvolvedService involvedService;
 
     @GetMapping("/{id}")
@@ -29,16 +30,7 @@ public class InvolvedController {
 
         Involved involved = involvedService.getInvolvedById(id);
 
-        InvolvedResponseDTO involvedResponseDTO = new InvolvedResponseDTO(
-                involved.getId(),
-                involved.getName(),
-                involved.getDocument(),
-                involved.getPhone(),
-                involved.getEmail(),
-                involved.isActive()
-        );
-
-        return ResponseEntity.ok(involvedResponseDTO);
+        return ResponseEntity.ok(involvedService.toResponseDTO(involved));
     }
 
     @GetMapping("/list")
@@ -61,11 +53,7 @@ public class InvolvedController {
             throw new ForbiddenException();
         }
 
-        Involved newInvolved = new Involved();
-        newInvolved.setName(data.name());
-        newInvolved.setDocument(data.document());
-        newInvolved.setPhone(data.phone());
-        newInvolved.setEmail(data.email());
+        Involved newInvolved = involvedService.toInvolved(data);
         newInvolved.setClinic(employee.getClinic());
 
         return ResponseEntity.ok(involvedService.saveInvolved(newInvolved));
@@ -80,13 +68,10 @@ public class InvolvedController {
             throw new ForbiddenException();
         }
 
-        Involved involvedToUpdate = new Involved();
-        involvedToUpdate.setName(data.name());
-        involvedToUpdate.setDocument(data.document());
-        involvedToUpdate.setPhone(data.phone());
-        involvedToUpdate.setEmail(data.email());
+        Involved involvedToUpdate = involvedService.toInvolved(data);
+        involvedToUpdate.setId(id);
 
-        return ResponseEntity.ok(involvedService.updateInvolved(involvedToUpdate, id));
+        return ResponseEntity.ok(involvedService.updateInvolved(involvedToUpdate));
     }
 
     @DeleteMapping("/{id}")

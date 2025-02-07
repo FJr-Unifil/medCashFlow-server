@@ -1,8 +1,10 @@
 package example.medCashFlow.services;
 
+import example.medCashFlow.dto.involved.InvolvedRegisterDTO;
 import example.medCashFlow.dto.involved.InvolvedResponseDTO;
 import example.medCashFlow.exceptions.InvalidInvolvedException;
 import example.medCashFlow.exceptions.InvolvedNotFoundException;
+import example.medCashFlow.mappers.InvolvedMapper;
 import example.medCashFlow.model.Involved;
 import example.medCashFlow.repository.InvolvedRepository;
 import lombok.RequiredArgsConstructor;
@@ -14,7 +16,18 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class InvolvedService {
+
     private final InvolvedRepository repository;
+
+    private final InvolvedMapper mapper;
+
+    public InvolvedResponseDTO toResponseDTO(Involved involved) {
+        return mapper.toResponseDTO(involved);
+    }
+
+    public Involved toInvolved(InvolvedRegisterDTO data) {
+        return mapper.toInvolved(data);
+    }
 
     public Involved getInvolvedById(Long id) {
         return repository.findById(id).orElseThrow(InvolvedNotFoundException::new);
@@ -22,14 +35,7 @@ public class InvolvedService {
 
     public List<InvolvedResponseDTO> getAllInvolvedsByClinicId(UUID clinicId) {
         return repository.findAllByClinicIdOrderById(clinicId).stream()
-                .map(involved -> new InvolvedResponseDTO(
-                        involved.getId(),
-                        involved.getName(),
-                        involved.getDocument(),
-                        involved.getPhone(),
-                        involved.getEmail(),
-                        involved.isActive()
-                )).toList();
+                .map(this::toResponseDTO).toList();
     }
 
     public boolean isInvolvedValid(String document, String email) {
@@ -56,18 +62,11 @@ public class InvolvedService {
         }
 
         repository.save(involved);
-        return new InvolvedResponseDTO(
-                involved.getId(),
-                involved.getName(),
-                involved.getDocument(),
-                involved.getPhone(),
-                involved.getEmail(),
-                involved.isActive()
-        );
+        return toResponseDTO(involved);
     }
 
-    public InvolvedResponseDTO updateInvolved(Involved involved, Long id) {
-        Involved existingInvolved = getInvolvedById(id);
+    public InvolvedResponseDTO updateInvolved(Involved involved) {
+        Involved existingInvolved = getInvolvedById(involved.getId());
 
         if (!involved.getEmail().equals(existingInvolved.getEmail())
                 && repository.existsByEmail(involved.getEmail())) {
@@ -79,21 +78,8 @@ public class InvolvedService {
             throw new InvalidInvolvedException("involved.document");
         }
 
-        existingInvolved.setName(involved.getName());
-        existingInvolved.setDocument(involved.getDocument());
-        existingInvolved.setPhone(involved.getPhone());
-        existingInvolved.setEmail(involved.getEmail());
-
         repository.save(existingInvolved);
-
-        return new InvolvedResponseDTO(
-                existingInvolved.getId(),
-                existingInvolved.getName(),
-                existingInvolved.getDocument(),
-                existingInvolved.getPhone(),
-                existingInvolved.getEmail(),
-                existingInvolved.isActive()
-        );
+        return toResponseDTO(involved);
     }
 
     public void deleteInvolved(Long id) {
