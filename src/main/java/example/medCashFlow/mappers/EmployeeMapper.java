@@ -31,7 +31,7 @@ public abstract class EmployeeMapper {
     @Mapping(target = "active", ignore = true)
     @Mapping(target = "authorities", ignore = true)
     @Mapping(target = "role", ignore = true)
-    @Mapping(target = "password", source = "password")
+    @Mapping(target = "password", source = "password", qualifiedByName = "mapPassword")
     public abstract Employee toManager(ManagerRegisterDTO data);
 
     @Mapping(target = "isActive", source = "active")
@@ -46,4 +46,5 @@ public abstract class EmployeeMapper {
     protected String mapPassword(String password) {
         return new BCryptPasswordEncoder().encode(password);
     }
+
 }
