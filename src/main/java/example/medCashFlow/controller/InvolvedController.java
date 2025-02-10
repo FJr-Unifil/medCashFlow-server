@@ -53,8 +53,7 @@ public class InvolvedController {
             throw new ForbiddenException();
         }
 
-        Involved newInvolved = involvedService.toInvolved(data);
-        newInvolved.setClinic(employee.getClinic());
+        Involved newInvolved = involvedService.toInvolved(data, employee.getClinic());
 
         return ResponseEntity.ok(involvedService.saveInvolved(newInvolved));
     }
@@ -64,14 +63,13 @@ public class InvolvedController {
             @AuthenticationPrincipal UserDetails loggedUser,
             @PathVariable Long id,
             @RequestBody InvolvedRegisterDTO data) {
-        if (!(loggedUser instanceof Employee)) {
+        if (!(loggedUser instanceof Employee employee)) {
             throw new ForbiddenException();
         }
 
-        Involved involvedToUpdate = involvedService.toInvolved(data);
-        involvedToUpdate.setId(id);
+        Involved involvedToUpdate = involvedService.toInvolved(data, employee.getClinic());
 
-        return ResponseEntity.ok(involvedService.updateInvolved(involvedToUpdate));
+        return ResponseEntity.ok(involvedService.updateInvolved(involvedToUpdate, id));
     }
 
     @DeleteMapping("/{id}")

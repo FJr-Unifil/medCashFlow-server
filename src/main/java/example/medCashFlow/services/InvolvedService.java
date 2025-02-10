@@ -5,6 +5,7 @@ import example.medCashFlow.dto.involved.InvolvedResponseDTO;
 import example.medCashFlow.exceptions.InvalidInvolvedException;
 import example.medCashFlow.exceptions.InvolvedNotFoundException;
 import example.medCashFlow.mappers.InvolvedMapper;
+import example.medCashFlow.model.Clinic;
 import example.medCashFlow.model.Involved;
 import example.medCashFlow.repository.InvolvedRepository;
 import lombok.RequiredArgsConstructor;
@@ -25,8 +26,8 @@ public class InvolvedService {
         return mapper.toResponseDTO(involved);
     }
 
-    public Involved toInvolved(InvolvedRegisterDTO data) {
-        return mapper.toInvolved(data);
+    public Involved toInvolved(InvolvedRegisterDTO data, Clinic clinic) {
+        return mapper.toInvolved(data, clinic);
     }
 
     public Involved getInvolvedById(Long id) {
@@ -65,8 +66,8 @@ public class InvolvedService {
         return toResponseDTO(involved);
     }
 
-    public InvolvedResponseDTO updateInvolved(Involved involved) {
-        Involved existingInvolved = getInvolvedById(involved.getId());
+    public InvolvedResponseDTO updateInvolved(Involved involved, Long id) {
+        Involved existingInvolved = getInvolvedById(id);
 
         if (!involved.getEmail().equals(existingInvolved.getEmail())
                 && repository.existsByEmail(involved.getEmail())) {
@@ -78,8 +79,13 @@ public class InvolvedService {
             throw new InvalidInvolvedException("involved.document");
         }
 
+        existingInvolved.setName(involved.getName());
+        existingInvolved.setDocument(involved.getDocument());
+        existingInvolved.setPhone(involved.getPhone());
+        existingInvolved.setEmail(involved.getEmail());
+
         repository.save(existingInvolved);
-        return toResponseDTO(involved);
+        return toResponseDTO(existingInvolved);
     }
 
     public void deleteInvolved(Long id) {
