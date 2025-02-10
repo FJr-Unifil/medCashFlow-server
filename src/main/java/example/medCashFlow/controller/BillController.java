@@ -28,17 +28,11 @@ public class BillController {
 
     private final BillService billService;
 
-    private final InvolvedService involvedService;
-
-    private final AccountPlanningService accountPlanningService;
-
-    private final PaymentMethodService paymentMethodService;
-
     @GetMapping("/{id}")
     public ResponseEntity<BillOnlyResponseDTO> getBillById(
             @AuthenticationPrincipal UserDetails loggedUser,
             @PathVariable Long id) {
-        if (!(loggedUser instanceof Employee employee)) {
+        if (!(loggedUser instanceof Employee )) {
             throw new ForbiddenException();
         }
 
@@ -65,10 +59,7 @@ public class BillController {
             throw new ForbiddenException();
         }
 
-        Bill bill = billService.toBill(data);
-        bill.setEmployee(employee);
-        bill.setClinic(employee.getClinic());
-        bill.setCreatedAt(LocalDateTime.now());
+        Bill bill = billService.toBill(data, employee);
         billService.saveBill(bill);
 
         return ResponseEntity.status(HttpStatus.CREATED).build();
@@ -83,13 +74,9 @@ public class BillController {
             throw new ForbiddenException();
         }
 
-        Bill bill = billService.toBill(data);
-        bill.setId(id);
-        bill.setEmployee(employee);
-        bill.setClinic(employee.getClinic());
-        bill.setCreatedAt(LocalDateTime.now());
+        Bill bill = billService.toBill(data, employee);
 
-        billService.updateBill(bill);
+        billService.updateBill(bill, id);
         return ResponseEntity.noContent().build();
     }
 

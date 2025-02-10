@@ -25,15 +25,15 @@ public abstract class BillMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "type")
-    @Mapping(target = "employee", ignore = true)
-    @Mapping(target = "clinic", ignore = true)
-    @Mapping(target = "involved", source = "involvedId")
-    @Mapping(target = "accountPlanning", source = "accountPlanningId")
-    @Mapping(target = "paymentMethod", source = "paymentMethodId")
-    @Mapping(target = "createdAt", ignore = true)
-    @Mapping(target = "installmentsAmount", source = "installments")
+    @Mapping(target = "clinic", source = "employee.clinic")
+    @Mapping(target = "employee", source = "employee")
+    @Mapping(target = "involved", source = "data.involvedId")
+    @Mapping(target = "accountPlanning", source = "data.accountPlanningId")
+    @Mapping(target = "paymentMethod", source = "data.paymentMethodId")
+    @Mapping(target = "createdAt", expression = "java(java.time.LocalDateTime.now())")
+    @Mapping(target = "installmentsAmount", source = "data.installments")
     @Mapping(target = "installments", ignore = true)
-    public abstract Bill toBill(BillRegisterDTO data);
+    public abstract Bill toBill(BillRegisterDTO data, Employee employee);
 
     protected BillType mapBillType(String type) {
         return BillType.valueOf(type.toUpperCase());
