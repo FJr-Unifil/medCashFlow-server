@@ -27,18 +27,21 @@ public class AccountPlanningController {
             throw new ForbiddenException();
         }
 
-        return ResponseEntity.ok(accountPlanningService.getAccountPlanningByIdDTO(id));
+        AccountPlanning accountPlanning = accountPlanningService.getAccountPlanningById(id);
+        AccountPlanningResponseDTO dto = accountPlanningService.toResponseDTO(accountPlanning);
+
+        return ResponseEntity.ok(dto);
     }
 
     @GetMapping("/list")
     public ResponseEntity<List<AccountPlanningResponseDTO>> listAllAccountPlannings(
             @AuthenticationPrincipal UserDetails loggedUser) {
-        if (!(loggedUser instanceof Employee)) {
+        if (!(loggedUser instanceof Employee employee)) {
             throw new ForbiddenException();
         }
 
         List<AccountPlanningResponseDTO> accountPlannings = accountPlanningService
-                .getAllAccountPlanningsByClinicId(((Employee) loggedUser).getClinic().getId());
+                .getAllAccountPlanningsByClinicId(employee.getClinic().getId());
         return ResponseEntity.ok(accountPlannings);
     }
 
@@ -51,8 +54,7 @@ public class AccountPlanningController {
             throw new ForbiddenException();
         }
 
-        AccountPlanning newAccountPlanning = accountPlanningService.toAccountPlanning(data);
-        newAccountPlanning.setClinic(employee.getClinic());
+        AccountPlanning newAccountPlanning = accountPlanningService.toAccountPlanning(data, employee.getClinic());
 
         return ResponseEntity.ok(accountPlanningService.saveAccountPlanning(newAccountPlanning));
     }
@@ -66,11 +68,9 @@ public class AccountPlanningController {
             throw new ForbiddenException();
         }
 
-        AccountPlanning accountPlanningToUpdate = accountPlanningService.toAccountPlanning(data);
-        accountPlanningToUpdate.setClinic(employee.getClinic());
-        accountPlanningToUpdate.setId(id);
+        AccountPlanning accountPlanningToUpdate = accountPlanningService.toAccountPlanning(data, employee.getClinic());
 
-        return ResponseEntity.ok(accountPlanningService.updateAccountPlanning(accountPlanningToUpdate));
+        return ResponseEntity.ok(accountPlanningService.updateAccountPlanning(accountPlanningToUpdate, id));
     }
 
     @DeleteMapping("/delete/{id}")
