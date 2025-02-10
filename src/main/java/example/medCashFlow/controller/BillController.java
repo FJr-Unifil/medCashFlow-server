@@ -5,12 +5,8 @@ import example.medCashFlow.dto.bill.BillRegisterDTO;
 import example.medCashFlow.dto.bill.BillResponseDTO;
 import example.medCashFlow.exceptions.ForbiddenException;
 import example.medCashFlow.model.Bill;
-import example.medCashFlow.model.BillType;
 import example.medCashFlow.model.Employee;
-import example.medCashFlow.services.AccountPlanningService;
 import example.medCashFlow.services.BillService;
-import example.medCashFlow.services.InvolvedService;
-import example.medCashFlow.services.PaymentMethodService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +14,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController

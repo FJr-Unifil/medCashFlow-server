@@ -2,7 +2,6 @@ package example.medCashFlow.mappers;
 
 import example.medCashFlow.dto.bill.BillOnlyResponseDTO;
 import example.medCashFlow.dto.bill.BillRegisterDTO;
-import example.medCashFlow.dto.bill.BillResponseDTO;
 import example.medCashFlow.model.*;
 import example.medCashFlow.services.AccountPlanningService;
 import example.medCashFlow.services.InvolvedService;
