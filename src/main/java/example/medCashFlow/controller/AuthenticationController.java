@@ -35,8 +35,6 @@ public class AuthenticationController {
 
     private final ClinicService clinicService;
 
-    private final RoleService roleService;
-
     private final TokenService tokenService;
 
     @PostMapping("/login")
@@ -65,11 +63,7 @@ public class AuthenticationController {
 
         Clinic savedClinic = clinicService.saveClinic(clinicData);
 
-        Role role = roleService.getRoleById(1L);
-
-        Employee manager = employeeService.toManager(managerData);
-        manager.setRole(role);
-        manager.setClinic(savedClinic);
+        Employee manager = employeeService.toManager(managerData, savedClinic, 1L);
 
         return ResponseEntity.ok(employeeService.saveEmployee(manager));
     }

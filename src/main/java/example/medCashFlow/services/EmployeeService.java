@@ -6,6 +6,7 @@ import example.medCashFlow.dto.employee.ManagerRegisterDTO;
 import example.medCashFlow.exceptions.EmployeeNotFoundException;
 import example.medCashFlow.exceptions.InvalidEmployeeException;
 import example.medCashFlow.mappers.EmployeeMapper;
+import example.medCashFlow.model.Clinic;
 import example.medCashFlow.model.Employee;
 import example.medCashFlow.repository.EmployeeRepository;
 import lombok.RequiredArgsConstructor;
@@ -23,12 +24,12 @@ public class EmployeeService {
 
     private final EmployeeMapper mapper;
 
-    public Employee toEmployee(EmployeeRegisterDTO data) {
-        return mapper.toEmployee(data);
+    public Employee toEmployee(EmployeeRegisterDTO data, Clinic clinic) {
+        return mapper.toEmployee(data, clinic);
     }
 
-    public Employee toManager(ManagerRegisterDTO data) {
-        return mapper.toManager(data);
+    public Employee toManager(ManagerRegisterDTO data, Clinic clinic, Long roleId) {
+        return mapper.toManager(data, clinic, roleId);
     }
 
     public EmployeeResponseDTO toResponseDTO(Employee employee) {
@@ -76,8 +77,8 @@ public class EmployeeService {
         return toResponseDTO(repository.save(employee));
     }
 
-    public EmployeeResponseDTO updateEmployee(Employee employee) {
-        Employee existingEmployee = getEmployeeById(employee.getId());
+    public EmployeeResponseDTO updateEmployee(Employee employee, Long id) {
+        Employee existingEmployee = getEmployeeById(id);
 
         if (!employee.getEmail().equals(existingEmployee.getEmail())
                 && repository.existsByEmail(employee.getEmail())) {
@@ -89,7 +90,12 @@ public class EmployeeService {
             throw new InvalidEmployeeException("manager.cpf");
         }
 
-        return toResponseDTO(repository.save(employee));
+        existingEmployee.setFirstName(employee.getFirstName());
+        existingEmployee.setLastName(employee.getLastName());
+        existingEmployee.setCpf(employee.getCpf());
+        existingEmployee.setEmail(employee.getEmail());
+
+        return toResponseDTO(repository.save(existingEmployee));
     }
 
     public void deleteEmployee(Long id) {

@@ -30,15 +30,7 @@ public class EmployeeController {
 
         Employee employee = employeeService.getEmployeeById(id);
 
-        EmployeeResponseDTO employeeResponseDTO = new EmployeeResponseDTO(
-                employee.getId(),
-                employee.getFirstName(),
-                employee.getLastName(),
-                employee.getCpf(),
-                employee.getEmail(),
-                employee.getRole().getName(),
-                employee.isActive()
-        );
+        EmployeeResponseDTO employeeResponseDTO = employeeService.toResponseDTO(employee);
 
         return ResponseEntity.ok(employeeResponseDTO);
     }
@@ -59,8 +51,7 @@ public class EmployeeController {
             throw new ForbiddenException();
         }
 
-        Employee newEmployee = employeeService.toEmployee(data);;
-        newEmployee.setClinic(manager.getClinic());
+        Employee newEmployee = employeeService.toEmployee(data, manager.getClinic());;
 
         return ResponseEntity.ok(employeeService.saveEmployee(newEmployee));
     }
@@ -75,11 +66,9 @@ public class EmployeeController {
             throw new ForbiddenException();
         }
 
-        Employee employeeToUpdate = employeeService.toEmployee(data);
-        employeeToUpdate.setId(id);
-        employeeToUpdate.setClinic(manager.getClinic());
+        Employee employeeToUpdate = employeeService.toEmployee(data, manager.getClinic());
 
-        return ResponseEntity.ok(employeeService.updateEmployee(employeeToUpdate));
+        return ResponseEntity.ok(employeeService.updateEmployee(employeeToUpdate, id));
     }
 
     @PutMapping("/activate/{id}")

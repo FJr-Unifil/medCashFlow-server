@@ -3,6 +3,7 @@ package example.medCashFlow.mappers;
 import example.medCashFlow.dto.employee.EmployeeRegisterDTO;
 import example.medCashFlow.dto.employee.EmployeeResponseDTO;
 import example.medCashFlow.dto.employee.ManagerRegisterDTO;
+import example.medCashFlow.model.Clinic;
 import example.medCashFlow.model.Employee;
 import example.medCashFlow.model.Role;
 import example.medCashFlow.services.RoleService;
@@ -19,20 +20,18 @@ public abstract class EmployeeMapper {
     protected RoleService roleService;
 
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "clinic", ignore = true)
+    @Mapping(target = "active", ignore = true)
+    @Mapping(target = "authorities", ignore = true)
+    @Mapping(target = "role", source = "data.roleId")
+    @Mapping(target = "password", source = "data.password", qualifiedByName = "mapPassword")
+    public abstract Employee toEmployee(EmployeeRegisterDTO data, Clinic clinic);
+
+    @Mapping(target = "id", ignore = true)
     @Mapping(target = "active", ignore = true)
     @Mapping(target = "authorities", ignore = true)
     @Mapping(target = "role", source = "roleId")
-    @Mapping(target = "password", source = "password", qualifiedByName = "mapPassword")
-    public abstract Employee toEmployee(EmployeeRegisterDTO data);
-
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "clinic", ignore = true)
-    @Mapping(target = "active", ignore = true)
-    @Mapping(target = "authorities", ignore = true)
-    @Mapping(target = "role", ignore = true)
-    @Mapping(target = "password", source = "password", qualifiedByName = "mapPassword")
-    public abstract Employee toManager(ManagerRegisterDTO data);
+    @Mapping(target = "password", source = "data.password", qualifiedByName = "mapPassword")
+    public abstract Employee toManager(ManagerRegisterDTO data, Clinic clinic, Long roleId);
 
     @Mapping(target = "isActive", source = "active")
     @Mapping(target = "role", source = "role.name")
