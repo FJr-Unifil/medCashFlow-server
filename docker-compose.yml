@@ -21,7 +21,7 @@ services:
       - POSTGRES_PASSWORD=medcashflow
       - POSTGRES_DB=medcashflow_test
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - test_db_data:/var/lib/postgresql/data
     profiles:
