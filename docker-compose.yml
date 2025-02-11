@@ -1,6 +1,7 @@
 services:
   dev_db:
     image: postgres:15-alpine
+    container_name: dev-db
     environment:
       - POSTGRES_USER=medcashflow
       - POSTGRES_PASSWORD=medcashflow
@@ -14,6 +15,7 @@ services:
 
   test_db:
     image: postgres:15-alpine
+    container_name: test-db
     environment:
       - POSTGRES_USER=medcashflow
       - POSTGRES_PASSWORD=medcashflow
