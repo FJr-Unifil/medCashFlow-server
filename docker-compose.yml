@@ -1,25 +1,30 @@
 services:
-  app:
-    build: .
-    ports:
-      - "8080:8080"
-    env_file:
-      - .env
-    environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:${DATABASE_PORT}/${DATABASE_NAME}
-    depends_on:
-      - db
-
-  db:
+  dev_db:
     image: postgres:15-alpine
     environment:
-      - POSTGRES_USER=${DATABASE_USER}
-      - POSTGRES_PASSWORD=${DATABASE_PASSWORD}
-      - POSTGRES_DB=${DATABASE_NAME}
+      - POSTGRES_USER=medcashflow
+      - POSTGRES_PASSWORD=medcashflow
+      - POSTGRES_DB=medcashflow
     ports:
-      - "${DATABASE_PORT}:5432"
+      - "5432:5432"
     volumes:
-      - db_data:/var/lib/postgresql/data
+      - dev_db_data:/var/lib/postgresql/data
+    profiles:
+      - dev
+
+  test_db:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_USER=medcashflow
+      - POSTGRES_PASSWORD=medcashflow
+      - POSTGRES_DB=medcashflow_test
+    ports:
+      - "5432:5432"
+    volumes:
+      - test_db_data:/var/lib/postgresql/data
+    profiles:
+      - test
 
 volumes:
-  db_data:
+  dev_db_data:
+  test_db_data:
