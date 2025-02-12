@@ -54,8 +54,7 @@ public class BillController {
             throw new ForbiddenException();
         }
 
-        Bill bill = billService.toBill(data, employee);
-        billService.saveBill(bill);
+        billService.createBill(data, employee);
 
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
@@ -69,9 +68,7 @@ public class BillController {
             throw new ForbiddenException();
         }
 
-        Bill bill = billService.toBill(data, employee);
-
-        billService.updateBill(bill, id);
+        billService.updateBill(data, employee, id);
         return ResponseEntity.noContent().build();
     }
 

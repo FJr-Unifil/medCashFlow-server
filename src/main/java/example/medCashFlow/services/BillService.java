@@ -4,8 +4,7 @@ import example.medCashFlow.dto.bill.BillOnlyResponseDTO;
 import example.medCashFlow.dto.bill.BillRegisterDTO;
 import example.medCashFlow.dto.bill.BillResponseDTO;
 import example.medCashFlow.exceptions.BillNotFoundException;
-import example.medCashFlow.model.Bill;
-import example.medCashFlow.model.Employee;
+import example.medCashFlow.model.*;
 import example.medCashFlow.repository.BillRepository;
 import lombok.RequiredArgsConstructor;
 import example.medCashFlow.mappers.BillMapper;
@@ -19,16 +18,19 @@ import java.util.UUID;
 public class BillService {
 
     private final InstallmentService installmentService;
+    private final InvolvedService involvedService;
+    private final AccountPlanningService accountPlanningService;
+    private final PaymentMethodService paymentMethodService;
 
     private final BillRepository repository;
-    private final BillMapper billMapper;
+
+    private final BillMapper mapper;
 
     public Bill toBill(BillRegisterDTO data, Employee employee) {
-        return billMapper.toBill(data, employee);
-    }
-
-    public BillOnlyResponseDTO toOnlyResponseDTO(Bill bill) {
-        return billMapper.toBillOnlyResponseDTO(bill);
+        Involved involved = involvedService.getInvolvedById(data.involvedId());
+        AccountPlanning accountPlanning = accountPlanningService.getAccountPlanningById(data.accountPlanningId());
+        PaymentMethod paymentMethod= paymentMethodService.getPaymentMethodById(data.paymentMethodId());
+        return mapper.toBill(data, employee, involved, accountPlanning, paymentMethod);
     }
 
     public Bill getBillById(Long id) {
@@ -39,25 +41,23 @@ public class BillService {
         return repository.findAllBillByClinicId(clinicId);
     }
 
-    public void saveBill(Bill bill) {
+    public void createBill(BillRegisterDTO data, Employee employee) {
+        Bill bill = toBill(data, employee);
         Bill savedBill = repository.save(bill);
         installmentService.saveInstallments(savedBill);
     }
 
-    public void updateBill(Bill bill, Long id) {
-        Bill existingBill = getBillById(id);
+    public void updateBill(BillRegisterDTO data, Employee employee, Long id) {
+        if (!repository.existsById(id)) {
+            throw new BillNotFoundException();
+        }
 
-        existingBill.setName(bill.getName());
-        existingBill.setPricing(bill.getPricing());
-        existingBill.setType(bill.getType());
-        existingBill.setInvolved(bill.getInvolved());
-        existingBill.setAccountPlanning(bill.getAccountPlanning());
-        existingBill.setPaymentMethod(bill.getPaymentMethod());
-        existingBill.setDueDate(bill.getDueDate());
-        existingBill.setInstallmentsAmount(bill.getInstallmentsAmount());
+        Bill updatedBill = toBill(data, employee);
+        updatedBill.setId(id);
 
         installmentService.deleteInstallmentByBillId(id);
-        saveBill(existingBill);
+        Bill savedBill = repository.save(updatedBill);
+        installmentService.saveInstallments(savedBill);
     }
 
     public void deleteBill(Long id) {
@@ -68,7 +68,7 @@ public class BillService {
 
     public BillOnlyResponseDTO getBillOnlyResponseDTO(Long id) {
         Bill bill = getBillById(id);
-        return toOnlyResponseDTO(bill);
+        return mapper.toBillOnlyResponseDTO(bill);
     }
 
 }
