@@ -5,12 +5,10 @@ import example.medCashFlow.dto.employee.EmployeeResponseDTO;
 import example.medCashFlow.exceptions.ForbiddenException;
 import example.medCashFlow.model.Employee;
 import example.medCashFlow.services.EmployeeService;
-import example.medCashFlow.services.RoleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -51,9 +49,7 @@ public class EmployeeController {
             throw new ForbiddenException();
         }
 
-        Employee newEmployee = employeeService.toEmployee(data, manager.getClinic());;
-
-        return ResponseEntity.ok(employeeService.saveEmployee(newEmployee));
+        return ResponseEntity.ok(employeeService.createEmployee(data, manager.getClinic()));
     }
 
     @PutMapping("/update/{id}")
@@ -62,13 +58,11 @@ public class EmployeeController {
             @PathVariable Long id,
             @RequestBody EmployeeRegisterDTO data) {
 
-        if (!(loggedManager instanceof Employee manager)) {
+        if (!(loggedManager instanceof Employee)) {
             throw new ForbiddenException();
         }
 
-        Employee employeeToUpdate = employeeService.toEmployee(data, manager.getClinic());
-
-        return ResponseEntity.ok(employeeService.updateEmployee(employeeToUpdate, id));
+        return ResponseEntity.ok(employeeService.updateEmployee(data, id));
     }
 
     @PutMapping("/activate/{id}")

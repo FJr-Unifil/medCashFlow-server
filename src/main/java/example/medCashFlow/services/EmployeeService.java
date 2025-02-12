@@ -2,12 +2,12 @@ package example.medCashFlow.services;
 
 import example.medCashFlow.dto.employee.EmployeeRegisterDTO;
 import example.medCashFlow.dto.employee.EmployeeResponseDTO;
-import example.medCashFlow.dto.employee.ManagerRegisterDTO;
 import example.medCashFlow.exceptions.EmployeeNotFoundException;
 import example.medCashFlow.exceptions.InvalidEmployeeException;
 import example.medCashFlow.mappers.EmployeeMapper;
 import example.medCashFlow.model.Clinic;
 import example.medCashFlow.model.Employee;
+import example.medCashFlow.model.Role;
 import example.medCashFlow.repository.EmployeeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,17 +19,14 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class EmployeeService {
 
-
     private final EmployeeRepository repository;
 
     private final EmployeeMapper mapper;
 
-    public Employee toEmployee(EmployeeRegisterDTO data, Clinic clinic) {
-        return mapper.toEmployee(data, clinic);
-    }
+    private final RoleService roleService;
 
-    public Employee toManager(ManagerRegisterDTO data, Clinic clinic, Long roleId) {
-        return mapper.toManager(data, clinic, roleId);
+    public Employee toEmployee(EmployeeRegisterDTO data, Clinic clinic, Role role) {
+        return mapper.toEmployee(data, clinic, role);
     }
 
     public EmployeeResponseDTO toResponseDTO(Employee employee) {
@@ -50,7 +47,7 @@ public class EmployeeService {
     }
 
     public boolean isEmployeeValid(String cpf, String email) {
-        return (isEmployeeValidByCpf(cpf) && isEmployeeValidByEmail(email));
+        return (!isEmployeeValidByCpf(cpf) || !isEmployeeValidByEmail(email));
     }
 
     public boolean isEmployeeValidByCpf(String cpf) {
@@ -69,33 +66,36 @@ public class EmployeeService {
         return true;
     }
 
-    public EmployeeResponseDTO saveEmployee(Employee employee) {
-        if (!isEmployeeValid(employee.getCpf(), employee.getEmail())) {
+    public EmployeeResponseDTO createEmployee(EmployeeRegisterDTO data, Clinic clinic) {
+        if (isEmployeeValid(data.cpf(), data.email())) {
             throw new InvalidEmployeeException();
         }
+
+        Role role = roleService.getRoleById(data.roleId());
+
+        Employee employee = toEmployee(data, clinic, role);
 
         return toResponseDTO(repository.save(employee));
     }
 
-    public EmployeeResponseDTO updateEmployee(Employee employee, Long id) {
+    public EmployeeResponseDTO updateEmployee(EmployeeRegisterDTO data, Long id) {
         Employee existingEmployee = getEmployeeById(id);
 
-        if (!employee.getEmail().equals(existingEmployee.getEmail())
-                && repository.existsByEmail(employee.getEmail())) {
+        if (!data.email().equals(existingEmployee.getEmail())
+                && repository.existsByEmail(data.email())) {
             throw new InvalidEmployeeException("manager.email");
         }
 
-        if (!employee.getCpf().equals(existingEmployee.getCpf())
-                && repository.existsByCpf(employee.getCpf())) {
+        if (!data.cpf().equals(existingEmployee.getCpf())
+                && repository.existsByCpf(data.cpf())) {
             throw new InvalidEmployeeException("manager.cpf");
         }
 
-        existingEmployee.setFirstName(employee.getFirstName());
-        existingEmployee.setLastName(employee.getLastName());
-        existingEmployee.setCpf(employee.getCpf());
-        existingEmployee.setEmail(employee.getEmail());
+        Role role = roleService.getRoleById(data.roleId());
+        Employee updatedEmployee = toEmployee(data, existingEmployee.getClinic(), role);
+        updatedEmployee.setId(existingEmployee.getId());
 
-        return toResponseDTO(repository.save(existingEmployee));
+        return toResponseDTO(repository.save(updatedEmployee));
     }
 
     public void deleteEmployee(Long id) {

@@ -4,21 +4,18 @@ import example.medCashFlow.dto.auth.AuthenticationDTO;
 import example.medCashFlow.dto.auth.LoginResponseDTO;
 import example.medCashFlow.dto.auth.RegisterDTO;
 import example.medCashFlow.dto.clinic.ClinicRegisterDTO;
+import example.medCashFlow.dto.employee.EmployeeRegisterDTO;
 import example.medCashFlow.dto.employee.EmployeeResponseDTO;
-import example.medCashFlow.dto.employee.ManagerRegisterDTO;
 import example.medCashFlow.model.Clinic;
 import example.medCashFlow.model.Employee;
-import example.medCashFlow.model.Role;
 import example.medCashFlow.services.ClinicService;
 import example.medCashFlow.services.EmployeeService;
-import example.medCashFlow.services.RoleService;
 import example.medCashFlow.services.TokenService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -59,12 +56,10 @@ public class AuthenticationController {
     public ResponseEntity<EmployeeResponseDTO> register(@RequestBody RegisterDTO data) {
 
         ClinicRegisterDTO clinicData = data.clinic();
-        ManagerRegisterDTO managerData = data.manager();
+        EmployeeRegisterDTO managerData = data.manager();
 
         Clinic savedClinic = clinicService.saveClinic(clinicData);
 
-        Employee manager = employeeService.toManager(managerData, savedClinic, 1L);
-
-        return ResponseEntity.ok(employeeService.saveEmployee(manager));
+        return ResponseEntity.ok(employeeService.createEmployee(managerData, savedClinic));
     }
 }

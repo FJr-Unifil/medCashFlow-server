@@ -8,7 +8,6 @@ import example.medCashFlow.dto.auth.RegisterDTO;
 import example.medCashFlow.dto.bill.BillRegisterDTO;
 import example.medCashFlow.dto.clinic.ClinicRegisterDTO;
 import example.medCashFlow.dto.employee.EmployeeRegisterDTO;
-import example.medCashFlow.dto.employee.ManagerRegisterDTO;
 import example.medCashFlow.dto.involved.InvolvedRegisterDTO;
 import example.medCashFlow.exceptions.ClinicNotFoundException;
 import example.medCashFlow.model.Clinic;
@@ -54,9 +53,6 @@ public abstract class MedCashFlowApplicationTests {
     @Autowired
     protected EmployeeService employeeService;
 
-    @Autowired
-    protected EmployeeRepository employeeRepository;
-
     @Value("${api.security.admin.username}")
     protected String adminUsername;
 
@@ -92,7 +88,7 @@ public abstract class MedCashFlowApplicationTests {
     protected void createActiveClinic() {
         RegisterDTO activeRegisterDto = new RegisterDTO(
                 new ClinicRegisterDTO("Active Clinic", "12345678901234", "1234567890"),
-                new ManagerRegisterDTO("Fernando", "Junior", "12345678901", "manager@manager.com", "manager")
+                new EmployeeRegisterDTO("Fernando", "Junior", "12345678901", "manager@manager.com", "manager", 1L)
         );
 
 
@@ -278,7 +274,7 @@ public abstract class MedCashFlowApplicationTests {
     protected void createInactiveClinic() {
         RegisterDTO activeRegisterDto = new RegisterDTO(
                 new ClinicRegisterDTO("Inactive Clinic", "12345678901235", "1234567891"),
-                new ManagerRegisterDTO("Fernando", "Junior", "23456789012", "manager@manager.com.in", "manager")
+                new EmployeeRegisterDTO("Fernando", "Junior", "23456789012", "manager@manager.com.in", "manager", 1L)
         );
 
 

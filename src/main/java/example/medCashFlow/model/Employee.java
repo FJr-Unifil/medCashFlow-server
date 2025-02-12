@@ -1,7 +1,5 @@
 package example.medCashFlow.model;
 
-import example.medCashFlow.dto.employee.EmployeeRegisterDTO;
-import example.medCashFlow.dto.employee.ManagerRegisterDTO;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
