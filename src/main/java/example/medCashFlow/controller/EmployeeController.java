@@ -26,11 +26,7 @@ public class EmployeeController {
             throw new ForbiddenException();
         }
 
-        Employee employee = employeeService.getEmployeeById(id);
-
-        EmployeeResponseDTO employeeResponseDTO = employeeService.toResponseDTO(employee);
-
-        return ResponseEntity.ok(employeeResponseDTO);
+        return ResponseEntity.ok(employeeService.getEmployeeResponseDTOById(id));
     }
 
     @GetMapping("/list")

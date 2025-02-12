@@ -25,16 +25,13 @@ public class EmployeeService {
 
     private final RoleService roleService;
 
-    public Employee toEmployee(EmployeeRegisterDTO data, Clinic clinic, Role role) {
-        return mapper.toEmployee(data, clinic, role);
-    }
-
-    public EmployeeResponseDTO toResponseDTO(Employee employee) {
-        return mapper.toResponseDTO(employee);
-    }
-
     public Employee getEmployeeById(Long Id) {
         return repository.findById(Id).orElseThrow(EmployeeNotFoundException::new);
+    }
+
+    public EmployeeResponseDTO getEmployeeResponseDTOById(Long Id) {
+        Employee employee = getEmployeeById(Id);
+        return mapper.toResponseDTO(employee);
     }
 
     public Employee getEmployeeByEmail(String email) {
@@ -43,7 +40,7 @@ public class EmployeeService {
 
     public List<EmployeeResponseDTO> getAllEmployeesByClinicId(UUID clinicId) {
         return repository.findAllByClinicIdOrderById(clinicId).stream()
-                .map(this::toResponseDTO).toList();
+                .map(mapper::toResponseDTO).toList();
     }
 
     public boolean isEmployeeValid(String cpf, String email) {
@@ -73,9 +70,9 @@ public class EmployeeService {
 
         Role role = roleService.getRoleById(data.roleId());
 
-        Employee employee = toEmployee(data, clinic, role);
+        Employee employee = mapper.toEmployee(data, clinic, role);
 
-        return toResponseDTO(repository.save(employee));
+        return mapper.toResponseDTO(repository.save(employee));
     }
 
     public EmployeeResponseDTO updateEmployee(EmployeeRegisterDTO data, Long id) {
@@ -92,10 +89,10 @@ public class EmployeeService {
         }
 
         Role role = roleService.getRoleById(data.roleId());
-        Employee updatedEmployee = toEmployee(data, existingEmployee.getClinic(), role);
+        Employee updatedEmployee = mapper.toEmployee(data, existingEmployee.getClinic(), role);
         updatedEmployee.setId(existingEmployee.getId());
 
-        return toResponseDTO(repository.save(updatedEmployee));
+        return mapper.toResponseDTO(repository.save(updatedEmployee));
     }
 
     public void deleteEmployee(Long id) {
