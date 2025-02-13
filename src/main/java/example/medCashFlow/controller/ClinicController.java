@@ -25,24 +25,15 @@ public class ClinicController {
 
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<Void> deleteClinic(@PathVariable UUID id) {
-        Clinic clinic = service.getClinicById(id);
 
-        if (!clinic.isActive()) {
-            throw new ClinicNotFoundException("Clínica já estava inativa");
-        }
-
-        clinic.setActive(false);
-        service.saveClinic(clinic);
+        service.deactivateClinic(id);
 
         return ResponseEntity.noContent().build();
     }
 
     @PutMapping("/activate/{id}")
     public ResponseEntity<Void> activateClinic(@PathVariable UUID id) {
-        Clinic clinic = service.getClinicById(id);
-
-        clinic.setActive(true);
-        service.saveClinic(clinic);
+        service.activateClinic(id);
 
         return ResponseEntity.noContent().build();
     }

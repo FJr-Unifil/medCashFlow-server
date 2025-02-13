@@ -58,7 +58,7 @@ public class AuthenticationController {
         ClinicRegisterDTO clinicData = data.clinic();
         EmployeeRegisterDTO managerData = data.manager();
 
-        Clinic savedClinic = clinicService.saveClinic(clinicData);
+        Clinic savedClinic = clinicService.createClinic(clinicData);
 
         return ResponseEntity.ok(employeeService.createEmployee(managerData, savedClinic));
     }

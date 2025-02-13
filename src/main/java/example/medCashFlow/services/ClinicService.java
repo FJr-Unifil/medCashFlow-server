@@ -21,10 +21,6 @@ public class ClinicService {
 
     private final ClinicMapper mapper;
 
-    public ClinicResponseDTO toClinicResponseDTO(Clinic clinic) {
-        return mapper.toResponseDTO(clinic);
-    }
-
     public Clinic toClinic(ClinicRegisterDTO clinicData) {
         return mapper.toClinic(clinicData);
     }
@@ -35,11 +31,11 @@ public class ClinicService {
 
     public List<ClinicResponseDTO> getAllClinics() {
         return repository.findAllByOrderByCreatedAtAsc().stream()
-                .map(this::toClinicResponseDTO)
+                .map(mapper::toResponseDTO)
                 .toList();
     }
 
-    public Clinic saveClinic(ClinicRegisterDTO data) {
+    public Clinic createClinic(ClinicRegisterDTO data) {
         if (!isClinicValid(data)) {
             throw new InvalidClinicException();
         }
@@ -47,8 +43,22 @@ public class ClinicService {
         return repository.save(toClinic(data));
     }
 
-    public void saveClinic(Clinic data) {
-        repository.save(data);
+    public void activateClinic(UUID id) {
+        Clinic clinic = getClinicById(id);
+
+        clinic.setActive(true);
+        repository.save(clinic);
+    }
+
+    public void deactivateClinic(UUID id) {
+        Clinic clinic = getClinicById(id);
+
+        if (!clinic.isActive()) {
+            throw new ClinicNotFoundException("Clínica já estava inativa");
+        }
+
+        clinic.setActive(false);
+        repository.save(clinic);
     }
 
     public boolean isClinicValid(ClinicRegisterDTO clinicData) {
