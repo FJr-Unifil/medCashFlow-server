@@ -37,15 +37,12 @@ public class AccountPlanningService {
     }
 
     public AccountPlanningResponseDTO updateAccountPlanning(AccountPlanningRegisterDTO data, Clinic clinic, Long id) {
-        if (!repository.existsById(id)) {
-            throw new AccountPlanningNotFoundException();
-        }
+        AccountPlanning existingAccountPlanning = getAccountPlanningById(id);
 
-        AccountPlanning accountPlanning = mapper.toAccountPlanning(data, clinic);
-        accountPlanning.setId(id);
+        mapper.updateAccountPlanning(existingAccountPlanning, data);
 
-        repository.save(accountPlanning);
-        return mapper.toResponseDTO(accountPlanning);
+        repository.save(existingAccountPlanning);
+        return mapper.toResponseDTO(existingAccountPlanning);
     }
 
     public void deleteAccountPlanning(Long id) {

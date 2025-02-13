@@ -6,6 +6,7 @@ import example.medCashFlow.model.AccountPlanning;
 import example.medCashFlow.model.Clinic;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 
 @Mapper(componentModel = "spring")
 public interface AccountPlanningMapper {
@@ -16,4 +17,9 @@ public interface AccountPlanningMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "name", source = "data.name")
     AccountPlanning toAccountPlanning(AccountPlanningRegisterDTO data, Clinic clinic);
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "clinic", ignore = true)
+    @Mapping(target = "name", source = "data.name")
+    void updateAccountPlanning(@MappingTarget AccountPlanning existingAccountPlanning, AccountPlanningRegisterDTO data);
 }
