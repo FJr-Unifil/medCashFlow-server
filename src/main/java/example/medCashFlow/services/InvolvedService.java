@@ -78,11 +78,10 @@ public class InvolvedService {
             throw new InvalidInvolvedException("involved.document");
         }
 
-        Involved updatedInvolved = mapper.toInvolved(data, clinic);
-        updatedInvolved.setId(id);
+        mapper.updateInvolved(existingInvolved, data);
 
-        repository.save(updatedInvolved);
-        return mapper.toResponseDTO(updatedInvolved);
+        repository.save(existingInvolved);
+        return mapper.toResponseDTO(existingInvolved);
     }
 
     public void deleteInvolved(Long id) {
