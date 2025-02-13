@@ -21,33 +21,31 @@ public class AccountPlanningService {
     
     private final AccountPlanningMapper mapper;
 
-    public AccountPlanningResponseDTO toResponseDTO(AccountPlanning accountPlanning) {
-        return mapper.toResponseDTO(accountPlanning);
-    }
-
-    public AccountPlanning toAccountPlanning(AccountPlanningRegisterDTO data, Clinic clinic) {
-        return mapper.toAccountPlanning(data, clinic);
-    }
-
     public AccountPlanning getAccountPlanningById(Long id) {
         return repository.findById(id).orElseThrow(AccountPlanningNotFoundException::new);
     }
 
-    public AccountPlanningResponseDTO saveAccountPlanning(AccountPlanning accountPlanning) {
-        repository.save(accountPlanning);
-        return toResponseDTO(accountPlanning);
+    public AccountPlanningResponseDTO getAccountPlanningResponseDTOById(Long id) {
+        AccountPlanning accountPlanning = getAccountPlanningById(id);
+        return mapper.toResponseDTO(accountPlanning);
     }
 
-    public AccountPlanningResponseDTO updateAccountPlanning(AccountPlanning accountPlanning, Long id) {
-        AccountPlanning existingAccountPlanning = getAccountPlanningById(id);
+    public AccountPlanningResponseDTO createAccountPlanning(AccountPlanningRegisterDTO data, Clinic clinic) {
+        AccountPlanning accountPlanning = mapper.toAccountPlanning(data, clinic);
+        repository.save(accountPlanning);
+        return mapper.toResponseDTO(accountPlanning);
+    }
 
-        existingAccountPlanning.setName(accountPlanning.getName());
-        existingAccountPlanning.setDescription(accountPlanning.getDescription());
-        existingAccountPlanning.setEmoji(accountPlanning.getEmoji());
-        existingAccountPlanning.setColor(accountPlanning.getColor());
+    public AccountPlanningResponseDTO updateAccountPlanning(AccountPlanningRegisterDTO data, Clinic clinic, Long id) {
+        if (!repository.existsById(id)) {
+            throw new AccountPlanningNotFoundException();
+        }
 
-        repository.save(existingAccountPlanning);
-        return toResponseDTO(existingAccountPlanning);
+        AccountPlanning accountPlanning = mapper.toAccountPlanning(data, clinic);
+        accountPlanning.setId(id);
+
+        repository.save(accountPlanning);
+        return mapper.toResponseDTO(accountPlanning);
     }
 
     public void deleteAccountPlanning(Long id) {
@@ -58,7 +56,7 @@ public class AccountPlanningService {
     public List<AccountPlanningResponseDTO> getAllAccountPlanningsByClinicId(UUID clinicId) {
         return repository.findByClinicIdOrderById(clinicId)
                 .stream()
-                .map(this::toResponseDTO)
+                .map(mapper::toResponseDTO)
                 .toList();
     }
 }

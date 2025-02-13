@@ -27,10 +27,7 @@ public class AccountPlanningController {
             throw new ForbiddenException();
         }
 
-        AccountPlanning accountPlanning = accountPlanningService.getAccountPlanningById(id);
-        AccountPlanningResponseDTO dto = accountPlanningService.toResponseDTO(accountPlanning);
-
-        return ResponseEntity.ok(dto);
+        return ResponseEntity.ok(accountPlanningService.getAccountPlanningResponseDTOById(id));
     }
 
     @GetMapping("/list")
@@ -54,9 +51,7 @@ public class AccountPlanningController {
             throw new ForbiddenException();
         }
 
-        AccountPlanning newAccountPlanning = accountPlanningService.toAccountPlanning(data, employee.getClinic());
-
-        return ResponseEntity.ok(accountPlanningService.saveAccountPlanning(newAccountPlanning));
+        return ResponseEntity.ok(accountPlanningService.createAccountPlanning(data, employee.getClinic()));
     }
 
     @PutMapping("/update/{id}")
@@ -68,9 +63,7 @@ public class AccountPlanningController {
             throw new ForbiddenException();
         }
 
-        AccountPlanning accountPlanningToUpdate = accountPlanningService.toAccountPlanning(data, employee.getClinic());
-
-        return ResponseEntity.ok(accountPlanningService.updateAccountPlanning(accountPlanningToUpdate, id));
+        return ResponseEntity.ok(accountPlanningService.updateAccountPlanning(data, employee.getClinic() ,id));
     }
 
     @DeleteMapping("/delete/{id}")
