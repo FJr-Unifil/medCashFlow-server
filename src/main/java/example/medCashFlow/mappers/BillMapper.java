@@ -8,6 +8,7 @@ import example.medCashFlow.services.InvolvedService;
 import example.medCashFlow.services.PaymentMethodService;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 import org.mapstruct.Named;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -26,6 +27,19 @@ public interface BillMapper {
     @Mapping(target = "installmentsAmount", source = "data.installments")
     @Mapping(target = "installments", ignore = true)
     Bill toBill(BillRegisterDTO data, Employee employee, Involved involved, AccountPlanning accountPlanning, PaymentMethod paymentMethod);
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "name", source = "data.name")
+    @Mapping(target = "type", source = "data.type", qualifiedByName = "mapBillType")
+    @Mapping(target = "clinic", ignore = true)
+    @Mapping(target = "employee", ignore = true)
+    @Mapping(target = "involved", source = "involved")
+    @Mapping(target = "accountPlanning", source = "accountPlanning")
+    @Mapping(target = "paymentMethod", source = "paymentMethod")
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "installmentsAmount", source = "data.installments")
+    @Mapping(target = "installments", ignore = true)
+    void updateBill(@MappingTarget Bill existingBill, BillRegisterDTO data, Involved involved, AccountPlanning accountPlanning, PaymentMethod paymentMethod);
 
     @Named("mapBillType")
     default BillType mapBillType(String type) {

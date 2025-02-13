@@ -64,11 +64,11 @@ public class BillController {
             @AuthenticationPrincipal UserDetails loggedUser,
             @PathVariable Long id,
             @RequestBody BillRegisterDTO data) {
-        if (!(loggedUser instanceof Employee employee)) {
+        if (!(loggedUser instanceof Employee)) {
             throw new ForbiddenException();
         }
 
-        billService.updateBill(data, employee, id);
+        billService.updateBill(data, id);
         return ResponseEntity.noContent().build();
     }
 
