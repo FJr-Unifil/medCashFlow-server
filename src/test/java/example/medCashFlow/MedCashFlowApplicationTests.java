@@ -96,7 +96,7 @@ public abstract class MedCashFlowApplicationTests {
             mockMvc.perform(post("/auth/register")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(new ObjectMapper().writeValueAsString(activeRegisterDto)))
-                    .andExpect(status().isOk());
+                    .andExpect(status().isCreated());
 
             Employee manager = employeeService.getEmployeeByEmail("manager@manager.com");
             managerToken = tokenService.generateToken(manager);
@@ -282,7 +282,7 @@ public abstract class MedCashFlowApplicationTests {
             mockMvc.perform(post("/auth/register")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(new ObjectMapper().writeValueAsString(activeRegisterDto)))
-                    .andExpect(status().isOk());
+                    .andExpect(status().isCreated());
 
             Clinic clinic = clinicRepository.findByCnpj("12345678901235").orElseThrow(ClinicNotFoundException::new);
 

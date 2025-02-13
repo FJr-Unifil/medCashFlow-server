@@ -65,14 +65,7 @@ class AuthenticationControllerTests extends MedCashFlowApplicationTests {
         mockMvc.perform(post("/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(registerDto)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").exists())
-                .andExpect(jsonPath("$.firstName").value("John"))
-                .andExpect(jsonPath("$.lastName").value("Doe"))
-                .andExpect(jsonPath("$.cpf").value("34567890123"))
-                .andExpect(jsonPath("$.email").value("clinicateste@manager.com"))
-                .andExpect(jsonPath("$.role").value("MANAGER"))
-                .andExpect(jsonPath("$.isActive").value(true));
+                .andExpect(status().isCreated());
     }
 
     @Test

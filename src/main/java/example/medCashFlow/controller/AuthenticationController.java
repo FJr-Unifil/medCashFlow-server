@@ -28,8 +28,6 @@ public class AuthenticationController {
 
     private final AuthenticationManager authenticationManager;
 
-    private final EmployeeService employeeService;
-
     private final ClinicService clinicService;
 
     private final TokenService tokenService;
@@ -53,13 +51,9 @@ public class AuthenticationController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<EmployeeResponseDTO> register(@RequestBody RegisterDTO data) {
+    public ResponseEntity<Void> register(@RequestBody RegisterDTO data) {
+        clinicService.createClinic(data);
 
-        ClinicRegisterDTO clinicData = data.clinic();
-        EmployeeRegisterDTO managerData = data.manager();
-
-        Clinic savedClinic = clinicService.createClinic(clinicData);
-
-        return ResponseEntity.ok(employeeService.createEmployee(managerData, savedClinic));
+        return ResponseEntity.status(201).build();
     }
 }

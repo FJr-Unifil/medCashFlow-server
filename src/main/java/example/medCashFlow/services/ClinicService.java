@@ -1,5 +1,6 @@
 package example.medCashFlow.services;
 
+import example.medCashFlow.dto.auth.RegisterDTO;
 import example.medCashFlow.dto.clinic.ClinicRegisterDTO;
 import example.medCashFlow.dto.clinic.ClinicResponseDTO;
 import example.medCashFlow.exceptions.ClinicNotFoundException;
@@ -20,10 +21,7 @@ public class ClinicService {
     private final ClinicRepository repository;
 
     private final ClinicMapper mapper;
-
-    public Clinic toClinic(ClinicRegisterDTO clinicData) {
-        return mapper.toClinic(clinicData);
-    }
+    private final EmployeeService employeeService;
 
     public Clinic getClinicById(UUID id) {
         return repository.findById(id).orElseThrow(ClinicNotFoundException::new);
@@ -35,12 +33,16 @@ public class ClinicService {
                 .toList();
     }
 
-    public Clinic createClinic(ClinicRegisterDTO data) {
-        if (!isClinicValid(data)) {
+    public void createClinic(RegisterDTO data) {
+        ClinicRegisterDTO clinicData = data.clinic();
+
+        if (!isClinicValid(clinicData)) {
             throw new InvalidClinicException();
         }
 
-        return repository.save(toClinic(data));
+
+        Clinic savedClinc = repository.save(mapper.toClinic(clinicData));
+        employeeService.createEmployee(data.manager(), savedClinc);
     }
 
     public void activateClinic(UUID id) {
