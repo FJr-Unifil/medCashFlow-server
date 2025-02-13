@@ -22,21 +22,18 @@ public class InvolvedService {
 
     private final InvolvedMapper mapper;
 
-    public InvolvedResponseDTO toResponseDTO(Involved involved) {
-        return mapper.toResponseDTO(involved);
-    }
-
-    public Involved toInvolved(InvolvedRegisterDTO data, Clinic clinic) {
-        return mapper.toInvolved(data, clinic);
-    }
-
     public Involved getInvolvedById(Long id) {
         return repository.findById(id).orElseThrow(InvolvedNotFoundException::new);
     }
 
+    public InvolvedResponseDTO getInvolvedResponseDTOById(Long id) {
+        Involved involved = getInvolvedById(id);
+        return mapper.toResponseDTO(involved);
+    }
+
     public List<InvolvedResponseDTO> getAllInvolvedsByClinicId(UUID clinicId) {
         return repository.findAllByClinicIdOrderById(clinicId).stream()
-                .map(this::toResponseDTO).toList();
+                .map(mapper::toResponseDTO).toList();
     }
 
     public boolean isInvolvedValid(String document, String email) {
@@ -57,35 +54,35 @@ public class InvolvedService {
         return true;
     }
 
-    public InvolvedResponseDTO saveInvolved(Involved involved) {
-        if (!isInvolvedValid(involved.getDocument(), involved.getEmail())) {
+    public InvolvedResponseDTO createInvolved(InvolvedRegisterDTO data, Clinic clinic) {
+        if (!isInvolvedValid(data.document(), data.email())) {
             throw new InvalidInvolvedException();
         }
 
+        Involved involved = mapper.toInvolved(data, clinic);
+
         repository.save(involved);
-        return toResponseDTO(involved);
+        return mapper.toResponseDTO(involved);
     }
 
-    public InvolvedResponseDTO updateInvolved(Involved involved, Long id) {
+    public InvolvedResponseDTO updateInvolved(InvolvedRegisterDTO data, Clinic clinic, Long id) {
         Involved existingInvolved = getInvolvedById(id);
 
-        if (!involved.getEmail().equals(existingInvolved.getEmail())
-                && repository.existsByEmail(involved.getEmail())) {
+        if (!data.email().equals(existingInvolved.getEmail())
+                && repository.existsByEmail(data.email())) {
             throw new InvalidInvolvedException("involved.email");
         }
 
-        if (!involved.getDocument().equals(existingInvolved.getDocument())
-                && repository.existsByDocument(involved.getDocument())) {
+        if (!data.document().equals(existingInvolved.getDocument())
+                && repository.existsByDocument(data.document())) {
             throw new InvalidInvolvedException("involved.document");
         }
 
-        existingInvolved.setName(involved.getName());
-        existingInvolved.setDocument(involved.getDocument());
-        existingInvolved.setPhone(involved.getPhone());
-        existingInvolved.setEmail(involved.getEmail());
+        Involved updatedInvolved = mapper.toInvolved(data, clinic);
+        updatedInvolved.setId(id);
 
-        repository.save(existingInvolved);
-        return toResponseDTO(existingInvolved);
+        repository.save(updatedInvolved);
+        return mapper.toResponseDTO(updatedInvolved);
     }
 
     public void deleteInvolved(Long id) {

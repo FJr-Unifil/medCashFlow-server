@@ -28,9 +28,7 @@ public class InvolvedController {
             throw new ForbiddenException();
         }
 
-        Involved involved = involvedService.getInvolvedById(id);
-
-        return ResponseEntity.ok(involvedService.toResponseDTO(involved));
+        return ResponseEntity.ok(involvedService.getInvolvedResponseDTOById(id));
     }
 
     @GetMapping("/list")
@@ -53,9 +51,7 @@ public class InvolvedController {
             throw new ForbiddenException();
         }
 
-        Involved newInvolved = involvedService.toInvolved(data, employee.getClinic());
-
-        return ResponseEntity.ok(involvedService.saveInvolved(newInvolved));
+        return ResponseEntity.ok(involvedService.createInvolved(data, employee.getClinic()));
     }
 
     @PutMapping("/{id}")
@@ -67,9 +63,7 @@ public class InvolvedController {
             throw new ForbiddenException();
         }
 
-        Involved involvedToUpdate = involvedService.toInvolved(data, employee.getClinic());
-
-        return ResponseEntity.ok(involvedService.updateInvolved(involvedToUpdate, id));
+        return ResponseEntity.ok(involvedService.updateInvolved(data, employee.getClinic(), id));
     }
 
     @DeleteMapping("/{id}")
