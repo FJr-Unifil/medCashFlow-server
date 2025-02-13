@@ -45,7 +45,7 @@ public class EmployeeService {
     }
 
     public boolean isEmployeeValid(String cpf, String email) {
-        return (!isEmployeeValidByCpf(cpf) || !isEmployeeValidByEmail(email));
+        return (isEmployeeValidByCpf(cpf) && isEmployeeValidByEmail(email));
     }
 
     public boolean isEmployeeValidByCpf(String cpf) {
@@ -65,7 +65,7 @@ public class EmployeeService {
     }
 
     public EmployeeResponseDTO createEmployee(EmployeeRegisterDTO data, Clinic clinic) {
-        if (isEmployeeValid(data.cpf(), data.email())) {
+        if (!isEmployeeValid(data.cpf(), data.email())) {
             throw new InvalidEmployeeException();
         }
 
