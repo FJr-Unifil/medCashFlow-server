@@ -92,10 +92,12 @@ public class EmployeeService {
         }
 
         Role role = roleService.getRoleById(data.roleId());
-        Employee updatedEmployee = mapper.toEmployee(data, existingEmployee.getClinic(), role, existingEmployee.getPassword());
-        updatedEmployee.setId(existingEmployee.getId());
 
-        return mapper.toResponseDTO(repository.save(updatedEmployee));
+        String encryptedPassword = new BCryptPasswordEncoder().encode(data.password());
+
+        mapper.updateEmployee(existingEmployee,data, role, encryptedPassword);
+
+        return mapper.toResponseDTO(repository.save(existingEmployee));
     }
 
     public void deleteEmployee(Long id) {

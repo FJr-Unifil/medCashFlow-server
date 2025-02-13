@@ -7,6 +7,7 @@ import example.medCashFlow.model.Employee;
 import example.medCashFlow.model.Role;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 import org.mapstruct.Named;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
@@ -19,6 +20,14 @@ public interface EmployeeMapper {
     @Mapping(target = "role", source = "role")
     @Mapping(target = "password", source = "encryptedPassword")
     Employee toEmployee(EmployeeRegisterDTO data, Clinic clinic, Role role, String encryptedPassword);
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "active", ignore = true)
+    @Mapping(target = "authorities", ignore = true)
+    @Mapping(target = "clinic", ignore = true)
+    @Mapping(target = "role", source = "role")
+    @Mapping(target = "password", source = "encryptedPassword")
+    void updateEmployee(@MappingTarget Employee existingEmployee, EmployeeRegisterDTO data, Role role, String encryptedPassword);
 
     @Mapping(target = "isActive", source = "active")
     @Mapping(target = "role", source = "role.name")
