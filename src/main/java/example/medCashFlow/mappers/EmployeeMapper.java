@@ -17,16 +17,11 @@ public interface EmployeeMapper {
     @Mapping(target = "active", ignore = true)
     @Mapping(target = "authorities", ignore = true)
     @Mapping(target = "role", source = "role")
-    @Mapping(target = "password", source = "data.password", qualifiedByName = "mapPassword")
-    Employee toEmployee(EmployeeRegisterDTO data, Clinic clinic, Role role);
+    @Mapping(target = "password", source = "encryptedPassword")
+    Employee toEmployee(EmployeeRegisterDTO data, Clinic clinic, Role role, String encryptedPassword);
 
     @Mapping(target = "isActive", source = "active")
     @Mapping(target = "role", source = "role.name")
     EmployeeResponseDTO toResponseDTO(Employee employee);
-
-    @Named("mapPassword")
-    default String mapPassword(String password) {
-        return new BCryptPasswordEncoder().encode(password);
-    }
 
 }

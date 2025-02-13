@@ -10,6 +10,7 @@ import example.medCashFlow.model.Employee;
 import example.medCashFlow.model.Role;
 import example.medCashFlow.repository.EmployeeRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -70,7 +71,9 @@ public class EmployeeService {
 
         Role role = roleService.getRoleById(data.roleId());
 
-        Employee employee = mapper.toEmployee(data, clinic, role);
+        String encryptedPassword = new BCryptPasswordEncoder().encode(data.password());
+
+        Employee employee = mapper.toEmployee(data, clinic, role, encryptedPassword);
 
         return mapper.toResponseDTO(repository.save(employee));
     }
@@ -89,7 +92,7 @@ public class EmployeeService {
         }
 
         Role role = roleService.getRoleById(data.roleId());
-        Employee updatedEmployee = mapper.toEmployee(data, existingEmployee.getClinic(), role);
+        Employee updatedEmployee = mapper.toEmployee(data, existingEmployee.getClinic(), role, existingEmployee.getPassword());
         updatedEmployee.setId(existingEmployee.getId());
 
         return mapper.toResponseDTO(repository.save(updatedEmployee));
