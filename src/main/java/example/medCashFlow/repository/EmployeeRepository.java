@@ -21,4 +21,8 @@ public interface EmployeeRepository extends JpaRepository<Employee, Long> {
 
     List<Employee> findAllByClinicIdOrderById(UUID clinicId);
 
+    boolean existsByEmailAndIdNot(String email, Long excludedId);
+
+    boolean existsByCpfAndIdNot(String cpf, Long excludedId);
+
 }

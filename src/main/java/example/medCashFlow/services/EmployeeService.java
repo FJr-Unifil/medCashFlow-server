@@ -81,13 +81,11 @@ public class EmployeeService {
     public EmployeeResponseDTO updateEmployee(EmployeeRegisterDTO data, Long id) {
         Employee existingEmployee = getEmployeeById(id);
 
-        if (!data.email().equals(existingEmployee.getEmail())
-                && repository.existsByEmail(data.email())) {
+        if (repository.existsByEmailAndIdNot(data.email(), id)) {
             throw new InvalidEmployeeException("manager.email");
         }
 
-        if (!data.cpf().equals(existingEmployee.getCpf())
-                && repository.existsByCpf(data.cpf())) {
+        if (repository.existsByCpfAndIdNot(data.cpf(), id)) {
             throw new InvalidEmployeeException("manager.cpf");
         }
 
