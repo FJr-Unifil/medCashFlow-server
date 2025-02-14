@@ -1,0 +1,32 @@
+services:
+  dev_db:
+    image: postgres:15-alpine
+    container_name: dev-db
+    environment:
+      - POSTGRES_USER=medcashflow
+      - POSTGRES_PASSWORD=medcashflow
+      - POSTGRES_DB=medcashflow
+    ports:
+      - "5432:5432"
+    volumes:
+      - dev_db_data:/var/lib/postgresql/data
+    profiles:
+      - dev
+
+  test_db:
+    image: postgres:15-alpine
+    container_name: test-db
+    environment:
+      - POSTGRES_USER=medcashflow
+      - POSTGRES_PASSWORD=medcashflow
+      - POSTGRES_DB=medcashflow_test
+    ports:
+      - "5433:5432"
+    volumes:
+      - test_db_data:/var/lib/postgresql/data
+    profiles:
+      - test
+
+volumes:
+  dev_db_data:
+  test_db_data:
