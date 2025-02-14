@@ -1,5 +1,6 @@
 package example.medCashFlow.services;
 
+import example.medCashFlow.dto.bill.BillDependencies;
 import example.medCashFlow.dto.bill.BillOnlyResponseDTO;
 import example.medCashFlow.dto.bill.BillRegisterDTO;
 import example.medCashFlow.dto.bill.BillResponseDTO;
@@ -26,13 +27,6 @@ public class BillService {
 
     private final BillMapper mapper;
 
-    /* É uma boa prática isso? Teria que usar em duas funções diferentes */
-    private record BillDependencies(
-            Involved involved,
-            AccountPlanning accountPlanning,
-            PaymentMethod paymentMethod
-    ) {}
-
     private BillDependencies fetchBillDependencies(BillRegisterDTO data) {
         return new BillDependencies(
                 involvedService.getInvolvedById(data.involvedId()),
@@ -40,21 +34,6 @@ public class BillService {
                 paymentMethodService.getPaymentMethodById(data.paymentMethodId())
         );
     }
-
-    /* TAVA ASSIM ANTES
-    public Bill toBill(BillRegisterDTO data, Employee employee) {
-        Involved involved = involvedService.getInvolvedById(data.involvedId());
-        AccountPlanning accountPlanning = accountPlanningService.getAccountPlanningById(data.accountPlanningId());
-        PaymentMethod paymentMethod= paymentMethodService.getPaymentMethodById(data.paymentMethodId());
-        return mapper.toBill(data, employee, involved, accountPlanning, paymentMethod);
-    }
-    public void updateBillMapper(Bill existingBill, BillRegisterDTO data) {
-        Involved involved = involvedService.getInvolvedById(data.involvedId());
-        AccountPlanning accountPlanning = accountPlanningService.getAccountPlanningById(data.accountPlanningId());
-        PaymentMethod paymentMethod= paymentMethodService.getPaymentMethodById(data.paymentMethodId());
-        mapper.updateBill(existingBill, data, involved, accountPlanning, paymentMethod);
-    }
-    */
 
     public Bill getBillById(Long id) {
         return repository.findById(id).orElseThrow(BillNotFoundException::new);
@@ -66,7 +45,7 @@ public class BillService {
 
     public void createBill(BillRegisterDTO data, Employee employee) {
         BillDependencies dependencies = fetchBillDependencies(data);
-        Bill bill = mapper.toBill(data, employee, dependencies.involved, dependencies.accountPlanning, dependencies.paymentMethod);
+        Bill bill = mapper.toBill(data, employee, dependencies.involved(), dependencies.accountPlanning(), dependencies.paymentMethod());
         Bill savedBill = repository.save(bill);
         installmentService.saveInstallments(savedBill);
     }
@@ -75,7 +54,7 @@ public class BillService {
         Bill existingBill = getBillById(id);
 
         BillDependencies dependencies = fetchBillDependencies(data);
-        mapper.updateBill(existingBill, data, dependencies.involved, dependencies.accountPlanning, dependencies.paymentMethod);
+        mapper.updateBill(existingBill, data, dependencies.involved(), dependencies.accountPlanning(), dependencies.paymentMethod());
 
         installmentService.deleteInstallmentByBillId(id);
         Bill savedBill = repository.save(existingBill);
