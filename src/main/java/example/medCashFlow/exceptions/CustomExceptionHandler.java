@@ -18,8 +18,8 @@ public class CustomExceptionHandler {
     @ExceptionHandler(Exception.class)
     private ResponseEntity<ExceptionDTO> handleSecurityException(Exception ex) {
         return ResponseEntity.status(500).body(new ExceptionDTO(500,
-                "Erro interno do servidor",
                 ex.getClass().getName(),
+                ex.getMessage(),
                 LocalDateTime.now()
         ));
     }

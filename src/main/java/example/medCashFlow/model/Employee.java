@@ -1,7 +1,5 @@
 package example.medCashFlow.model;
 
-import example.medCashFlow.dto.employee.EmployeeRegisterDTO;
-import example.medCashFlow.dto.employee.ManagerRegisterDTO;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -50,23 +48,6 @@ public class Employee implements UserDetails {
 
     @Column(nullable = false, name = "is_active")
     private boolean isActive = true;
-
-    public Employee(ManagerRegisterDTO data, String encryptedPassword, Role role, Clinic clinic) {
-        this.firstName = data.firstName();
-        this.lastName = data.lastName();
-        this.cpf = data.cpf();
-        this.email = data.email();
-        this.password = encryptedPassword;
-        this.role = role;
-        this.clinic = clinic;
-    }
-
-    public Employee(EmployeeRegisterDTO data) {
-        this.firstName = data.firstName();
-        this.lastName = data.lastName();
-        this.cpf = data.cpf();
-        this.email = data.email();
-    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

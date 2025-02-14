@@ -27,20 +27,18 @@ public class AccountPlanningController {
             throw new ForbiddenException();
         }
 
-        AccountPlanning accountPlanning = accountPlanningService.getAccountPlanningById(id);
-
-        return ResponseEntity.ok(accountPlanningService.toDTO(accountPlanning));
+        return ResponseEntity.ok(accountPlanningService.getAccountPlanningResponseDTOById(id));
     }
 
     @GetMapping("/list")
     public ResponseEntity<List<AccountPlanningResponseDTO>> listAllAccountPlannings(
             @AuthenticationPrincipal UserDetails loggedUser) {
-        if (!(loggedUser instanceof Employee)) {
+        if (!(loggedUser instanceof Employee employee)) {
             throw new ForbiddenException();
         }
 
         List<AccountPlanningResponseDTO> accountPlannings = accountPlanningService
-                .getAllAccountPlanningsByClinicId(((Employee) loggedUser).getClinic().getId());
+                .getAllAccountPlanningsByClinicId(employee.getClinic().getId());
         return ResponseEntity.ok(accountPlannings);
     }
 
@@ -53,14 +51,7 @@ public class AccountPlanningController {
             throw new ForbiddenException();
         }
 
-        AccountPlanning newAccountPlanning = new AccountPlanning();
-        newAccountPlanning.setName(data.name());
-        newAccountPlanning.setDescription(data.description());
-        newAccountPlanning.setEmoji(data.emoji());
-        newAccountPlanning.setColor(data.color());
-        newAccountPlanning.setClinic(employee.getClinic());
-
-        return ResponseEntity.ok(accountPlanningService.saveAccountPlanning(newAccountPlanning));
+        return ResponseEntity.ok(accountPlanningService.createAccountPlanning(data, employee.getClinic()));
     }
 
     @PutMapping("/update/{id}")
@@ -72,14 +63,7 @@ public class AccountPlanningController {
             throw new ForbiddenException();
         }
 
-        AccountPlanning accountPlanningToUpdate = new AccountPlanning();
-        accountPlanningToUpdate.setName(data.name());
-        accountPlanningToUpdate.setDescription(data.description());
-        accountPlanningToUpdate.setEmoji(data.emoji());
-        accountPlanningToUpdate.setColor(data.color());
-        accountPlanningToUpdate.setClinic(employee.getClinic());
-
-        return ResponseEntity.ok(accountPlanningService.updateAccountPlanning(accountPlanningToUpdate, id));
+        return ResponseEntity.ok(accountPlanningService.updateAccountPlanning(data, employee.getClinic() ,id));
     }
 
     @DeleteMapping("/delete/{id}")

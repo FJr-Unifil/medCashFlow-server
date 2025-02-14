@@ -19,6 +19,7 @@ import java.util.List;
 @RequestMapping("/involveds")
 @RequiredArgsConstructor
 public class InvolvedController {
+
     private final InvolvedService involvedService;
 
     @GetMapping("/{id}")
@@ -27,18 +28,7 @@ public class InvolvedController {
             throw new ForbiddenException();
         }
 
-        Involved involved = involvedService.getInvolvedById(id);
-
-        InvolvedResponseDTO involvedResponseDTO = new InvolvedResponseDTO(
-                involved.getId(),
-                involved.getName(),
-                involved.getDocument(),
-                involved.getPhone(),
-                involved.getEmail(),
-                involved.isActive()
-        );
-
-        return ResponseEntity.ok(involvedResponseDTO);
+        return ResponseEntity.ok(involvedService.getInvolvedResponseDTOById(id));
     }
 
     @GetMapping("/list")
@@ -61,14 +51,7 @@ public class InvolvedController {
             throw new ForbiddenException();
         }
 
-        Involved newInvolved = new Involved();
-        newInvolved.setName(data.name());
-        newInvolved.setDocument(data.document());
-        newInvolved.setPhone(data.phone());
-        newInvolved.setEmail(data.email());
-        newInvolved.setClinic(employee.getClinic());
-
-        return ResponseEntity.ok(involvedService.saveInvolved(newInvolved));
+        return ResponseEntity.ok(involvedService.createInvolved(data, employee.getClinic()));
     }
 
     @PutMapping("/{id}")
@@ -76,17 +59,11 @@ public class InvolvedController {
             @AuthenticationPrincipal UserDetails loggedUser,
             @PathVariable Long id,
             @RequestBody InvolvedRegisterDTO data) {
-        if (!(loggedUser instanceof Employee)) {
+        if (!(loggedUser instanceof Employee employee)) {
             throw new ForbiddenException();
         }
 
-        Involved involvedToUpdate = new Involved();
-        involvedToUpdate.setName(data.name());
-        involvedToUpdate.setDocument(data.document());
-        involvedToUpdate.setPhone(data.phone());
-        involvedToUpdate.setEmail(data.email());
-
-        return ResponseEntity.ok(involvedService.updateInvolved(involvedToUpdate, id));
+        return ResponseEntity.ok(involvedService.updateInvolved(data, employee.getClinic(), id));
     }
 
     @DeleteMapping("/{id}")

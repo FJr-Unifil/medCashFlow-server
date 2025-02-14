@@ -1,8 +1,11 @@
 package example.medCashFlow.services;
 
+import example.medCashFlow.dto.involved.InvolvedRegisterDTO;
 import example.medCashFlow.dto.involved.InvolvedResponseDTO;
 import example.medCashFlow.exceptions.InvalidInvolvedException;
 import example.medCashFlow.exceptions.InvolvedNotFoundException;
+import example.medCashFlow.mappers.InvolvedMapper;
+import example.medCashFlow.model.Clinic;
 import example.medCashFlow.model.Involved;
 import example.medCashFlow.repository.InvolvedRepository;
 import lombok.RequiredArgsConstructor;
@@ -14,22 +17,23 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class InvolvedService {
+
     private final InvolvedRepository repository;
+
+    private final InvolvedMapper mapper;
 
     public Involved getInvolvedById(Long id) {
         return repository.findById(id).orElseThrow(InvolvedNotFoundException::new);
     }
 
+    public InvolvedResponseDTO getInvolvedResponseDTOById(Long id) {
+        Involved involved = getInvolvedById(id);
+        return mapper.toResponseDTO(involved);
+    }
+
     public List<InvolvedResponseDTO> getAllInvolvedsByClinicId(UUID clinicId) {
         return repository.findAllByClinicIdOrderById(clinicId).stream()
-                .map(involved -> new InvolvedResponseDTO(
-                        involved.getId(),
-                        involved.getName(),
-                        involved.getDocument(),
-                        involved.getPhone(),
-                        involved.getEmail(),
-                        involved.isActive()
-                )).toList();
+                .map(mapper::toResponseDTO).toList();
     }
 
     public boolean isInvolvedValid(String document, String email) {
@@ -50,50 +54,34 @@ public class InvolvedService {
         return true;
     }
 
-    public InvolvedResponseDTO saveInvolved(Involved involved) {
-        if (!isInvolvedValid(involved.getDocument(), involved.getEmail())) {
+    public InvolvedResponseDTO createInvolved(InvolvedRegisterDTO data, Clinic clinic) {
+        if (!isInvolvedValid(data.document(), data.email())) {
             throw new InvalidInvolvedException();
         }
 
+        Involved involved = mapper.toInvolved(data, clinic);
+
         repository.save(involved);
-        return new InvolvedResponseDTO(
-                involved.getId(),
-                involved.getName(),
-                involved.getDocument(),
-                involved.getPhone(),
-                involved.getEmail(),
-                involved.isActive()
-        );
+        return mapper.toResponseDTO(involved);
     }
 
-    public InvolvedResponseDTO updateInvolved(Involved involved, Long id) {
+    public InvolvedResponseDTO updateInvolved(InvolvedRegisterDTO data, Clinic clinic, Long id) {
         Involved existingInvolved = getInvolvedById(id);
 
-        if (!involved.getEmail().equals(existingInvolved.getEmail())
-                && repository.existsByEmail(involved.getEmail())) {
+        if (!data.email().equals(existingInvolved.getEmail())
+                && repository.existsByEmail(data.email())) {
             throw new InvalidInvolvedException("involved.email");
         }
 
-        if (!involved.getDocument().equals(existingInvolved.getDocument())
-                && repository.existsByDocument(involved.getDocument())) {
+        if (!data.document().equals(existingInvolved.getDocument())
+                && repository.existsByDocument(data.document())) {
             throw new InvalidInvolvedException("involved.document");
         }
 
-        existingInvolved.setName(involved.getName());
-        existingInvolved.setDocument(involved.getDocument());
-        existingInvolved.setPhone(involved.getPhone());
-        existingInvolved.setEmail(involved.getEmail());
+        mapper.updateInvolved(existingInvolved, data);
 
         repository.save(existingInvolved);
-
-        return new InvolvedResponseDTO(
-                existingInvolved.getId(),
-                existingInvolved.getName(),
-                existingInvolved.getDocument(),
-                existingInvolved.getPhone(),
-                existingInvolved.getEmail(),
-                existingInvolved.isActive()
-        );
+        return mapper.toResponseDTO(existingInvolved);
     }
 
     public void deleteInvolved(Long id) {

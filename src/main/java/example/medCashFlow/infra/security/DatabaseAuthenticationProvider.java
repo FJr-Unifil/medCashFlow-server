@@ -47,7 +47,7 @@ public class DatabaseAuthenticationProvider implements AuthenticationProvider {
 
         Employee employee = optionalEmployee.get();
 
-        if (!employee.getClinic().getIsActive()) {
+        if (!employee.getClinic().isActive()) {
             throw new DisabledException("Clinic is not active");
         }
 

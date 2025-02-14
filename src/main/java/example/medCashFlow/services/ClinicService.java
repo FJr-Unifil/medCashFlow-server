@@ -1,9 +1,11 @@
 package example.medCashFlow.services;
 
+import example.medCashFlow.dto.auth.RegisterDTO;
 import example.medCashFlow.dto.clinic.ClinicRegisterDTO;
 import example.medCashFlow.dto.clinic.ClinicResponseDTO;
 import example.medCashFlow.exceptions.ClinicNotFoundException;
 import example.medCashFlow.exceptions.InvalidClinicException;
+import example.medCashFlow.mappers.ClinicMapper;
 import example.medCashFlow.model.Clinic;
 import example.medCashFlow.repository.ClinicRepository;
 import lombok.RequiredArgsConstructor;
@@ -18,32 +20,47 @@ public class ClinicService {
 
     private final ClinicRepository repository;
 
+    private final ClinicMapper mapper;
+    private final EmployeeService employeeService;
+
     public Clinic getClinicById(UUID id) {
         return repository.findById(id).orElseThrow(ClinicNotFoundException::new);
     }
 
     public List<ClinicResponseDTO> getAllClinics() {
         return repository.findAllByOrderByCreatedAtAsc().stream()
-                .map(clinic -> new ClinicResponseDTO(
-                        clinic.getId(),
-                        clinic.getName(),
-                        clinic.getCnpj(),
-                        clinic.getPhone(),
-                        clinic.getCreatedAt(),
-                        clinic.getIsActive()))
+                .map(mapper::toResponseDTO)
                 .toList();
     }
 
-    public Clinic saveClinic(ClinicRegisterDTO data) {
-        if (!isClinicValid(data)) {
+    public void createClinic(RegisterDTO data) {
+        ClinicRegisterDTO clinicData = data.clinic();
+
+        if (!isClinicValid(clinicData)) {
             throw new InvalidClinicException();
         }
 
-        return repository.save(new Clinic(data));
+
+        Clinic savedClinc = repository.save(mapper.toClinic(clinicData));
+        employeeService.createEmployee(data.manager(), savedClinc);
     }
 
-    public void saveClinic(Clinic data) {
-        repository.save(data);
+    public void activateClinic(UUID id) {
+        Clinic clinic = getClinicById(id);
+
+        clinic.setActive(true);
+        repository.save(clinic);
+    }
+
+    public void deactivateClinic(UUID id) {
+        Clinic clinic = getClinicById(id);
+
+        if (!clinic.isActive()) {
+            throw new ClinicNotFoundException("Clínica já estava inativa");
+        }
+
+        clinic.setActive(false);
+        repository.save(clinic);
     }
 
     public boolean isClinicValid(ClinicRegisterDTO clinicData) {

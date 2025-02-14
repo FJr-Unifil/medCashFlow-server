@@ -1,11 +1,16 @@
 package example.medCashFlow.services;
 
+import example.medCashFlow.dto.employee.EmployeeRegisterDTO;
 import example.medCashFlow.dto.employee.EmployeeResponseDTO;
 import example.medCashFlow.exceptions.EmployeeNotFoundException;
 import example.medCashFlow.exceptions.InvalidEmployeeException;
+import example.medCashFlow.mappers.EmployeeMapper;
+import example.medCashFlow.model.Clinic;
 import example.medCashFlow.model.Employee;
+import example.medCashFlow.model.Role;
 import example.medCashFlow.repository.EmployeeRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,13 +20,19 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class EmployeeService {
 
-
     private final EmployeeRepository repository;
+
+    private final EmployeeMapper mapper;
 
     private final RoleService roleService;
 
     public Employee getEmployeeById(Long Id) {
         return repository.findById(Id).orElseThrow(EmployeeNotFoundException::new);
+    }
+
+    public EmployeeResponseDTO getEmployeeResponseDTOById(Long Id) {
+        Employee employee = getEmployeeById(Id);
+        return mapper.toResponseDTO(employee);
     }
 
     public Employee getEmployeeByEmail(String email) {
@@ -30,15 +41,7 @@ public class EmployeeService {
 
     public List<EmployeeResponseDTO> getAllEmployeesByClinicId(UUID clinicId) {
         return repository.findAllByClinicIdOrderById(clinicId).stream()
-                .map(employee -> new EmployeeResponseDTO(
-                        employee.getId(),
-                        employee.getFirstName(),
-                        employee.getLastName(),
-                        employee.getCpf(),
-                        employee.getEmail(),
-                        employee.getRole().getName(),
-                        employee.isActive()
-                )).toList();
+                .map(mapper::toResponseDTO).toList();
     }
 
     public boolean isEmployeeValid(String cpf, String email) {
@@ -61,55 +64,38 @@ public class EmployeeService {
         return true;
     }
 
-    public EmployeeResponseDTO saveEmployee(Employee employee) {
-        if (!isEmployeeValid(employee.getCpf(), employee.getEmail())) {
+    public EmployeeResponseDTO createEmployee(EmployeeRegisterDTO data, Clinic clinic) {
+        if (!isEmployeeValid(data.cpf(), data.email())) {
             throw new InvalidEmployeeException();
         }
 
-        repository.save(employee);
+        Role role = roleService.getRoleById(data.roleId());
 
-        return new EmployeeResponseDTO(
-                employee.getId(),
-                employee.getFirstName(),
-                employee.getLastName(),
-                employee.getCpf(),
-                employee.getEmail(),
-                employee.getRole().getName(),
-                employee.isActive()
-        );
+        String encryptedPassword = new BCryptPasswordEncoder().encode(data.password());
+
+        Employee employee = mapper.toEmployee(data, clinic, role, encryptedPassword);
+
+        return mapper.toResponseDTO(repository.save(employee));
     }
 
-    public EmployeeResponseDTO updateEmployee(Employee employee, Long id) {
+    public EmployeeResponseDTO updateEmployee(EmployeeRegisterDTO data, Long id) {
         Employee existingEmployee = getEmployeeById(id);
 
-        if (!employee.getEmail().equals(existingEmployee.getEmail())
-                && repository.existsByEmail(employee.getEmail())) {
+        if (repository.existsByEmailAndIdNot(data.email(), id)) {
             throw new InvalidEmployeeException("manager.email");
         }
 
-        if (!employee.getCpf().equals(existingEmployee.getCpf())
-                && repository.existsByCpf(employee.getCpf())) {
+        if (repository.existsByCpfAndIdNot(data.cpf(), id)) {
             throw new InvalidEmployeeException("manager.cpf");
         }
 
-        existingEmployee.setFirstName(employee.getFirstName());
-        existingEmployee.setLastName(employee.getLastName());
-        existingEmployee.setEmail(employee.getEmail());
-        existingEmployee.setCpf(employee.getCpf());
-        existingEmployee.setPassword(employee.getPassword());
-        existingEmployee.setRole(employee.getRole());
+        Role role = roleService.getRoleById(data.roleId());
 
-        repository.save(existingEmployee);
+        String encryptedPassword = new BCryptPasswordEncoder().encode(data.password());
 
-        return new EmployeeResponseDTO(
-                existingEmployee.getId(),
-                existingEmployee.getFirstName(),
-                existingEmployee.getLastName(),
-                existingEmployee.getCpf(),
-                existingEmployee.getEmail(),
-                existingEmployee.getRole().getName(),
-                existingEmployee.isActive()
-        );
+        mapper.updateEmployee(existingEmployee,data, role, encryptedPassword);
+
+        return mapper.toResponseDTO(repository.save(existingEmployee));
     }
 
     public void deleteEmployee(Long id) {

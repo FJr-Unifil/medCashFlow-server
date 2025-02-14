@@ -1,13 +1,14 @@
 package example.medCashFlow.services;
 
+import example.medCashFlow.dto.bill.BillDependencies;
 import example.medCashFlow.dto.bill.BillOnlyResponseDTO;
 import example.medCashFlow.dto.bill.BillRegisterDTO;
 import example.medCashFlow.dto.bill.BillResponseDTO;
 import example.medCashFlow.exceptions.BillNotFoundException;
-import example.medCashFlow.model.Bill;
-import example.medCashFlow.model.BillType;
+import example.medCashFlow.model.*;
 import example.medCashFlow.repository.BillRepository;
 import lombok.RequiredArgsConstructor;
+import example.medCashFlow.mappers.BillMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,11 +18,22 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class BillService {
 
-    private final BillRepository repository;
+    private final InstallmentService installmentService;
     private final InvolvedService involvedService;
     private final AccountPlanningService accountPlanningService;
     private final PaymentMethodService paymentMethodService;
-    private final InstallmentService installmentService;
+
+    private final BillRepository repository;
+
+    private final BillMapper mapper;
+
+    private BillDependencies fetchBillDependencies(BillRegisterDTO data) {
+        return new BillDependencies(
+                involvedService.getInvolvedById(data.involvedId()),
+                accountPlanningService.getAccountPlanningById(data.accountPlanningId()),
+                paymentMethodService.getPaymentMethodById(data.paymentMethodId())
+        );
+    }
 
     public Bill getBillById(Long id) {
         return repository.findById(id).orElseThrow(BillNotFoundException::new);
@@ -31,31 +43,22 @@ public class BillService {
         return repository.findAllBillByClinicId(clinicId);
     }
 
-    public void saveBill(Bill bill) {
+    public void createBill(BillRegisterDTO data, Employee employee) {
+        BillDependencies dependencies = fetchBillDependencies(data);
+        Bill bill = mapper.toBill(data, employee, dependencies.involved(), dependencies.accountPlanning(), dependencies.paymentMethod());
         Bill savedBill = repository.save(bill);
         installmentService.saveInstallments(savedBill);
     }
 
-    public void updateBill(Long id, BillRegisterDTO data) {
+    public void updateBill(BillRegisterDTO data, Long id) {
         Bill existingBill = getBillById(id);
 
-        existingBill.setName(data.name());
-        existingBill.setPricing(data.pricing());
-        existingBill.setType(BillType.valueOf(data.type()));
-        existingBill.setInvolved(involvedService.getInvolvedById(data.involvedId()));
+        BillDependencies dependencies = fetchBillDependencies(data);
+        mapper.updateBill(existingBill, data, dependencies.involved(), dependencies.accountPlanning(), dependencies.paymentMethod());
 
-        if (data.accountPlanningId() != null) {
-            existingBill.setAccountPlanning(accountPlanningService.getAccountPlanningById(data.accountPlanningId()));
-        } else {
-            existingBill.setAccountPlanning(null);
-        }
-
-        existingBill.setPaymentMethod(paymentMethodService.getPaymentMethodById(data.paymentMethodId()));
-        existingBill.setDueDate(data.dueDate());
-        existingBill.setInstallmentsAmount(data.installments());
-
-        installmentService.deleteInstallmentByBillId(existingBill.getId());
-        saveBill(existingBill);
+        installmentService.deleteInstallmentByBillId(id);
+        Bill savedBill = repository.save(existingBill);
+        installmentService.saveInstallments(savedBill);
     }
 
     public void deleteBill(Long id) {
@@ -66,16 +69,7 @@ public class BillService {
 
     public BillOnlyResponseDTO getBillOnlyResponseDTO(Long id) {
         Bill bill = getBillById(id);
-        return new BillOnlyResponseDTO(
-                bill.getName(),
-                bill.getPricing(),
-                bill.getType().name(),
-                bill.getInvolved().getId(),
-                bill.getAccountPlanning().getId(),
-                bill.getPaymentMethod().getId(),
-                bill.getDueDate(),
-                bill.getInstallmentsAmount()
-        );
+        return mapper.toBillOnlyResponseDTO(bill);
     }
 
 }

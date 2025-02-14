@@ -5,12 +5,10 @@ import example.medCashFlow.dto.employee.EmployeeResponseDTO;
 import example.medCashFlow.exceptions.ForbiddenException;
 import example.medCashFlow.model.Employee;
 import example.medCashFlow.services.EmployeeService;
-import example.medCashFlow.services.RoleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -22,27 +20,13 @@ public class EmployeeController {
 
     private final EmployeeService employeeService;
 
-    private final RoleService roleService;
-
     @GetMapping("/{id}")
     public ResponseEntity<EmployeeResponseDTO> getEmployeeById(@AuthenticationPrincipal UserDetails loggedManager, @PathVariable Long id) {
         if (!(loggedManager instanceof Employee)) {
             throw new ForbiddenException();
         }
 
-        Employee employee = employeeService.getEmployeeById(id);
-
-        EmployeeResponseDTO employeeResponseDTO = new EmployeeResponseDTO(
-                employee.getId(),
-                employee.getFirstName(),
-                employee.getLastName(),
-                employee.getCpf(),
-                employee.getEmail(),
-                employee.getRole().getName(),
-                employee.isActive()
-        );
-
-        return ResponseEntity.ok(employeeResponseDTO);
+        return ResponseEntity.ok(employeeService.getEmployeeResponseDTOById(id));
     }
 
     @GetMapping("/list")
@@ -61,13 +45,7 @@ public class EmployeeController {
             throw new ForbiddenException();
         }
 
-        Employee newEmployee = new Employee(data);
-        String encryptedPassword = new BCryptPasswordEncoder().encode(data.password());
-        newEmployee.setPassword(encryptedPassword);
-        newEmployee.setRole(roleService.getRoleById(data.roleId()));
-        newEmployee.setClinic(manager.getClinic());
-
-        return ResponseEntity.ok(employeeService.saveEmployee(newEmployee));
+        return ResponseEntity.ok(employeeService.createEmployee(data, manager.getClinic()));
     }
 
     @PutMapping("/update/{id}")
@@ -76,17 +54,11 @@ public class EmployeeController {
             @PathVariable Long id,
             @RequestBody EmployeeRegisterDTO data) {
 
-        if (!(loggedManager instanceof Employee manager)) {
+        if (!(loggedManager instanceof Employee)) {
             throw new ForbiddenException();
         }
 
-        Employee employeeToUpdate = new Employee(data);
-        String encryptedPassword = new BCryptPasswordEncoder().encode(data.password());
-        employeeToUpdate.setPassword(encryptedPassword);
-        employeeToUpdate.setRole(roleService.getRoleById(data.roleId()));
-        employeeToUpdate.setClinic(manager.getClinic());
-
-        return ResponseEntity.ok(employeeService.updateEmployee(employeeToUpdate, id));
+        return ResponseEntity.ok(employeeService.updateEmployee(data, id));
     }
 
     @PutMapping("/activate/{id}")

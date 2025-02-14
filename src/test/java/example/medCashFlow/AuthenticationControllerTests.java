@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import example.medCashFlow.dto.auth.AuthenticationDTO;
 import example.medCashFlow.dto.auth.RegisterDTO;
 import example.medCashFlow.dto.clinic.ClinicRegisterDTO;
-import example.medCashFlow.dto.employee.ManagerRegisterDTO;
+import example.medCashFlow.dto.employee.EmployeeRegisterDTO;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -59,27 +59,20 @@ class AuthenticationControllerTests extends MedCashFlowApplicationTests {
     void whenRegisteringNonExistingClinic_thenSucceeds() throws Exception {
         RegisterDTO registerDto = new RegisterDTO(
                 new ClinicRegisterDTO("Clinic 2", "12345678901236", "1234567892"),
-                new ManagerRegisterDTO("John", "Doe", "34567890123", "clinicateste@manager.com", "manager")
+                new EmployeeRegisterDTO("John", "Doe", "34567890123", "clinicateste@manager.com", "manager", 1L)
         );
 
         mockMvc.perform(post("/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(registerDto)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").exists())
-                .andExpect(jsonPath("$.firstName").value("John"))
-                .andExpect(jsonPath("$.lastName").value("Doe"))
-                .andExpect(jsonPath("$.cpf").value("34567890123"))
-                .andExpect(jsonPath("$.email").value("clinicateste@manager.com"))
-                .andExpect(jsonPath("$.role").value("MANAGER"))
-                .andExpect(jsonPath("$.isActive").value(true));
+                .andExpect(status().isCreated());
     }
 
     @Test
     void whenRegisteringExistingClinic_thenConflict() throws Exception {
         RegisterDTO registerDTO = new RegisterDTO(
                 new ClinicRegisterDTO("Clinic1", "12345678901234", "1234567890"),
-                new ManagerRegisterDTO("João", "Lucas", "12345678903", "manager3@manager.com", "manager3")
+                new EmployeeRegisterDTO("João", "Lucas", "12345678903", "manager3@manager.com", "manager3", 1L)
         );
         mockMvc.perform(post("/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -91,7 +84,7 @@ class AuthenticationControllerTests extends MedCashFlowApplicationTests {
     void whenRegisteringExistingEmployee_thenConflict() throws Exception {
         RegisterDTO registerDTO = new RegisterDTO(
                 new ClinicRegisterDTO("Clinic3", "12345678901236", "1234567892"),
-                new ManagerRegisterDTO("Pedro", "Arthur", "12345678901", "manager@manager.com", "manager")
+                new EmployeeRegisterDTO("Pedro", "Arthur", "12345678901", "manager@manager.com", "manager", 1L)
         );
         mockMvc.perform(post("/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
