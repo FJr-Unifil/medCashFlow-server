@@ -60,7 +60,8 @@ public class BillController {
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<BillResponseDTO> updateBill(
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void updateBill(
             @AuthenticationPrincipal UserDetails loggedUser,
             @PathVariable Long id,
             @RequestBody BillRegisterDTO data) {
@@ -69,7 +70,6 @@ public class BillController {
         }
 
         billService.updateBill(data, id);
-        return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/delete/{id}")
