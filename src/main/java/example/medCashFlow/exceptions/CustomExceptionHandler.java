@@ -1,6 +1,7 @@
 package example.medCashFlow.exceptions;
 
 import example.medCashFlow.dto.ExceptionDTO;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -13,135 +14,98 @@ import java.nio.file.AccessDeniedException;
 import java.time.LocalDateTime;
 
 @RestControllerAdvice
+@Slf4j
 public class CustomExceptionHandler {
 
     @ExceptionHandler(Exception.class)
-    private ResponseEntity<ExceptionDTO> handleSecurityException(Exception ex) {
-        return ResponseEntity.status(500).body(new ExceptionDTO(500,
-                ex.getClass().getName(),
-                ex.getMessage(),
-                LocalDateTime.now()
-        ));
+    private ResponseEntity<ApiError> handleSecurityException(Exception ex) {
+        log.error("Unexpected error occurred", ex);
+
+        ApiError error = ApiError.builder()
+                .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                .title("Erro interno do servidor")
+                .description("Um erro inesperado ocorreu")
+                .technicalDetails(ex.getClass().getName() + ": " + ex.getMessage())
+                .timestamp(LocalDateTime.now())
+                .build();
+
+        return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @ExceptionHandler({BadCredentialsException.class, InternalAuthenticationServiceException.class})
-    private ResponseEntity<ExceptionDTO> handleBadCredentialsException() {
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ExceptionDTO(
-                401,
-                "Senha/Login inválido",
-                "Verifique seu email ou senha",
-                LocalDateTime.now()
-        ));
+    private ResponseEntity<ApiError> handleBadCredentialsException(Exception ex) {
+        log.warn("Authentication failed", ex);
+
+        ApiError error = ApiError.builder()
+                .status(HttpStatus.UNAUTHORIZED.value())
+                .title("Senha/Login inválido")
+                .description("Verifique seu email ou senha")
+                .technicalDetails(ex.getMessage())
+                .timestamp(LocalDateTime.now())
+                .build();
+
+        return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
     }
 
-    @ExceptionHandler(AccessDeniedException.class)
-    private ResponseEntity<ExceptionDTO> handleAuthorizationException() {
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ExceptionDTO(
-                403,
-                "Não Autorizado",
-                "Você não tem permissão para acessar essa parte do sistema",
-                LocalDateTime.now()
-        ));
+    @ExceptionHandler({AccessDeniedException.class, ForbiddenException.class})
+    private ResponseEntity<ApiError> handleAuthorizationException(RuntimeException ex) {
+        log.info("Acesso Negado", ex);
+
+        ApiError error = ApiError.builder()
+                .status(HttpStatus.FORBIDDEN.value())
+                .title("Acesso Negado")
+                .description(ex.getMessage())
+                .technicalDetails(ex.getClass().getName())
+                .timestamp(LocalDateTime.now())
+                .build();
+
+        return new ResponseEntity<>(error, HttpStatus.FORBIDDEN);
     }
 
-    @ExceptionHandler(InvalidClinicException.class)
-    private ResponseEntity<ExceptionDTO> handleInvalidClinicException(InvalidClinicException ex) {
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(new ExceptionDTO(
-                409,
-                "Conflito de Dados",
-                ex.getMessage(),
-                LocalDateTime.now()
-        ));
+    @ExceptionHandler({ResourceNotFoundException.class, DisabledException.class})
+    protected ResponseEntity<ApiError> handleResourceNotFound(RuntimeException ex) {
+        log.info("Resource not found: {}", ex.getMessage());
+
+        ApiError error = ApiError.builder()
+                .status(HttpStatus.NOT_FOUND.value())
+                .title(determineNotFoundTitle(ex))
+                .description(ex.getMessage())
+                .technicalDetails(ex.getClass().getName())
+                .timestamp(LocalDateTime.now())
+                .build();
+
+        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler(InvalidEmployeeException.class)
-    private ResponseEntity<ExceptionDTO> handleInvalidEmployeeException(InvalidEmployeeException ex) {
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(new ExceptionDTO(
-                409,
-                "Conflito de Dados",
-                ex.getMessage(),
-                LocalDateTime.now()
-        ));
+    private String determineNotFoundTitle(RuntimeException ex) {
+        if (ex instanceof ClinicNotFoundException) return "Clínica Não Encontrada";
+        if (ex instanceof EmployeeNotFoundException) return "Funcionário Não Encontrado";
+        if (ex instanceof InvolvedNotFoundException) return "Envolvido não Encontrado";
+        if (ex instanceof AccountPlanningNotFoundException) return "Plano de Contas Não Encontrado";
+        if (ex instanceof BillNotFoundException) return "Conta Não Encontrada";
+        return "Recurso Não Encontrado";
     }
 
-    @ExceptionHandler(InvalidInvolvedException.class)
-    private ResponseEntity<ExceptionDTO> handleInvalidInvolvedException(InvalidInvolvedException ex) {
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(new ExceptionDTO(
-                409,
-                "Conflito de Dados",
-                ex.getMessage(),
-                LocalDateTime.now()
-        ));
+    @ExceptionHandler(InvalidDataException.class)
+    protected ResponseEntity<ApiError> handleInvalidData(InvalidDataException ex) {
+        log.info("Invalid Data: {}", ex.getMessage());
+
+        ApiError error = ApiError.builder()
+                .status(HttpStatus.NOT_FOUND.value())
+                .title(determineInvalidDataTitle(ex))
+                .description(ex.getMessage())
+                .technicalDetails(ex.getClass().getName())
+                .timestamp(LocalDateTime.now())
+                .build();
+
+        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler(ClinicNotFoundException.class)
-    private ResponseEntity<ExceptionDTO> handleClinicNotFoundException(ClinicNotFoundException ex) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ExceptionDTO(
-                404,
-                "Clínica Não Encontrada",
-                ex.getMessage(),
-                LocalDateTime.now()
-        ));
+    private String determineInvalidDataTitle(RuntimeException ex) {
+        if (ex instanceof InvalidClinicException) return "Clínica Não Encontrada";
+        if (ex instanceof InvalidEmployeeException) return "Funcionário Não Encontrado";
+        if (ex instanceof InvalidInvolvedException) return "Envolvido não Encontrado";
+        return "Recurso Não Encontrado";
     }
 
-    @ExceptionHandler(EmployeeNotFoundException.class)
-    private ResponseEntity<ExceptionDTO> handleEmployeeNotFoundException(EmployeeNotFoundException ex) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ExceptionDTO(
-                404,
-                "Funcionário Não Encontrado",
-                ex.getMessage(),
-                LocalDateTime.now()
-        ));
-    }
-
-    @ExceptionHandler(InvolvedNotFoundException.class)
-    private ResponseEntity<ExceptionDTO> handleInvolvedNotFoundException(InvolvedNotFoundException ex) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ExceptionDTO(
-                404,
-                "Envolvido não Encontrado",
-                ex.getMessage(),
-                LocalDateTime.now()
-        ));
-    }
-
-    @ExceptionHandler(AccountPlanningNotFoundException.class)
-    private ResponseEntity<ExceptionDTO> handleAccountPlanningNotFoundException(AccountPlanningNotFoundException ex) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ExceptionDTO(
-                404,
-                "Plano de Contas Não Encontrado",
-                ex.getMessage(),
-                LocalDateTime.now()
-        ));
-    }
-
-    @ExceptionHandler(BillNotFoundException.class)
-    public ResponseEntity<ExceptionDTO> handleBillNotFoundException(BillNotFoundException ex) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ExceptionDTO(
-                404,
-                "Conta Não Encontrada",
-                ex.getMessage(),
-                LocalDateTime.now()
-        ));
-    }
-
-
-    @ExceptionHandler(DisabledException.class)
-    private ResponseEntity<ExceptionDTO> handleDisabledException(DisabledException ex) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ExceptionDTO(
-                404,
-                "Não Encontrado",
-                ex.getMessage(),
-                LocalDateTime.now()
-        ));
-    }
-
-    @ExceptionHandler(ForbiddenException.class)
-    private ResponseEntity<ExceptionDTO> handleForbiddenException(ForbiddenException ex) {
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(new ExceptionDTO(
-                403,
-                "Acesso Negado",
-                ex.getMessage(),
-                LocalDateTime.now()
-        ));
-    }
 }
