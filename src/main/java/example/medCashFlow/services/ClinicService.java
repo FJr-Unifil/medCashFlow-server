@@ -56,7 +56,7 @@ public class ClinicService {
         Clinic clinic = getClinicById(id);
 
         if (!clinic.isActive()) {
-            throw new ClinicNotFoundException("Clínica já estava inativa");
+            throw new ClinicNotFoundException();
         }
 
         clinic.setActive(false);

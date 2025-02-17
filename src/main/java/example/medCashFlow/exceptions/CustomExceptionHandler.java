@@ -1,6 +1,5 @@
 package example.medCashFlow.exceptions;
 
-import example.medCashFlow.dto.ExceptionDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -8,6 +7,8 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.nio.file.AccessDeniedException;
@@ -29,7 +30,7 @@ public class CustomExceptionHandler {
                 .timestamp(LocalDateTime.now())
                 .build();
 
-        return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
     }
 
     @ExceptionHandler({BadCredentialsException.class, InternalAuthenticationServiceException.class})
@@ -44,7 +45,7 @@ public class CustomExceptionHandler {
                 .timestamp(LocalDateTime.now())
                 .build();
 
-        return new ResponseEntity<>(error, HttpStatus.UNAUTHORIZED);
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
     }
 
     @ExceptionHandler({AccessDeniedException.class, ForbiddenException.class})
@@ -59,22 +60,22 @@ public class CustomExceptionHandler {
                 .timestamp(LocalDateTime.now())
                 .build();
 
-        return new ResponseEntity<>(error, HttpStatus.FORBIDDEN);
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
     }
 
     @ExceptionHandler({ResourceNotFoundException.class, DisabledException.class})
-    protected ResponseEntity<ApiError> handleResourceNotFound(RuntimeException ex) {
+    @ResponseStatus(value = HttpStatus.NOT_FOUND)
+    @ResponseBody
+    protected ApiError handleResourceNotFound(RuntimeException ex) {
         log.info("Resource not found: {}", ex.getMessage());
 
-        ApiError error = ApiError.builder()
+        return ApiError.builder()
                 .status(HttpStatus.NOT_FOUND.value())
                 .title(determineNotFoundTitle(ex))
                 .description(ex.getMessage())
                 .technicalDetails(ex.getClass().getName())
                 .timestamp(LocalDateTime.now())
                 .build();
-
-        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
     }
 
     private String determineNotFoundTitle(RuntimeException ex) {
@@ -91,14 +92,14 @@ public class CustomExceptionHandler {
         log.info("Invalid Data: {}", ex.getMessage());
 
         ApiError error = ApiError.builder()
-                .status(HttpStatus.NOT_FOUND.value())
+                .status(HttpStatus.CONFLICT.value())
                 .title(determineInvalidDataTitle(ex))
                 .description(ex.getMessage())
                 .technicalDetails(ex.getClass().getName())
                 .timestamp(LocalDateTime.now())
                 .build();
 
-        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
     }
 
     private String determineInvalidDataTitle(RuntimeException ex) {

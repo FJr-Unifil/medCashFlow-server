@@ -1,8 +1,9 @@
 package example.medCashFlow.exceptions;
 
-public class InstallmentNotFoundException extends RuntimeException {
-    public InstallmentNotFoundException(String message) {
-        super(message);
+public class InstallmentNotFoundException extends ResourceNotFoundException {
+
+    public InstallmentNotFoundException(String identifier) {
+        super("Parcela", identifier);
     }
 
     public InstallmentNotFoundException() {

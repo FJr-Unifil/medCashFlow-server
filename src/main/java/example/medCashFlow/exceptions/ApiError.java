@@ -13,6 +13,6 @@ public class ApiError {
     private String title;
     private String description;
     private String technicalDetails;
-    private LocalDateTime timestamp = LocalDateTime.now();
+    private LocalDateTime timestamp;
 
 }

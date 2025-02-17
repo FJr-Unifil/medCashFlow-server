@@ -1,8 +1,9 @@
 package example.medCashFlow.exceptions;
 
-public class PaymentMethodNotFoundException extends RuntimeException {
-    public PaymentMethodNotFoundException(String message) {
-        super(message);
+public class PaymentMethodNotFoundException extends ResourceNotFoundException {
+
+    public PaymentMethodNotFoundException(String identifier) {
+        super("Método de Pagamento", identifier);
     }
 
     public PaymentMethodNotFoundException() {

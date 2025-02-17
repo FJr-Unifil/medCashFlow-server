@@ -1,8 +1,9 @@
 package example.medCashFlow.exceptions;
 
-public class InvolvedNotFoundException extends RuntimeException {
-    public InvolvedNotFoundException(String message) {
-        super(message);
+public class InvolvedNotFoundException extends ResourceNotFoundException {
+
+    public InvolvedNotFoundException(String identifier) {
+        super("Envolvido", identifier);
     }
 
     public InvolvedNotFoundException() {

@@ -1,11 +1,12 @@
 package example.medCashFlow.exceptions;
 
-public class BillNotFoundException extends RuntimeException {
-    public BillNotFoundException() {
-        super("Conta não encontrada");
+public class BillNotFoundException extends ResourceNotFoundException {
+
+    public BillNotFoundException(String identifier) {
+        super("Conta", identifier);
     }
 
-    public BillNotFoundException(String message) {
-        super(message);
+    public BillNotFoundException() {
+        super("Conta não encontrada");
     }
 }

@@ -1,8 +1,9 @@
 package example.medCashFlow.exceptions;
 
-public class AccountPlanningNotFoundException extends RuntimeException {
-    public AccountPlanningNotFoundException(String message) {
-        super(message);
+public class AccountPlanningNotFoundException extends ResourceNotFoundException {
+
+    public AccountPlanningNotFoundException(String identifier) {
+        super("Plano de Contas", identifier);
     }
 
     public AccountPlanningNotFoundException() {

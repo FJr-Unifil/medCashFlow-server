@@ -1,8 +1,9 @@
 package example.medCashFlow.exceptions;
 
-public class RoleNotFoundException extends RuntimeException {
-    public RoleNotFoundException(String message) {
-        super(message);
+public class RoleNotFoundException extends ResourceNotFoundException {
+
+    public RoleNotFoundException(String identifier) {
+        super("Cargo", identifier);
     }
 
     public RoleNotFoundException() {
