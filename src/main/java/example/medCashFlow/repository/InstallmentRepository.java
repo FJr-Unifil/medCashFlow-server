@@ -12,7 +12,7 @@ public interface InstallmentRepository extends JpaRepository<Installment, Long> 
 
     List<Installment> findAllByBillId(Long billId);
 
-    @Query("SELECT COALESCE(MAX(id), 0) + 1 FROM installments")
+    @Query(name = "Installments.getNextId")
     Long getNextId();
 }
 
