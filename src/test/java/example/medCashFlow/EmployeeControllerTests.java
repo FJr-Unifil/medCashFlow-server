@@ -113,7 +113,7 @@ public class EmployeeControllerTests extends MedCashFlowApplicationTests {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(employeeDTO))
                         .header("Authorization", "Bearer " + managerToken))
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.firstName").value("John"))
                 .andExpect(jsonPath("$.lastName").value("Doe"))
                 .andExpect(jsonPath("$.email").value("john@example.com"))
@@ -197,7 +197,7 @@ public class EmployeeControllerTests extends MedCashFlowApplicationTests {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(newEmployeeDTO))
                         .header("Authorization", "Bearer " + managerToken))
-                .andExpect(status().isOk());
+                .andExpect(status().isCreated());
 
         Employee existingEmployee = employeeService.getEmployeeByEmail("manager@manager.com");
 
@@ -344,7 +344,7 @@ public class EmployeeControllerTests extends MedCashFlowApplicationTests {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(newEmployeeDTO))
                         .header("Authorization", "Bearer " + managerToken))
-                .andExpect(status().isOk());
+                .andExpect(status().isCreated());
 
         Employee createdEmployee = employeeService.getEmployeeByEmail("alreadyactive@example.com");
 

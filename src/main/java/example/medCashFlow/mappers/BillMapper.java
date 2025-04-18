@@ -3,14 +3,10 @@ package example.medCashFlow.mappers;
 import example.medCashFlow.dto.bill.BillOnlyResponseDTO;
 import example.medCashFlow.dto.bill.BillRegisterDTO;
 import example.medCashFlow.model.*;
-import example.medCashFlow.services.AccountPlanningService;
-import example.medCashFlow.services.InvolvedService;
-import example.medCashFlow.services.PaymentMethodService;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.Named;
-import org.springframework.beans.factory.annotation.Autowired;
 
 @Mapper(componentModel = "spring")
 public interface BillMapper {

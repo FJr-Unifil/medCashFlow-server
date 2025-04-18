@@ -4,14 +4,15 @@ import example.medCashFlow.dto.involved.InvolvedRegisterDTO;
 import example.medCashFlow.dto.involved.InvolvedResponseDTO;
 import example.medCashFlow.exceptions.ForbiddenException;
 import example.medCashFlow.model.Employee;
-import example.medCashFlow.model.Involved;
 import example.medCashFlow.services.InvolvedService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.net.URI;
 import java.util.List;
 
 
@@ -51,7 +52,16 @@ public class InvolvedController {
             throw new ForbiddenException();
         }
 
-        return ResponseEntity.ok(involvedService.createInvolved(data, employee.getClinic()));
+        InvolvedResponseDTO responseDTO = involvedService.createInvolved(data, employee.getClinic());
+
+        URI currentRequestUri = ServletUriComponentsBuilder.fromCurrentRequest().build().toUri();
+        URI location = ServletUriComponentsBuilder
+                .fromUri(currentRequestUri.resolve("."))
+                .path("/{id}")
+                .buildAndExpand(responseDTO.id())
+                .toUri();
+
+        return ResponseEntity.created(location).body(responseDTO);
     }
 
     @PutMapping("/{id}")

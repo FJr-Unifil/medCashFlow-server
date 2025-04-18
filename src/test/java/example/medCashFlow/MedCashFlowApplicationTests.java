@@ -128,7 +128,7 @@ public abstract class MedCashFlowApplicationTests {
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(new ObjectMapper().writeValueAsString(employeeRegisterDto))
                             .header("Authorization", "Bearer " + managerToken))
-                    .andExpect(status().isOk());
+                    .andExpect(status().isCreated());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -149,7 +149,7 @@ public abstract class MedCashFlowApplicationTests {
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(new ObjectMapper().writeValueAsString(employeeRegisterDto))
                             .header("Authorization", "Bearer " + managerToken))
-                    .andExpect(status().isOk());
+                    .andExpect(status().isCreated());
 
             Long id = employeeService.getEmployeeByEmail("financial2@financial.com").getId();
 
@@ -177,7 +177,7 @@ public abstract class MedCashFlowApplicationTests {
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(new ObjectMapper().writeValueAsString(employeeRegisterDto))
                             .header("Authorization", "Bearer " + managerToken))
-                    .andExpect(status().isOk());
+                    .andExpect(status().isCreated());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -198,7 +198,7 @@ public abstract class MedCashFlowApplicationTests {
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(new ObjectMapper().writeValueAsString(employeeRegisterDto))
                             .header("Authorization", "Bearer " + managerToken))
-                    .andExpect(status().isOk());
+                    .andExpect(status().isCreated());
 
             Long id = employeeService.getEmployeeByEmail("doctor@doctor.com").getId();
 
@@ -223,7 +223,7 @@ public abstract class MedCashFlowApplicationTests {
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(new ObjectMapper().writeValueAsString(involvedRegisterDTO))
                             .header("Authorization", "Bearer " + managerToken))
-                    .andExpect(status().isOk());
+                    .andExpect(status().isCreated());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -242,7 +242,7 @@ public abstract class MedCashFlowApplicationTests {
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(new ObjectMapper().writeValueAsString(planningDTO))
                             .header("Authorization", "Bearer " + managerToken))
-                    .andExpect(status().isOk());
+                    .andExpect(status().isCreated());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

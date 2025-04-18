@@ -93,7 +93,7 @@ class InvolvedControllerTests extends MedCashFlowApplicationTests {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(involvedDTO))
                         .header("Authorization", "Bearer " + managerToken))
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").exists())
                 .andExpect(jsonPath("$.name").value("Test Involved"))
                 .andExpect(jsonPath("$.document").value("12345678901"))
@@ -115,7 +115,7 @@ class InvolvedControllerTests extends MedCashFlowApplicationTests {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(firstInvolved))
                         .header("Authorization", "Bearer " + managerToken))
-                .andExpect(status().isOk());
+                .andExpect(status().isCreated());
 
         InvolvedRegisterDTO duplicateInvolved = new InvolvedRegisterDTO(
                 "Duplicate Involved",
@@ -201,7 +201,7 @@ class InvolvedControllerTests extends MedCashFlowApplicationTests {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(createDTO))
                         .header("Authorization", "Bearer " + managerToken))
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andReturn();
 
         String response = createResult.getResponse().getContentAsString();

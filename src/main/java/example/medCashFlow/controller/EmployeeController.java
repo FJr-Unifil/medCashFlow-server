@@ -10,7 +10,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -45,7 +47,16 @@ public class EmployeeController {
             throw new ForbiddenException();
         }
 
-        return ResponseEntity.ok(employeeService.createEmployee(data, manager.getClinic()));
+        EmployeeResponseDTO responseDTO = employeeService.createEmployee(data, manager.getClinic());
+
+        URI currentRequestUri = ServletUriComponentsBuilder.fromCurrentRequest().build().toUri();
+        URI location = ServletUriComponentsBuilder
+                .fromUri(currentRequestUri.resolve("."))
+                .path("/{id}")
+                .buildAndExpand(responseDTO.id())
+                .toUri();
+
+        return ResponseEntity.created(location).body(responseDTO);
     }
 
     @PutMapping("/update/{id}")
