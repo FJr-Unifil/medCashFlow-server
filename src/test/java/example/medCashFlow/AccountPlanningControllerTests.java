@@ -99,7 +99,7 @@ public class AccountPlanningControllerTests extends MedCashFlowApplicationTests 
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(planningDTO))
                         .header("Authorization", "Bearer " + managerToken))
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.name").value("Test Planning 2"))
                 .andExpect(jsonPath("$.description").value("Test Description 2"))
                 .andExpect(jsonPath("$.emoji").value("\uD83D\uDC8A"));
@@ -149,7 +149,7 @@ public class AccountPlanningControllerTests extends MedCashFlowApplicationTests 
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(createDTO))
                         .header("Authorization", "Bearer " + managerToken))
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andReturn();
 
         String response = createResult.getResponse().getContentAsString();
@@ -223,7 +223,7 @@ public class AccountPlanningControllerTests extends MedCashFlowApplicationTests 
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(createDTO))
                         .header("Authorization", "Bearer " + managerToken))
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andReturn();
 
         String response = createResult.getResponse().getContentAsString();

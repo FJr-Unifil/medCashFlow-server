@@ -242,7 +242,7 @@ public abstract class MedCashFlowApplicationTests {
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(new ObjectMapper().writeValueAsString(planningDTO))
                             .header("Authorization", "Bearer " + managerToken))
-                    .andExpect(status().isOk());
+                    .andExpect(status().isCreated());
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
