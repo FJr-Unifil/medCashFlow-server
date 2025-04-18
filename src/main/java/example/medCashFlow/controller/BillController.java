@@ -4,7 +4,6 @@ import example.medCashFlow.dto.bill.BillOnlyResponseDTO;
 import example.medCashFlow.dto.bill.BillRegisterDTO;
 import example.medCashFlow.dto.bill.BillResponseDTO;
 import example.medCashFlow.exceptions.ForbiddenException;
-import example.medCashFlow.model.Bill;
 import example.medCashFlow.model.Employee;
 import example.medCashFlow.services.BillService;
 import lombok.RequiredArgsConstructor;
@@ -13,7 +12,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.net.URI;
 import java.util.List;
 
 @RestController
@@ -47,16 +48,23 @@ public class BillController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<Void> createBill(
+    public ResponseEntity<BillOnlyResponseDTO> createBill(
             @AuthenticationPrincipal UserDetails loggedUser,
             @RequestBody BillRegisterDTO data) {
         if (!(loggedUser instanceof Employee employee)) {
             throw new ForbiddenException();
         }
 
-        billService.createBill(data, employee);
+        BillOnlyResponseDTO responseDTO = billService.createBill(data, employee);
 
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        URI currentRequestUri = ServletUriComponentsBuilder.fromCurrentRequest().build().toUri();
+        URI location = ServletUriComponentsBuilder
+                .fromUri(currentRequestUri.resolve("."))
+                .path("/{id}")
+                .buildAndExpand(responseDTO.id())
+                .toUri();
+
+        return ResponseEntity.created(location).body(responseDTO);
     }
 
     @PutMapping("/update/{id}")

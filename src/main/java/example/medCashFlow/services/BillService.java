@@ -43,11 +43,12 @@ public class BillService {
         return repository.findAllBillByClinicId(clinicId);
     }
 
-    public void createBill(BillRegisterDTO data, Employee employee) {
+    public BillOnlyResponseDTO createBill(BillRegisterDTO data, Employee employee) {
         BillDependencies dependencies = fetchBillDependencies(data);
         Bill bill = mapper.toBill(data, employee, dependencies.involved(), dependencies.accountPlanning(), dependencies.paymentMethod());
         Bill savedBill = repository.save(bill);
         installmentService.saveInstallments(savedBill);
+        return mapper.toBillOnlyResponseDTO(savedBill);
     }
 
     public void updateBill(BillRegisterDTO data, Long id) {
