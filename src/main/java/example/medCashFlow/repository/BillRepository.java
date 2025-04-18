@@ -12,22 +12,6 @@ import java.util.UUID;
 @Repository
 public interface BillRepository extends JpaRepository<Bill, Long> {
 
-    @Query("SELECT new example.medCashFlow.dto.bill.BillResponseDTO(" +
-            "b.id, " +
-            "i.id, " +
-            "i.isPaid, " +
-            "b.name, " +
-            "i.pricing, " +
-            "CAST(b.type AS string), " +
-            "b.employee.id, " +
-            "b.involved.id, " +
-            "b.accountPlanning.id, " +
-            "b.paymentMethod.name, " +
-            "i.dueDate " +
-            ") " +
-            "FROM bills b " +
-            "JOIN installments i ON i.bill = b " +
-            "WHERE b.clinic.id = :clinicId " +
-            "ORDER BY i.dueDate")
+    @Query(name = "Bills.getAllBillDTOByClinicId")
     List<BillResponseDTO> findAllBillByClinicId(UUID clinicId);
 }

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<entity-mappings
+        xmlns="http://java.sun.com/xml/ns/persistence/orm"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://java.sun.com/xml/ns/persistence/orm http://java.sun.com/xml/ns/persistence/orm_3_0.xsd"
+        version="1.0">
+
+    <named-query name="Bills.getAllBillDTOByClinicId">
+        <query>
+            SELECT NEW example.medCashFlow.dto.bill.BillResponseDTO(
+            b.id,
+            i.id,
+            i.isPaid,
+            b.name,
+            b.pricing,
+            CAST(b.type AS string),
+            b.employee.id,
+            b.involved.id,
+            b.accountPlanning.id,
+            b.paymentMethod.name,
+            i.dueDate
+            )
+            FROM bills b
+            JOIN b.installments i
+            WHERE b.clinic.id = :clinicId
+        </query>
+    </named-query>
+
+</entity-mappings>
