@@ -7,8 +7,6 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.nio.file.AccessDeniedException;
@@ -23,10 +21,10 @@ public class CustomExceptionHandler {
         log.error("Unexpected error occurred", ex);
 
         ApiError error = ApiError.builder()
-                .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .title("Erro interno do servidor")
                 .description("Um erro inesperado ocorreu")
-                .technicalDetails(ex.getClass().getName() + ": " + ex.getMessage())
+                .debugMessage(ex.getClass().getName())
                 .timestamp(LocalDateTime.now())
                 .build();
 
@@ -38,10 +36,10 @@ public class CustomExceptionHandler {
         log.warn("Authentication failed", ex);
 
         ApiError error = ApiError.builder()
-                .status(HttpStatus.UNAUTHORIZED.value())
+                .status(HttpStatus.UNAUTHORIZED)
                 .title("Senha/Login inválido")
                 .description("Verifique seu email ou senha")
-                .technicalDetails(ex.getMessage())
+                .debugMessage(ex.getClass().getName())
                 .timestamp(LocalDateTime.now())
                 .build();
 
@@ -53,10 +51,10 @@ public class CustomExceptionHandler {
         log.info("Acesso Negado", ex);
 
         ApiError error = ApiError.builder()
-                .status(HttpStatus.FORBIDDEN.value())
+                .status(HttpStatus.FORBIDDEN)
                 .title("Acesso Negado")
-                .description(ex.getMessage())
-                .technicalDetails(ex.getClass().getName())
+                .description(ex.getLocalizedMessage())
+                .debugMessage(ex.getClass().getName())
                 .timestamp(LocalDateTime.now())
                 .build();
 
@@ -64,49 +62,33 @@ public class CustomExceptionHandler {
     }
 
     @ExceptionHandler({ResourceNotFoundException.class, DisabledException.class})
-    @ResponseStatus(value = HttpStatus.NOT_FOUND)
-    @ResponseBody
-    protected ApiError handleResourceNotFound(RuntimeException ex) {
+    private ResponseEntity<ApiError> handleResourceNotFound(RuntimeException ex) {
         log.info("Resource not found: {}", ex.getMessage());
 
-        return ApiError.builder()
-                .status(HttpStatus.NOT_FOUND.value())
-                .title(determineNotFoundTitle(ex))
+        ApiError error = ApiError.builder()
+                .status(HttpStatus.NOT_FOUND)
+                .title(ex.getLocalizedMessage())
                 .description(ex.getMessage())
-                .technicalDetails(ex.getClass().getName())
+                .debugMessage(ex.getClass().getName())
                 .timestamp(LocalDateTime.now())
                 .build();
-    }
-
-    private String determineNotFoundTitle(RuntimeException ex) {
-        if (ex instanceof ClinicNotFoundException) return "Clínica Não Encontrada";
-        if (ex instanceof EmployeeNotFoundException) return "Funcionário Não Encontrado";
-        if (ex instanceof InvolvedNotFoundException) return "Envolvido não Encontrado";
-        if (ex instanceof AccountPlanningNotFoundException) return "Plano de Contas Não Encontrado";
-        if (ex instanceof BillNotFoundException) return "Conta Não Encontrada";
-        return "Recurso Não Encontrado";
+        
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);     
     }
 
     @ExceptionHandler(InvalidDataException.class)
-    protected ResponseEntity<ApiError> handleInvalidData(InvalidDataException ex) {
+    private ResponseEntity<ApiError> handleInvalidData(InvalidDataException ex) {
         log.info("Invalid Data: {}", ex.getMessage());
 
         ApiError error = ApiError.builder()
-                .status(HttpStatus.CONFLICT.value())
-                .title(determineInvalidDataTitle(ex))
-                .description(ex.getMessage())
-                .technicalDetails(ex.getClass().getName())
+                .status(HttpStatus.CONFLICT)
+                .title("CONFLICT")
+                .description(ex.getLocalizedMessage())
+                .debugMessage(ex.getClass().getName())
                 .timestamp(LocalDateTime.now())
                 .build();
 
         return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
-    }
-
-    private String determineInvalidDataTitle(RuntimeException ex) {
-        if (ex instanceof InvalidClinicException) return "Clínica Não Encontrada";
-        if (ex instanceof InvalidEmployeeException) return "Funcionário Não Encontrado";
-        if (ex instanceof InvalidInvolvedException) return "Envolvido não Encontrado";
-        return "Recurso Não Encontrado";
     }
 
 }
