@@ -1,16 +1,24 @@
 package example.medCashFlow.exceptions;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ResponseStatus;
+import lombok.Getter;
 
-@ResponseStatus(value = HttpStatus.NOT_FOUND, reason = "Resource not found")
-public abstract class ResourceNotFoundException extends RuntimeException {
+@Getter
+public class ResourceNotFoundException extends RuntimeException {
 
-    public ResourceNotFoundException(String resourceName, String identifier) {
-        super(String.format("%s não encontrado(a) com id: %s", resourceName, identifier));
+    private final String entity;
+
+    private final String propertyName;
+
+    private final String value;
+
+    public ResourceNotFoundException(String entity, String propertyName, String value) {
+        this.entity = entity;
+        this.propertyName = propertyName;
+        this.value = value;
     }
 
-    public ResourceNotFoundException(String message) {
-        super(message);
+    @Override
+    public String getMessage() {
+        return String.format("%s not found with %s: %s", entity, propertyName, value);
     }
 }

@@ -1,8 +1,6 @@
 package example.medCashFlow.controller;
 
 import example.medCashFlow.dto.clinic.ClinicResponseDTO;
-import example.medCashFlow.exceptions.ClinicNotFoundException;
-import example.medCashFlow.model.Clinic;
 import example.medCashFlow.services.ClinicService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

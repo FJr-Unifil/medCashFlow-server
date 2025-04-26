@@ -1,7 +1,7 @@
 package example.medCashFlow.services;
 
 import example.medCashFlow.dto.bill.InstallmentUpdateDTO;
-import example.medCashFlow.exceptions.InstallmentNotFoundException;
+import example.medCashFlow.exceptions.ResourceNotFoundException;
 import example.medCashFlow.model.Bill;
 import example.medCashFlow.model.Installment;
 import example.medCashFlow.repository.InstallmentRepository;
@@ -19,7 +19,13 @@ public class InstallmentService {
     private final InstallmentRepository repository;
 
     public Installment getInstallmentById(Long id) {
-        return repository.findById(id).orElseThrow(InstallmentNotFoundException::new);
+        return repository.findById(id).orElseThrow(
+                () -> new ResourceNotFoundException(
+                        Installment.class.getSimpleName(),
+                        "id",
+                        id.toString()
+                )
+        );
     }
 
     public void saveInstallments(Bill bill) {

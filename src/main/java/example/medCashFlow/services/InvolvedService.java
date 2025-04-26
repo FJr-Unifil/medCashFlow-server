@@ -3,7 +3,7 @@ package example.medCashFlow.services;
 import example.medCashFlow.dto.involved.InvolvedRegisterDTO;
 import example.medCashFlow.dto.involved.InvolvedResponseDTO;
 import example.medCashFlow.exceptions.InvalidInvolvedException;
-import example.medCashFlow.exceptions.InvolvedNotFoundException;
+import example.medCashFlow.exceptions.ResourceNotFoundException;
 import example.medCashFlow.mappers.InvolvedMapper;
 import example.medCashFlow.model.Clinic;
 import example.medCashFlow.model.Involved;
@@ -23,7 +23,13 @@ public class InvolvedService {
     private final InvolvedMapper mapper;
 
     public Involved getInvolvedById(Long id) {
-        return repository.findById(id).orElseThrow(InvolvedNotFoundException::new);
+        return repository.findById(id).orElseThrow(
+                () -> new ResourceNotFoundException(
+                        Involved.class.getSimpleName(),
+                        "id",
+                        id.toString()
+                )
+        );
     }
 
     public InvolvedResponseDTO getInvolvedResponseDTOById(Long id) {

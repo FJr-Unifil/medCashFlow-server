@@ -9,11 +9,10 @@ import example.medCashFlow.dto.bill.BillRegisterDTO;
 import example.medCashFlow.dto.clinic.ClinicRegisterDTO;
 import example.medCashFlow.dto.employee.EmployeeRegisterDTO;
 import example.medCashFlow.dto.involved.InvolvedRegisterDTO;
-import example.medCashFlow.exceptions.ClinicNotFoundException;
+import example.medCashFlow.exceptions.ResourceNotFoundException;
 import example.medCashFlow.model.Clinic;
 import example.medCashFlow.model.Employee;
 import example.medCashFlow.repository.ClinicRepository;
-import example.medCashFlow.repository.EmployeeRepository;
 import example.medCashFlow.services.EmployeeService;
 import example.medCashFlow.services.TokenService;
 import org.flywaydb.core.Flyway;
@@ -284,7 +283,13 @@ public abstract class MedCashFlowApplicationTests {
                             .content(new ObjectMapper().writeValueAsString(activeRegisterDto)))
                     .andExpect(status().isCreated());
 
-            Clinic clinic = clinicRepository.findByCnpj("12345678901235").orElseThrow(ClinicNotFoundException::new);
+            Clinic clinic = clinicRepository.findByCnpj("12345678901235").orElseThrow(
+                    () -> new ResourceNotFoundException(
+                            Clinic.class.getSimpleName(),
+                            "cnpj",
+                            "12345678901235"
+                    )
+            );
 
             clinic.setActive(false);
             clinicRepository.save(clinic);
@@ -314,10 +319,10 @@ public abstract class MedCashFlowApplicationTests {
         Employee manager = employeeService.getEmployeeByEmail("manager@manager.com");
         managerToken = tokenService.generateToken(manager);
 
-        Employee financialAnalyst = (Employee) employeeService.getEmployeeByEmail("financial@financial.com");
+        Employee financialAnalyst = employeeService.getEmployeeByEmail("financial@financial.com");
         financialAnalystToken = tokenService.generateToken(financialAnalyst);
 
-        Employee doctor = (Employee) employeeService.getEmployeeByEmail("doctor@doctor.com");
+        Employee doctor = employeeService.getEmployeeByEmail("doctor@doctor.com");
         doctorToken = tokenService.generateToken(doctor);
     }
 

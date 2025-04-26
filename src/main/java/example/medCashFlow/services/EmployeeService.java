@@ -2,8 +2,8 @@ package example.medCashFlow.services;
 
 import example.medCashFlow.dto.employee.EmployeeRegisterDTO;
 import example.medCashFlow.dto.employee.EmployeeResponseDTO;
-import example.medCashFlow.exceptions.EmployeeNotFoundException;
 import example.medCashFlow.exceptions.InvalidEmployeeException;
+import example.medCashFlow.exceptions.ResourceNotFoundException;
 import example.medCashFlow.mappers.EmployeeMapper;
 import example.medCashFlow.model.Clinic;
 import example.medCashFlow.model.Employee;
@@ -26,17 +26,29 @@ public class EmployeeService {
 
     private final RoleService roleService;
 
-    public Employee getEmployeeById(Long Id) {
-        return repository.findById(Id).orElseThrow(EmployeeNotFoundException::new);
+    public Employee getEmployeeById(Long id) {
+        return repository.findById(id).orElseThrow(
+                () -> new ResourceNotFoundException(
+                        Employee.class.getSimpleName(),
+                        "id",
+                        id.toString()
+                )
+        );
     }
 
-    public EmployeeResponseDTO getEmployeeResponseDTOById(Long Id) {
-        Employee employee = getEmployeeById(Id);
+    public EmployeeResponseDTO getEmployeeResponseDTOById(Long id) {
+        Employee employee = getEmployeeById(id);
         return mapper.toResponseDTO(employee);
     }
 
     public Employee getEmployeeByEmail(String email) {
-        return repository.findByEmail(email).orElseThrow(EmployeeNotFoundException::new);
+        return repository.findByEmail(email).orElseThrow(
+                () -> new ResourceNotFoundException(
+                        Employee.class.getSimpleName(),
+                        "email",
+                        email
+                )
+        );
     }
 
     public List<EmployeeResponseDTO> getAllEmployeesByClinicId(UUID clinicId) {

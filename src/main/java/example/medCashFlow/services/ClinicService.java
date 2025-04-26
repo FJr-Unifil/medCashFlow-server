@@ -3,8 +3,8 @@ package example.medCashFlow.services;
 import example.medCashFlow.dto.auth.RegisterDTO;
 import example.medCashFlow.dto.clinic.ClinicRegisterDTO;
 import example.medCashFlow.dto.clinic.ClinicResponseDTO;
-import example.medCashFlow.exceptions.ClinicNotFoundException;
 import example.medCashFlow.exceptions.InvalidClinicException;
+import example.medCashFlow.exceptions.ResourceNotFoundException;
 import example.medCashFlow.mappers.ClinicMapper;
 import example.medCashFlow.model.Clinic;
 import example.medCashFlow.repository.ClinicRepository;
@@ -24,7 +24,13 @@ public class ClinicService {
     private final EmployeeService employeeService;
 
     public Clinic getClinicById(UUID id) {
-        return repository.findById(id).orElseThrow(ClinicNotFoundException::new);
+        return repository.findById(id).orElseThrow(
+                () -> new ResourceNotFoundException(
+                        Clinic.class.getSimpleName(),
+                        "id",
+                        id.toString()
+                )
+        );
     }
 
     public List<ClinicResponseDTO> getAllClinics() {
@@ -56,7 +62,11 @@ public class ClinicService {
         Clinic clinic = getClinicById(id);
 
         if (!clinic.isActive()) {
-            throw new ClinicNotFoundException();
+            throw new ResourceNotFoundException(
+                    Clinic.class.getSimpleName(),
+                    "id",
+                    id.toString()
+            );
         }
 
         clinic.setActive(false);
