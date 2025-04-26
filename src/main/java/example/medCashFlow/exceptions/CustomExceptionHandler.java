@@ -1,91 +1,99 @@
 package example.medCashFlow.exceptions;
 
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.nio.file.AccessDeniedException;
-import java.time.LocalDateTime;
+import java.time.Instant;
+import java.util.List;
 
 @RestControllerAdvice
 @Slf4j
 public class CustomExceptionHandler {
 
     @ExceptionHandler(Exception.class)
-    private ResponseEntity<ApiError> handleSecurityException(Exception ex) {
+    private ResponseEntity<ApiError> handleSecurityException(Exception ex, HttpServletRequest request) {
         log.error("Unexpected error occurred", ex);
 
         ApiError error = ApiError.builder()
-                .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .title("Erro interno do servidor")
-                .description("Um erro inesperado ocorreu")
-                .debugMessage(ex.getClass().getName())
-                .timestamp(LocalDateTime.now())
+                .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                .error(HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase())
+                .message("Unexpected error occurred")
+                .path(request.getRequestURI())
+                .timestamp(Instant.now())
                 .build();
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
     }
 
     @ExceptionHandler({BadCredentialsException.class, InternalAuthenticationServiceException.class})
-    private ResponseEntity<ApiError> handleBadCredentialsException(Exception ex) {
+    private ResponseEntity<ApiError> handleBadCredentialsException(Exception ex, HttpServletRequest request) {
         log.warn("Authentication failed", ex);
 
         ApiError error = ApiError.builder()
-                .status(HttpStatus.UNAUTHORIZED)
-                .title("Senha/Login inválido")
-                .description("Verifique seu email ou senha")
-                .debugMessage(ex.getClass().getName())
-                .timestamp(LocalDateTime.now())
+                .status(HttpStatus.UNAUTHORIZED.value())
+                .error(HttpStatus.UNAUTHORIZED.getReasonPhrase())
+                .message("Invalid login/password")
+                .path(request.getRequestURI())
+                .timestamp(Instant.now())
                 .build();
 
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
     }
 
     @ExceptionHandler({AccessDeniedException.class, ForbiddenException.class})
-    private ResponseEntity<ApiError> handleAuthorizationException(RuntimeException ex) {
-        log.info("Acesso Negado", ex);
+    private ResponseEntity<ApiError> handleAuthorizationException(RuntimeException ex, HttpServletRequest request) {
+        log.info("Forbidden Access", ex);
 
         ApiError error = ApiError.builder()
-                .status(HttpStatus.FORBIDDEN)
-                .title("Acesso Negado")
-                .description(ex.getLocalizedMessage())
-                .debugMessage(ex.getClass().getName())
-                .timestamp(LocalDateTime.now())
+                .status(HttpStatus.FORBIDDEN.value())
+                .error(HttpStatus.FORBIDDEN.getReasonPhrase())
+                .message("Forbidden Access")
+                .path(request.getRequestURI())
+                .timestamp(Instant.now())
                 .build();
 
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
     }
 
-    @ExceptionHandler({ResourceNotFoundException.class, DisabledException.class})
-    private ResponseEntity<ApiError> handleResourceNotFound(RuntimeException ex) {
+    @ExceptionHandler({ResourceNotFoundException.class})
+    private ResponseEntity<ApiError> handleResourceNotFound(ResourceNotFoundException ex, HttpServletRequest request) {
         log.info("Resource not found: {}", ex.getMessage());
 
         ApiError error = ApiError.builder()
-                .status(HttpStatus.NOT_FOUND)
-                .title(ex.getLocalizedMessage())
-                .description(ex.getMessage())
-                .debugMessage(ex.getClass().getName())
-                .timestamp(LocalDateTime.now())
+                .status(HttpStatus.NOT_FOUND.value())
+                .error(HttpStatus.NOT_FOUND.getReasonPhrase())
+                .message(ex.getLocalizedMessage())
+                .path(request.getRequestURI())
+                .subErrors(List.of(
+                        new ApiValidationError(
+                                ex.getEntity(),
+                                ex.getPropertyName(),
+                                ex.getValue()
+                        )
+                ))
+                .timestamp(Instant.now())
                 .build();
         
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);     
     }
 
     @ExceptionHandler(InvalidDataException.class)
-    private ResponseEntity<ApiError> handleInvalidData(InvalidDataException ex) {
+    private ResponseEntity<ApiError> handleInvalidData(InvalidDataException ex, HttpServletRequest request) {
         log.info("Invalid Data: {}", ex.getMessage());
 
         ApiError error = ApiError.builder()
-                .status(HttpStatus.CONFLICT)
-                .title("CONFLICT")
-                .description(ex.getLocalizedMessage())
-                .debugMessage(ex.getClass().getName())
-                .timestamp(LocalDateTime.now())
+                .status(HttpStatus.CONFLICT.value())
+                .error(HttpStatus.CONFLICT.getReasonPhrase())
+                .message("Data Conflict")
+                .path(request.getRequestURI())
+                .timestamp(Instant.now())
                 .build();
 
         return ResponseEntity.status(HttpStatus.CONFLICT).body(error);

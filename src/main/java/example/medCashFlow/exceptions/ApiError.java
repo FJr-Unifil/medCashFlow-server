@@ -5,9 +5,9 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.annotation.JsonTypeIdResolver;
 import lombok.Builder;
 import lombok.Data;
-import org.springframework.http.HttpStatus;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -20,13 +20,15 @@ import java.util.List;
 @JsonTypeIdResolver(LowerCaseClassNameResolver.class)
 public class ApiError {
 
-    private HttpStatus status;
-    private String title;
-    private String description;
-    private String debugMessage;
-    private List<ApiSubError> subErrors;
+    private int status;
+    private String error;
+    private String message;
+    private String path;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd/MM/yyyy HH:mm:ss")
-    private LocalDateTime timestamp;
+    @Builder.Default
+    private List<ApiSubError> subErrors = new ArrayList<>();
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
+    private Instant timestamp;
 
 }
