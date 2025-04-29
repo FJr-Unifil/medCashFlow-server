@@ -74,9 +74,16 @@ public class CustomExceptionHandler {
     private ResponseEntity<ApiError> handleInvalidData(InvalidDataException ex) {
         log.info("Invalid Data: {}", ex.getMessage());
 
+        ApiSubError validationError = new ApiValidationError(
+                ex.getEntity(),
+                ex.getPropertyName(),
+                ex.getValue()
+        );
+
         ApiError error = ApiErrorBuilder.builder()
                 .status(HttpStatus.CONFLICT)
                 .message("Data Conflict")
+                .subErrors(List.of(validationError))
                 .build();
 
         return ResponseEntity.status(HttpStatus.CONFLICT).body(error);

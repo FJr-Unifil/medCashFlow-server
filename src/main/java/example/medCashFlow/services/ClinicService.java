@@ -3,7 +3,7 @@ package example.medCashFlow.services;
 import example.medCashFlow.dto.auth.RegisterDTO;
 import example.medCashFlow.dto.clinic.ClinicRegisterDTO;
 import example.medCashFlow.dto.clinic.ClinicResponseDTO;
-import example.medCashFlow.exceptions.InvalidClinicException;
+import example.medCashFlow.exceptions.InvalidDataException;
 import example.medCashFlow.exceptions.ResourceNotFoundException;
 import example.medCashFlow.mappers.ClinicMapper;
 import example.medCashFlow.model.Clinic;
@@ -43,7 +43,7 @@ public class ClinicService {
         ClinicRegisterDTO clinicData = data.clinic();
 
         if (!isClinicValid(clinicData)) {
-            throw new InvalidClinicException();
+            return;
         }
 
 
@@ -79,7 +79,11 @@ public class ClinicService {
 
     public boolean isClinicValidByName(String name) {
         if (repository.existsByName(name)) {
-            throw new InvalidClinicException("clinic.name");
+            throw new InvalidDataException(
+                    Clinic.class.getSimpleName(),
+                    "name",
+                    name
+            );
         }
 
         return true;
@@ -87,7 +91,11 @@ public class ClinicService {
 
     public boolean isClinicValidByCnpj(String cnpj) {
         if (repository.existsByCnpj(cnpj)) {
-            throw new InvalidClinicException("clinic.cnpj");
+            throw new InvalidDataException(
+                    Clinic.class.getSimpleName(),
+                    "cnpj",
+                    cnpj
+            );
         }
 
         return true;
@@ -95,7 +103,11 @@ public class ClinicService {
 
     public boolean isClinicValidByPhone(String phone) {
         if (repository.existsByPhone(phone)) {
-            throw new InvalidClinicException("clinic.phone");
+            throw new InvalidDataException(
+                    Clinic.class.getSimpleName(),
+                    "phone",
+                    phone
+            );
         }
 
         return true;

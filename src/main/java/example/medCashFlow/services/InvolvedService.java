@@ -2,7 +2,7 @@ package example.medCashFlow.services;
 
 import example.medCashFlow.dto.involved.InvolvedRegisterDTO;
 import example.medCashFlow.dto.involved.InvolvedResponseDTO;
-import example.medCashFlow.exceptions.InvalidInvolvedException;
+import example.medCashFlow.exceptions.InvalidDataException;
 import example.medCashFlow.exceptions.ResourceNotFoundException;
 import example.medCashFlow.mappers.InvolvedMapper;
 import example.medCashFlow.model.Clinic;
@@ -48,21 +48,29 @@ public class InvolvedService {
 
     private boolean isInvolvedValidByDocument(String document) {
         if (repository.existsByDocument(document)) {
-            throw new InvalidInvolvedException("involved.document");
+            throw new InvalidDataException(
+                    Involved.class.getSimpleName(),
+                    "document",
+                    document
+            );
         }
         return true;
     }
 
     private boolean isInvolvedValidByEmail(String email) {
         if (repository.existsByEmail(email)) {
-            throw new InvalidInvolvedException("involved.email");
+            throw new InvalidDataException(
+                    Involved.class.getSimpleName(),
+                    "email",
+                    email
+            );
         }
         return true;
     }
 
     public InvolvedResponseDTO createInvolved(InvolvedRegisterDTO data, Clinic clinic) {
         if (!isInvolvedValid(data.document(), data.email())) {
-            throw new InvalidInvolvedException();
+            return null;
         }
 
         Involved involved = mapper.toInvolved(data, clinic);
@@ -76,12 +84,20 @@ public class InvolvedService {
 
         if (!data.email().equals(existingInvolved.getEmail())
                 && repository.existsByEmail(data.email())) {
-            throw new InvalidInvolvedException("involved.email");
+            throw new InvalidDataException(
+                    Involved.class.getSimpleName(),
+                    "email",
+                    data.email()
+            );
         }
 
         if (!data.document().equals(existingInvolved.getDocument())
                 && repository.existsByDocument(data.document())) {
-            throw new InvalidInvolvedException("involved.document");
+            throw new InvalidDataException(
+                    Involved.class.getSimpleName(),
+                    "document",
+                    data.document()
+            );
         }
 
         mapper.updateInvolved(existingInvolved, data);

@@ -1,12 +1,25 @@
 package example.medCashFlow.exceptions;
 
-public abstract class InvalidDataException extends RuntimeException {
+import lombok.Getter;
 
-  public InvalidDataException(String resourceName, String reason) {
-    super(String.format("%s inválido(a): %s", resourceName, reason));
+@Getter
+public class InvalidDataException extends RuntimeException {
+
+  private final String entity;
+
+  private final String propertyName;
+
+  private final String value;
+
+  public InvalidDataException(String entity, String propertyName, String value) {
+    this.entity = entity;
+    this.propertyName = propertyName;
+    this.value = value;
   }
 
-  public InvalidDataException(String message) {
-    super(message);
+  @Override
+  public String getMessage() {
+    return String.format("%s already exists with {%s: %s}", entity, propertyName, value);
   }
+
 }

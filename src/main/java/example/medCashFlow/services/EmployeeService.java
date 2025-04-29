@@ -2,7 +2,7 @@ package example.medCashFlow.services;
 
 import example.medCashFlow.dto.employee.EmployeeRegisterDTO;
 import example.medCashFlow.dto.employee.EmployeeResponseDTO;
-import example.medCashFlow.exceptions.InvalidEmployeeException;
+import example.medCashFlow.exceptions.InvalidDataException;
 import example.medCashFlow.exceptions.ResourceNotFoundException;
 import example.medCashFlow.mappers.EmployeeMapper;
 import example.medCashFlow.model.Clinic;
@@ -62,7 +62,11 @@ public class EmployeeService {
 
     public boolean isEmployeeValidByCpf(String cpf) {
         if (repository.existsByCpf(cpf)) {
-            throw new InvalidEmployeeException("manager.cpf");
+            throw new InvalidDataException(
+                    Employee.class.getSimpleName(),
+                    "cpf",
+                    cpf
+            );
         }
 
         return true;
@@ -70,7 +74,11 @@ public class EmployeeService {
 
     public boolean isEmployeeValidByEmail(String email) {
         if (repository.existsByEmail(email)) {
-            throw new InvalidEmployeeException("manager.email");
+            throw new InvalidDataException(
+                    Employee.class.getSimpleName(),
+                    "email",
+                    email
+            );
         }
 
         return true;
@@ -78,7 +86,7 @@ public class EmployeeService {
 
     public EmployeeResponseDTO createEmployee(EmployeeRegisterDTO data, Clinic clinic) {
         if (!isEmployeeValid(data.cpf(), data.email())) {
-            throw new InvalidEmployeeException();
+            return null;
         }
 
         Role role = roleService.getRoleById(data.roleId());
@@ -94,11 +102,19 @@ public class EmployeeService {
         Employee existingEmployee = getEmployeeById(id);
 
         if (repository.existsByEmailAndIdNot(data.email(), id)) {
-            throw new InvalidEmployeeException("manager.email");
+            throw new InvalidDataException(
+                    Employee.class.getSimpleName(),
+                    "email",
+                    data.email()
+            );
         }
 
         if (repository.existsByCpfAndIdNot(data.cpf(), id)) {
-            throw new InvalidEmployeeException("manager.cpf");
+            throw new InvalidDataException(
+                    Employee.class.getSimpleName(),
+                    "cpf",
+                    data.email()
+            );
         }
 
         Role role = roleService.getRoleById(data.roleId());

@@ -6,7 +6,4 @@ public class ForbiddenException extends RuntimeException {
         super("Você não tem permissão de acesso nessa rota do sistema");
     }
 
-    public ForbiddenException(String message) {
-        super(message);
-    }
 }
