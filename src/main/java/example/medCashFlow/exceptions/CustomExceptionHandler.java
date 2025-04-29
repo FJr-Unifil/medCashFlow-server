@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -46,6 +47,18 @@ public class CustomExceptionHandler {
         ApiError error = ApiErrorBuilder.builder()
                 .status(HttpStatus.FORBIDDEN)
                 .message("Forbidden Access")
+                .build();
+
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
+    }
+
+    @ExceptionHandler({DisabledException.class})
+    private ResponseEntity<ApiError> handleDisabledException(DisabledException ex) {
+        log.warn("Entity is disabled", ex);
+
+        ApiError error = ApiErrorBuilder.builder()
+                .status(HttpStatus.FORBIDDEN)
+                .message(ex.getMessage())
                 .build();
 
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);

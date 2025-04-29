@@ -118,7 +118,7 @@ class AuthenticationControllerTests extends MedCashFlowApplicationTests {
         mockMvc.perform(post("/auth/login")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(data)))
-                .andExpect(status().isNotFound());
+                .andExpect(status().isForbidden());
 
     }
 

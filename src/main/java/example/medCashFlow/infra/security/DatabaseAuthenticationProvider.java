@@ -48,11 +48,11 @@ public class DatabaseAuthenticationProvider implements AuthenticationProvider {
         Employee employee = optionalEmployee.get();
 
         if (!employee.getClinic().isActive()) {
-            throw new DisabledException("Clinic is not active");
+            throw new DisabledException("Clinic is inactive");
         }
 
         if (!employee.isActive()) {
-            throw new DisabledException("User is not active");
+            throw new DisabledException("Employee is inactive");
         }
 
         if (!passwordEncoder.matches(password, employee.getPassword())) {
