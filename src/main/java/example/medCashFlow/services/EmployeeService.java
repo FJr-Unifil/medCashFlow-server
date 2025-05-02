@@ -2,7 +2,9 @@ package example.medCashFlow.services;
 
 import example.medCashFlow.dto.employee.EmployeeRegisterDTO;
 import example.medCashFlow.dto.employee.EmployeeResponseDTO;
+import example.medCashFlow.exceptions.ApiValidationError;
 import example.medCashFlow.exceptions.InvalidDataException;
+import example.medCashFlow.exceptions.MultipleInvalidDataException;
 import example.medCashFlow.exceptions.ResourceNotFoundException;
 import example.medCashFlow.mappers.EmployeeMapper;
 import example.medCashFlow.model.Clinic;
@@ -13,8 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -56,36 +57,40 @@ public class EmployeeService {
                 .map(mapper::toResponseDTO).toList();
     }
 
-    public boolean isEmployeeValid(String cpf, String email) {
-        return (isEmployeeValidByCpf(cpf) && isEmployeeValidByEmail(email));
-    }
+    public boolean isEmployeeValid(EmployeeRegisterDTO data) {
+        List<ApiValidationError> errors = new ArrayList<>();
+        Map<String, String> invalidFields = getInvalidFields(data);
 
-    public boolean isEmployeeValidByCpf(String cpf) {
-        if (repository.existsByCpf(cpf)) {
-            throw new InvalidDataException(
-                    Employee.class.getSimpleName(),
-                    "cpf",
-                    cpf
+        if (!invalidFields.isEmpty()) {
+            invalidFields.forEach(
+                    (field,val) ->
+                            errors.add(new ApiValidationError(
+                                    "employee",
+                                    field,
+                                    val
+                            ))
             );
+            throw new MultipleInvalidDataException(errors);
         }
 
         return true;
     }
 
-    public boolean isEmployeeValidByEmail(String email) {
-        if (repository.existsByEmail(email)) {
-            throw new InvalidDataException(
-                    Employee.class.getSimpleName(),
-                    "email",
-                    email
-            );
+    public Map<String, String> getInvalidFields(EmployeeRegisterDTO data) {
+        Map<String, String> invalidFields = new HashMap<>();
+
+        if (repository.existsByCpf(data.cpf())) {
+            invalidFields.put("cpf", data.cpf());
+        }
+        if (repository.existsByEmail(data.email())) {
+            invalidFields.put("email", data.email());
         }
 
-        return true;
+        return invalidFields;
     }
 
     public EmployeeResponseDTO createEmployee(EmployeeRegisterDTO data, Clinic clinic) {
-        if (!isEmployeeValid(data.cpf(), data.email())) {
+        if (!isEmployeeValid(data)) {
             return null;
         }
 

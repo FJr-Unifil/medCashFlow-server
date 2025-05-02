@@ -10,7 +10,9 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.nio.file.AccessDeniedException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @RestControllerAdvice
 @Slf4j
@@ -83,21 +85,33 @@ public class CustomExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);     
     }
 
-    @ExceptionHandler(InvalidDataException.class)
-    private ResponseEntity<ApiError> handleInvalidData(InvalidDataException ex) {
+    @ExceptionHandler({InvalidDataException.class, MultipleInvalidDataException.class})
+    private ResponseEntity<ApiError> handleInvalidData(Exception ex) {
         log.info("Invalid Data: {}", ex.getMessage());
 
-        ApiSubError validationError = new ApiValidationError(
-                ex.getEntity(),
-                ex.getPropertyName(),
-                ex.getValue()
-        );
+        List<ApiSubError> validationErrors = new ArrayList<>();
+        String message = "Data Conflict";
 
-        ApiError error = ApiErrorBuilder.builder()
-                .status(HttpStatus.CONFLICT)
-                .message("Data Conflict")
-                .subErrors(List.of(validationError))
-                .build();
+        ApiError error = null;
+        if (ex instanceof InvalidDataException ide) {
+            validationErrors.add(new ApiValidationError(
+                    ide.getEntity(),
+                    ide.getPropertyName(),
+                    ide.getValue()
+            ));
+            error = ApiErrorBuilder.builder()
+                    .status(HttpStatus.CONFLICT)
+                    .message(message)
+                    .subErrors(validationErrors)
+                    .build();
+        } else if (ex instanceof MultipleInvalidDataException mide) {
+            validationErrors.addAll(mide.getErrors());
+            error = ApiErrorBuilder.builder()
+                    .status(HttpStatus.CONFLICT)
+                    .message("Data Conflict")
+                    .subErrors(validationErrors)
+                    .build();
+        }
 
         return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
     }

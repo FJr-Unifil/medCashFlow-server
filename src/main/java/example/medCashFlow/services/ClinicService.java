@@ -3,7 +3,8 @@ package example.medCashFlow.services;
 import example.medCashFlow.dto.auth.RegisterDTO;
 import example.medCashFlow.dto.clinic.ClinicRegisterDTO;
 import example.medCashFlow.dto.clinic.ClinicResponseDTO;
-import example.medCashFlow.exceptions.InvalidDataException;
+import example.medCashFlow.exceptions.ApiValidationError;
+import example.medCashFlow.exceptions.MultipleInvalidDataException;
 import example.medCashFlow.exceptions.ResourceNotFoundException;
 import example.medCashFlow.mappers.ClinicMapper;
 import example.medCashFlow.model.Clinic;
@@ -11,8 +12,7 @@ import example.medCashFlow.repository.ClinicRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -42,13 +42,20 @@ public class ClinicService {
     public void createClinic(RegisterDTO data) {
         ClinicRegisterDTO clinicData = data.clinic();
 
-        if (!isClinicValid(clinicData)) {
-            return;
+        List<ApiValidationError> allErrors = new ArrayList<>();
+
+        getInvalidFields(clinicData)
+                .forEach((field,val) -> allErrors.add(new ApiValidationError("clinic", field, val)));
+
+        employeeService.getInvalidFields(data.manager())
+                .forEach((field,val) -> allErrors.add(new ApiValidationError("employee", field, val)));
+
+        if (!allErrors.isEmpty()) {
+            throw new MultipleInvalidDataException(allErrors);
         }
 
-
-        Clinic savedClinc = repository.save(mapper.toClinic(clinicData));
-        employeeService.createEmployee(data.manager(), savedClinc);
+        Clinic savedClinic = repository.save(mapper.toClinic(clinicData));
+        employeeService.createEmployee(data.manager(), savedClinic);
     }
 
     public void activateClinic(UUID id) {
@@ -73,43 +80,19 @@ public class ClinicService {
         repository.save(clinic);
     }
 
-    public boolean isClinicValid(ClinicRegisterDTO clinicData) {
-        return isClinicValidByName(clinicData.name()) && isClinicValidByCnpj(clinicData.cnpj()) && isClinicValidByPhone(clinicData.phone());
-    }
+    public Map<String, String> getInvalidFields(ClinicRegisterDTO clinicData) {
+        Map<String, String> invalidFields = new HashMap<>();
 
-    public boolean isClinicValidByName(String name) {
-        if (repository.existsByName(name)) {
-            throw new InvalidDataException(
-                    Clinic.class.getSimpleName(),
-                    "name",
-                    name
-            );
+        if (repository.existsByName(clinicData.name())) {
+            invalidFields.put("name", clinicData.name());
+        }
+        if (repository.existsByCnpj(clinicData.cnpj())) {
+            invalidFields.put("cnpj", clinicData.cnpj());
+        }
+        if (repository.existsByPhone(clinicData.phone())) {
+            invalidFields.put("phone", clinicData.phone());
         }
 
-        return true;
-    }
-
-    public boolean isClinicValidByCnpj(String cnpj) {
-        if (repository.existsByCnpj(cnpj)) {
-            throw new InvalidDataException(
-                    Clinic.class.getSimpleName(),
-                    "cnpj",
-                    cnpj
-            );
-        }
-
-        return true;
-    }
-
-    public boolean isClinicValidByPhone(String phone) {
-        if (repository.existsByPhone(phone)) {
-            throw new InvalidDataException(
-                    Clinic.class.getSimpleName(),
-                    "phone",
-                    phone
-            );
-        }
-
-        return true;
+        return invalidFields;
     }
 }
