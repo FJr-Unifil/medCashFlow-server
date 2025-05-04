@@ -5,13 +5,20 @@ import example.medCashFlow.dto.auth.AuthenticationDTO;
 import example.medCashFlow.dto.auth.RegisterDTO;
 import example.medCashFlow.dto.clinic.ClinicRegisterDTO;
 import example.medCashFlow.dto.employee.EmployeeRegisterDTO;
+import example.medCashFlow.exceptions.ApiError;
+import example.medCashFlow.exceptions.ApiValidationError;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.web.servlet.MvcResult;
 
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.matchesPattern;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -71,13 +78,33 @@ class AuthenticationControllerTests extends MedCashFlowApplicationTests {
     @Test
     void whenRegisteringExistingClinic_thenConflict() throws Exception {
         RegisterDTO registerDTO = new RegisterDTO(
-                new ClinicRegisterDTO("Clinic1", "12345678901234", "1234567890"),
-                new EmployeeRegisterDTO("João", "Lucas", "12345678903", "manager3@manager.com", "manager3", 1L)
+                new ClinicRegisterDTO("Active Clinic", "12345678901234", "1234567890"),
+                new EmployeeRegisterDTO("João", "Lucas", "12345678909", "manager3@manager.com", "manager3", 1L)
         );
-        mockMvc.perform(post("/auth/register")
+
+        MvcResult mvcResult = mockMvc.perform(post("/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(registerDTO)))
-                .andExpect(status().isConflict());
+                .andExpect(status().isConflict())
+                .andReturn();
+
+        String json = mvcResult.getResponse().getContentAsString();
+        ApiError error = objectMapper.readValue(json, ApiError.class);
+
+        assertEquals(409, error.status());
+        assertEquals("Conflict", error.error());
+        assertEquals("Data Conflict", error.message());
+        assertEquals("/auth/register", error.path());
+
+        List<Object> actualRejected = error.subErrors().stream()
+                .map(ApiValidationError::rejectedValue)
+                .toList();
+
+        assertThat(actualRejected).containsExactlyInAnyOrder(
+                registerDTO.clinic().name(),
+                registerDTO.clinic().cnpj(),
+                registerDTO.clinic().phone()
+        );
     }
 
     @Test
@@ -86,10 +113,29 @@ class AuthenticationControllerTests extends MedCashFlowApplicationTests {
                 new ClinicRegisterDTO("Clinic3", "12345678901236", "1234567892"),
                 new EmployeeRegisterDTO("Pedro", "Arthur", "12345678901", "manager@manager.com", "manager", 1L)
         );
-        mockMvc.perform(post("/auth/register")
+
+        MvcResult mvcResult = mockMvc.perform(post("/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(registerDTO)))
-                .andExpect(status().isConflict());
+                .andExpect(status().isConflict())
+                .andReturn();
+
+        String json = mvcResult.getResponse().getContentAsString();
+        ApiError error = objectMapper.readValue(json, ApiError.class);
+
+        assertEquals(409, error.status());
+        assertEquals("Conflict", error.error());
+        assertEquals("Data Conflict", error.message());
+        assertEquals("/auth/register", error.path());
+
+        List<Object> actualRejected = error.subErrors().stream()
+                .map(ApiValidationError::rejectedValue)
+                .toList();
+
+        assertThat(actualRejected).containsExactlyInAnyOrder(
+                registerDTO.manager().cpf(),
+                registerDTO.manager().email()
+        );
     }
 
     @Test
