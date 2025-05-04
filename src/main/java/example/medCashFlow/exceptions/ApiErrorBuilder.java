@@ -14,7 +14,7 @@ public class ApiErrorBuilder {
     private HttpStatus status;
     private String message;
     private String path;
-    private List<ApiSubError> subErrors = new ArrayList<>();
+    private List<ApiValidationError> subErrors = new ArrayList<>();
     private final Instant timestamp = Instant.now();
 
     private ApiErrorBuilder() {
@@ -40,7 +40,7 @@ public class ApiErrorBuilder {
         return this;
     }
 
-    public ApiErrorBuilder subErrors(List<ApiSubError> subErrors) {
+    public ApiErrorBuilder subErrors(List<ApiValidationError> subErrors) {
         if (subErrors != null) {
             this.subErrors = subErrors;
         }
@@ -48,14 +48,14 @@ public class ApiErrorBuilder {
     }
 
     public ApiError build() {
-        return ApiError.builder()
-                .status(status.value())
-                .error(status.getReasonPhrase())
-                .message(message)
-                .path(path)
-                .subErrors(subErrors)
-                .timestamp(timestamp)
-                .build();
+        return new ApiError(
+                status.value(),
+                status.getReasonPhrase(),
+                message,
+                path,
+                subErrors,
+                timestamp
+        );
     }
 
     private String resolveRequestPath() {

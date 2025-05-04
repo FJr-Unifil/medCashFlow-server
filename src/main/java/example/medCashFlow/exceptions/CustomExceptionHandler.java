@@ -70,7 +70,7 @@ public class CustomExceptionHandler {
     private ResponseEntity<ApiError> handleResourceNotFound(ResourceNotFoundException ex) {
         log.info("Resource not found: {}", ex.getMessage());
 
-        ApiSubError validationError = new ApiValidationError(
+        ApiValidationError validationError = new ApiValidationError(
                 ex.getEntity(),
                 ex.getPropertyName(),
                 ex.getValue()
@@ -89,7 +89,7 @@ public class CustomExceptionHandler {
     private ResponseEntity<ApiError> handleInvalidData(Exception ex) {
         log.info("Invalid Data: {}", ex.getMessage());
 
-        List<ApiSubError> validationErrors = new ArrayList<>();
+        List<ApiValidationError> validationErrors = new ArrayList<>();
         String message = "Data Conflict";
 
         ApiError error = null;
