@@ -57,25 +57,6 @@ public class EmployeeService {
                 .map(mapper::toResponseDTO).toList();
     }
 
-    public boolean isEmployeeValid(EmployeeRegisterDTO data) {
-        List<ApiValidationError> errors = new ArrayList<>();
-        Map<String, String> invalidFields = getInvalidFields(data);
-
-        if (!invalidFields.isEmpty()) {
-            invalidFields.forEach(
-                    (field,val) ->
-                            errors.add(new ApiValidationError(
-                                    "employee",
-                                    field,
-                                    val
-                            ))
-            );
-            throw new MultipleInvalidDataException(errors);
-        }
-
-        return true;
-    }
-
     public Map<String, String> getInvalidFields(EmployeeRegisterDTO data) {
         Map<String, String> invalidFields = new HashMap<>();
 
@@ -90,8 +71,16 @@ public class EmployeeService {
     }
 
     public EmployeeResponseDTO createEmployee(EmployeeRegisterDTO data, Clinic clinic) {
-        if (!isEmployeeValid(data)) {
-            return null;
+        List<ApiValidationError> errors = new ArrayList<>();
+        Map<String, String> invalidFields = getInvalidFields(data);
+
+        if (!invalidFields.isEmpty()) {
+            invalidFields.forEach((field, val) -> errors.add(new ApiValidationError(
+                    Employee.class.getSimpleName(),
+                    field,
+                    val
+            )));
+            throw new MultipleInvalidDataException(errors);
         }
 
         Role role = roleService.getRoleById(data.roleId());
@@ -104,22 +93,27 @@ public class EmployeeService {
     }
 
     public EmployeeResponseDTO updateEmployee(EmployeeRegisterDTO data, Long id) {
+        List<ApiValidationError> errors = new ArrayList<>();
         Employee existingEmployee = getEmployeeById(id);
 
         if (repository.existsByEmailAndIdNot(data.email(), id)) {
-            throw new InvalidDataException(
-                    Employee.class.getSimpleName(),
-                    "email",
-                    data.email()
+            errors.add(new ApiValidationError(
+                            Employee.class.getSimpleName(),
+                            "email",
+                            data.email())
             );
         }
 
         if (repository.existsByCpfAndIdNot(data.cpf(), id)) {
-            throw new InvalidDataException(
-                    Employee.class.getSimpleName(),
-                    "cpf",
-                    data.email()
+            errors.add(new ApiValidationError(
+                            Employee.class.getSimpleName(),
+                            "cpf",
+                            data.cpf())
             );
+        }
+
+        if (!errors.isEmpty()) {
+            throw new MultipleInvalidDataException(errors);
         }
 
         Role role = roleService.getRoleById(data.roleId());
