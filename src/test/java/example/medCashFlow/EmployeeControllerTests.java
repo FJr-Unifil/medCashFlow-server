@@ -2,13 +2,19 @@ package example.medCashFlow;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import example.medCashFlow.dto.employee.EmployeeRegisterDTO;
+import example.medCashFlow.exceptions.ApiError;
+import example.medCashFlow.exceptions.ApiValidationError;
 import example.medCashFlow.model.Employee;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.web.servlet.MvcResult;
 
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -99,26 +105,73 @@ public class EmployeeControllerTests extends MedCashFlowApplicationTests {
     }
 
     @Test
-    void whenAllowedEmployeeCreateEmployee_thenSucceeds() throws Exception {
+    void whenAllowedEmployeeCreateEmployeeWithExistingEmail_thenConflict() throws Exception {
         EmployeeRegisterDTO employeeDTO = new EmployeeRegisterDTO(
                 "John",
                 "Doe",
                 "12345678910",
-                "john@example.com",
+                "manager@manager.com",
                 "password123",
                 2L
         );
 
-        mockMvc.perform(post("/employees/create")
+        MvcResult mvcResult = mockMvc.perform(post("/employees/create")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(employeeDTO))
                         .header("Authorization", "Bearer " + managerToken))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.firstName").value("John"))
-                .andExpect(jsonPath("$.lastName").value("Doe"))
-                .andExpect(jsonPath("$.email").value("john@example.com"))
-                .andExpect(jsonPath("$.role").value("FINANCIAL_ANALYST"))
-                .andExpect(jsonPath("$.isActive").value(true));
+                .andExpect(status().isConflict())
+                .andReturn();
+
+        String json = mvcResult.getResponse().getContentAsString();
+        ApiError error = objectMapper.readValue(json, ApiError.class);
+
+        assertEquals(409, error.status());
+        assertEquals("Conflict", error.error());
+        assertEquals("Data Conflict", error.message());
+        assertEquals("/employees/create", error.path());
+
+        List<Object> rejectedValues = error.subErrors().stream()
+                .map(ApiValidationError::rejectedValue)
+                .toList();
+
+        assertThat(rejectedValues).containsExactlyInAnyOrder(
+                employeeDTO.email()
+        );
+    }
+
+    @Test
+    void whenAllowedEmployeeCreateEmployeeWithExistingCpf_thenConflict() throws Exception {
+        EmployeeRegisterDTO employeeDTO = new EmployeeRegisterDTO(
+                "John",
+                "Doe",
+                "12345678901",
+                "manager99@manager.com",
+                "password123",
+                2L
+        );
+
+        MvcResult mvcResult = mockMvc.perform(post("/employees/create")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(employeeDTO))
+                        .header("Authorization", "Bearer " + managerToken))
+                .andExpect(status().isConflict())
+                .andReturn();
+
+        String json = mvcResult.getResponse().getContentAsString();
+        ApiError error = objectMapper.readValue(json, ApiError.class);
+
+        assertEquals(409, error.status());
+        assertEquals("Conflict", error.error());
+        assertEquals("Data Conflict", error.message());
+        assertEquals("/employees/create", error.path());
+
+        List<Object> rejectedValues = error.subErrors().stream()
+                .map(ApiValidationError::rejectedValue)
+                .toList();
+
+        assertThat(rejectedValues).containsExactlyInAnyOrder(
+                employeeDTO.cpf()
+        );
     }
 
     @Test
@@ -210,11 +263,80 @@ public class EmployeeControllerTests extends MedCashFlowApplicationTests {
                 2L
         );
 
-        mockMvc.perform(put("/employees/update/" + existingEmployee.getId())
+        MvcResult mvcResult =  mockMvc.perform(put("/employees/update/" + existingEmployee.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(new ObjectMapper().writeValueAsString(updateDTO))
                         .header("Authorization", "Bearer " + managerToken))
-                .andExpect(status().isConflict());
+                .andExpect(status().isConflict())
+                .andReturn();
+
+        String json = mvcResult.getResponse().getContentAsString();
+        ApiError error = objectMapper.readValue(json, ApiError.class);
+
+        assertEquals(409, error.status());
+        assertEquals("Conflict", error.error());
+        assertEquals("Data Conflict", error.message());
+        assertEquals("/employees/update/1", error.path());
+
+        List<Object> actualRejected = error.subErrors().stream()
+                .map(ApiValidationError::rejectedValue)
+                .toList();
+
+        assertThat(actualRejected).containsExactlyInAnyOrder(
+                updateDTO.email()
+        );
+    }
+
+    @Test
+    void whenAllowedEmployeeUpdateEmployeeWithExistingCpf_thenConflict() throws Exception {
+        EmployeeRegisterDTO newEmployeeDTO = new EmployeeRegisterDTO(
+                "New",
+                "Employee",
+                "12345678911",
+                "new@example.com",
+                "password123",
+                2L
+        );
+
+        mockMvc.perform(post("/employees/create")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(newEmployeeDTO))
+                        .header("Authorization", "Bearer " + managerToken))
+                .andExpect(status().isOk());
+
+        Employee existingEmployee = employeeService.getEmployeeByEmail("manager@manager.com");
+
+        EmployeeRegisterDTO updateDTO = new EmployeeRegisterDTO(
+                "Updated",
+                "Name",
+                "12345678911",
+                "aijssoijsaoi@gmail.com",
+                "password123",
+                2L
+        );
+
+        MvcResult mvcResult =  mockMvc.perform(put("/employees/update/" + existingEmployee.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(new ObjectMapper().writeValueAsString(updateDTO))
+                        .header("Authorization", "Bearer " + managerToken))
+                .andExpect(status().isConflict())
+                .andReturn();
+
+        String json = mvcResult.getResponse().getContentAsString();
+        ApiError error = objectMapper.readValue(json, ApiError.class);
+
+        assertEquals(409, error.status());
+        assertEquals("Conflict", error.error());
+        assertEquals("Data Conflict", error.message());
+        assertEquals("/employees/update/1", error.path());
+
+        List<Object> actualRejected = error.subErrors().stream()
+                .map(ApiValidationError::rejectedValue)
+                .toList();
+
+        assertThat(actualRejected).containsExactlyInAnyOrder(
+                updateDTO.cpf()
+        );
     }
 
     @Test
