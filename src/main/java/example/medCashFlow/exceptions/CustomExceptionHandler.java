@@ -108,7 +108,7 @@ public class CustomExceptionHandler {
             validationErrors.addAll(mide.getErrors());
             error = ApiErrorBuilder.builder()
                     .status(HttpStatus.CONFLICT)
-                    .message("Data Conflict")
+                    .message(message)
                     .subErrors(validationErrors)
                     .build();
         }
