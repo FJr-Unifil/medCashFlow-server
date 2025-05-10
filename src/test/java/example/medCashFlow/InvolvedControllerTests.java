@@ -1,8 +1,9 @@
 package example.medCashFlow;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
 import example.medCashFlow.dto.involved.InvolvedRegisterDTO;
+import example.medCashFlow.exceptions.ApiError;
+import example.medCashFlow.exceptions.ApiValidationError;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -10,6 +11,10 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MvcResult;
 
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -91,7 +96,7 @@ class InvolvedControllerTests extends MedCashFlowApplicationTests {
 
         mockMvc.perform(post("/involveds/create")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(new ObjectMapper().writeValueAsString(involvedDTO))
+                        .content(objectMapper.writeValueAsString(involvedDTO))
                         .header("Authorization", "Bearer " + managerToken))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").exists())
@@ -113,22 +118,131 @@ class InvolvedControllerTests extends MedCashFlowApplicationTests {
 
         mockMvc.perform(post("/involveds/create")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(new ObjectMapper().writeValueAsString(firstInvolved))
+                        .content(objectMapper.writeValueAsString(firstInvolved))
+                        .header("Authorization", "Bearer " + managerToken))
+                .andExpect(status().isOk());
+
+        InvolvedRegisterDTO duplicateInvolved = new InvolvedRegisterDTO(
+                "Duplicate Involved",
+                firstInvolved.document(),
+                "1234567891",
+                "second@test.com"
+        );
+
+        MvcResult mvcResult = mockMvc.perform(post("/involveds/create")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(duplicateInvolved))
+                        .header("Authorization", "Bearer " + managerToken))
+                .andExpect(status().isConflict())
+                .andReturn();
+
+        String json = mvcResult.getResponse().getContentAsString();
+        ApiError apiError = objectMapper.readValue(json, ApiError.class);
+
+        assertEquals(409, apiError.status());
+        assertEquals("Conflict", apiError.error());
+        assertEquals("Data Conflict", apiError.message());
+        assertEquals("/involveds/create", apiError.path());
+
+        List<Object> rejectedValue = apiError.subErrors().stream()
+                .map(ApiValidationError::rejectedValue)
+                .toList();
+
+        assertThat(rejectedValue).containsExactlyInAnyOrder(
+                duplicateInvolved.document()
+        );
+    }
+
+    @Test
+    void whenCreateInvolvedWithExistingEmail_thenConflict() throws Exception {
+        InvolvedRegisterDTO firstInvolved = new InvolvedRegisterDTO(
+                "First Involved",
+                "12345678909",
+                "1234567890",
+                "first@test.com"
+        );
+
+        mockMvc.perform(post("/involveds/create")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(firstInvolved))
                         .header("Authorization", "Bearer " + managerToken))
                 .andExpect(status().isOk());
 
         InvolvedRegisterDTO duplicateInvolved = new InvolvedRegisterDTO(
                 "Duplicate Involved",
                 "12345678903",
+                "1234567899",
+                firstInvolved.email()
+        );
+
+        MvcResult mvcResult = mockMvc.perform(post("/involveds/create")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(duplicateInvolved))
+                        .header("Authorization", "Bearer " + managerToken))
+                .andExpect(status().isConflict())
+                .andReturn();
+
+        String json = mvcResult.getResponse().getContentAsString();
+        ApiError apiError = objectMapper.readValue(json, ApiError.class);
+
+        assertEquals(409, apiError.status());
+        assertEquals("Conflict", apiError.error());
+        assertEquals("Data Conflict", apiError.message());
+        assertEquals("/involveds/create", apiError.path());
+
+        List<Object> rejectedValue = apiError.subErrors().stream()
+                .map(ApiValidationError::rejectedValue)
+                .toList();
+
+        assertThat(rejectedValue).containsExactlyInAnyOrder(
+                duplicateInvolved.email()
+        );
+    }
+
+    @Test
+    void whenCreateInvolvedWithExistingPhone_thenConflict() throws Exception {
+        InvolvedRegisterDTO firstInvolved = new InvolvedRegisterDTO(
+                "First Involved",
+                "12345678909",
                 "1234567890",
-                "second@test.com"
+                "first@test.com"
         );
 
         mockMvc.perform(post("/involveds/create")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(new ObjectMapper().writeValueAsString(duplicateInvolved))
+                        .content(objectMapper.writeValueAsString(firstInvolved))
                         .header("Authorization", "Bearer " + managerToken))
-                .andExpect(status().isConflict());
+                .andExpect(status().isOk());
+
+        InvolvedRegisterDTO duplicateInvolved = new InvolvedRegisterDTO(
+                "Duplicate Involved",
+                "12345678903",
+                firstInvolved.phone(),
+                "first@test2.com"
+        );
+
+        MvcResult mvcResult = mockMvc.perform(post("/involveds/create")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(duplicateInvolved))
+                        .header("Authorization", "Bearer " + managerToken))
+                .andExpect(status().isConflict())
+                .andReturn();
+
+        String json = mvcResult.getResponse().getContentAsString();
+        ApiError apiError = objectMapper.readValue(json, ApiError.class);
+
+        assertEquals(409, apiError.status());
+        assertEquals("Conflict", apiError.error());
+        assertEquals("Data Conflict", apiError.message());
+        assertEquals("/involveds/create", apiError.path());
+
+        List<Object> rejectedValue = apiError.subErrors().stream()
+                .map(ApiValidationError::rejectedValue)
+                .toList();
+
+        assertThat(rejectedValue).containsExactlyInAnyOrder(
+                duplicateInvolved.phone()
+        );
     }
 
     @Test
@@ -142,7 +256,7 @@ class InvolvedControllerTests extends MedCashFlowApplicationTests {
 
         mockMvc.perform(put("/involveds/1")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(new ObjectMapper().writeValueAsString(updateDTO))
+                        .content(objectMapper.writeValueAsString(updateDTO))
                         .header("Authorization", "Bearer " + managerToken))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1))
@@ -154,7 +268,142 @@ class InvolvedControllerTests extends MedCashFlowApplicationTests {
     }
 
     @Test
-    void whenUpdateNonExistentInvolved_thenNotFound() throws Exception {
+    void whenAllowedEmployeeUpdateInvolvedWithExistingDocument_thenConflict() throws Exception {
+        InvolvedRegisterDTO involvedDTO = new InvolvedRegisterDTO(
+                "Test Involved",
+                "12345678901",
+                "1234567890",
+                "involved@test.com"
+        );
+
+        mockMvc.perform(post("/involveds/create")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(involvedDTO))
+                .header("Authorization", "Bearer " + managerToken));
+
+        InvolvedRegisterDTO updateDTO = new InvolvedRegisterDTO(
+                "Updated Name",
+                involvedDTO.document(),
+                "9876543210",
+                "updated@test.com"
+        );
+
+        MvcResult mvcResult = mockMvc.perform(put("/involveds/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(updateDTO))
+                        .header("Authorization", "Bearer " + managerToken))
+                .andExpect(status().isConflict())
+                .andReturn();
+
+        String json = mvcResult.getResponse().getContentAsString();
+        ApiError apiError = objectMapper.readValue(json, ApiError.class);
+
+        assertEquals(409, apiError.status());
+        assertEquals("Conflict", apiError.error());
+        assertEquals("Data Conflict", apiError.message());
+        assertEquals("/involveds/1", apiError.path());
+
+        List<Object> rejectedValues = apiError.subErrors().stream()
+                .map(ApiValidationError::rejectedValue)
+                .toList();
+
+        assertThat(rejectedValues).containsExactlyInAnyOrder(
+                involvedDTO.document()
+        );
+    }
+
+    @Test
+    void whenAllowedEmployeeUpdateInvolvedWithExistingPhone_thenConflict() throws Exception {
+        InvolvedRegisterDTO involvedDTO = new InvolvedRegisterDTO(
+                "Test Involved",
+                "12345678901",
+                "1234567890",
+                "involved@test.com"
+        );
+
+        mockMvc.perform(post("/involveds/create")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(involvedDTO))
+                .header("Authorization", "Bearer " + managerToken));
+
+        InvolvedRegisterDTO updateDTO = new InvolvedRegisterDTO(
+                "Updated Name",
+                "12345678902",
+                involvedDTO.phone(),
+                "updated@test.com"
+        );
+
+        MvcResult mvcResult = mockMvc.perform(put("/involveds/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(updateDTO))
+                        .header("Authorization", "Bearer " + managerToken))
+                .andExpect(status().isConflict())
+                .andReturn();
+
+        String json = mvcResult.getResponse().getContentAsString();
+        ApiError apiError = objectMapper.readValue(json, ApiError.class);
+
+        assertEquals(409, apiError.status());
+        assertEquals("Conflict", apiError.error());
+        assertEquals("Data Conflict", apiError.message());
+        assertEquals("/involveds/1", apiError.path());
+
+        List<Object> rejectedValues = apiError.subErrors().stream()
+                .map(ApiValidationError::rejectedValue)
+                .toList();
+
+        assertThat(rejectedValues).containsExactlyInAnyOrder(
+                involvedDTO.phone()
+        );
+    }
+
+    @Test
+    void whenAllowedEmployeeUpdateInvolvedWithExistingEmail_thenConflict() throws Exception {
+        InvolvedRegisterDTO involvedDTO = new InvolvedRegisterDTO(
+                "Test Involved",
+                "12345678901",
+                "1234567890",
+                "involved@test.com"
+        );
+
+        mockMvc.perform(post("/involveds/create")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(involvedDTO))
+                .header("Authorization", "Bearer " + managerToken));
+
+        InvolvedRegisterDTO updateDTO = new InvolvedRegisterDTO(
+                "Updated Name",
+                "12345678902",
+                "1234567891",
+                involvedDTO.email()
+        );
+
+        MvcResult mvcResult = mockMvc.perform(put("/involveds/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(updateDTO))
+                        .header("Authorization", "Bearer " + managerToken))
+                .andExpect(status().isConflict())
+                .andReturn();
+
+        String json = mvcResult.getResponse().getContentAsString();
+        ApiError apiError = objectMapper.readValue(json, ApiError.class);
+
+        assertEquals(409, apiError.status());
+        assertEquals("Conflict", apiError.error());
+        assertEquals("Data Conflict", apiError.message());
+        assertEquals("/involveds/1", apiError.path());
+
+        List<Object> rejectedValues = apiError.subErrors().stream()
+                .map(ApiValidationError::rejectedValue)
+                .toList();
+
+        assertThat(rejectedValues).containsExactlyInAnyOrder(
+                involvedDTO.email()
+        );
+    }
+
+    @Test
+    void whenAllowedEmployeeUpdateNonExistentInvolved_thenNotFound() throws Exception {
         InvolvedRegisterDTO updateDTO = new InvolvedRegisterDTO(
                 "Non Existent",
                 "12345678909",
@@ -164,7 +413,7 @@ class InvolvedControllerTests extends MedCashFlowApplicationTests {
 
         mockMvc.perform(put("/involveds/999999")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(new ObjectMapper().writeValueAsString(updateDTO))
+                        .content(objectMapper.writeValueAsString(updateDTO))
                         .header("Authorization", "Bearer " + managerToken))
                 .andExpect(status().isNotFound());
     }
@@ -199,7 +448,7 @@ class InvolvedControllerTests extends MedCashFlowApplicationTests {
 
         MvcResult createResult = mockMvc.perform(post("/involveds/create")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(new ObjectMapper().writeValueAsString(createDTO))
+                        .content(objectMapper.writeValueAsString(createDTO))
                         .header("Authorization", "Bearer " + managerToken))
                 .andExpect(status().isOk())
                 .andReturn();
