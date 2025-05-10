@@ -63,7 +63,7 @@ public class InvolvedController {
             throw new ForbiddenException();
         }
 
-        return ResponseEntity.ok(involvedService.updateInvolved(data, employee.getClinic(), id));
+        return ResponseEntity.ok(involvedService.updateInvolved(data, id));
     }
 
     @DeleteMapping("/{id}")

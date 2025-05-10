@@ -2,7 +2,7 @@ package example.medCashFlow.services;
 
 import example.medCashFlow.dto.accountPlanning.AccountPlanningRegisterDTO;
 import example.medCashFlow.dto.accountPlanning.AccountPlanningResponseDTO;
-import example.medCashFlow.exceptions.AccountPlanningNotFoundException;
+import example.medCashFlow.exceptions.ResourceNotFoundException;
 import example.medCashFlow.mappers.AccountPlanningMapper;
 import example.medCashFlow.model.AccountPlanning;
 import example.medCashFlow.model.Clinic;
@@ -22,7 +22,14 @@ public class AccountPlanningService {
     private final AccountPlanningMapper mapper;
 
     public AccountPlanning getAccountPlanningById(Long id) {
-        return repository.findById(id).orElseThrow(AccountPlanningNotFoundException::new);
+        return repository.findById(id).orElseThrow(
+                () ->
+                        new ResourceNotFoundException(
+                                AccountPlanning.class.getSimpleName(),
+                                "id",
+                                id.toString()
+                        )
+        );
     }
 
     public AccountPlanningResponseDTO getAccountPlanningResponseDTOById(Long id) {

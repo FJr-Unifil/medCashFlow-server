@@ -14,6 +14,14 @@ public interface InvolvedRepository extends JpaRepository<Involved, Long> {
 
     boolean existsByEmail(String email);
 
+    boolean existsByPhone(String phone);
+
+    boolean existsByDocumentAndIdNot(String document, Long id);
+
+    boolean existsByEmailAndIdNot(String email, Long id);
+
+    boolean existsByPhoneAndIdNot(String phone, Long id);
+
     List<Involved> findAllByClinicIdOrderById(UUID clinicId);
 
 }

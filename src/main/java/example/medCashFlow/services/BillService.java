@@ -4,7 +4,7 @@ import example.medCashFlow.dto.bill.BillDependencies;
 import example.medCashFlow.dto.bill.BillOnlyResponseDTO;
 import example.medCashFlow.dto.bill.BillRegisterDTO;
 import example.medCashFlow.dto.bill.BillResponseDTO;
-import example.medCashFlow.exceptions.BillNotFoundException;
+import example.medCashFlow.exceptions.ResourceNotFoundException;
 import example.medCashFlow.model.*;
 import example.medCashFlow.repository.BillRepository;
 import lombok.RequiredArgsConstructor;
@@ -36,7 +36,13 @@ public class BillService {
     }
 
     public Bill getBillById(Long id) {
-        return repository.findById(id).orElseThrow(BillNotFoundException::new);
+        return repository.findById(id).orElseThrow(
+                () -> new ResourceNotFoundException(
+                        Bill.class.getSimpleName(),
+                        "id",
+                        id.toString()
+                )
+        );
     }
 
     public List<BillResponseDTO> getAllBillsByClinicId(UUID clinicId) {

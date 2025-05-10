@@ -2,8 +2,10 @@ package example.medCashFlow.services;
 
 import example.medCashFlow.dto.employee.EmployeeRegisterDTO;
 import example.medCashFlow.dto.employee.EmployeeResponseDTO;
-import example.medCashFlow.exceptions.EmployeeNotFoundException;
-import example.medCashFlow.exceptions.InvalidEmployeeException;
+import example.medCashFlow.exceptions.ApiValidationError;
+import example.medCashFlow.exceptions.InvalidDataException;
+import example.medCashFlow.exceptions.MultipleInvalidDataException;
+import example.medCashFlow.exceptions.ResourceNotFoundException;
 import example.medCashFlow.mappers.EmployeeMapper;
 import example.medCashFlow.model.Clinic;
 import example.medCashFlow.model.Employee;
@@ -13,8 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -26,17 +27,29 @@ public class EmployeeService {
 
     private final RoleService roleService;
 
-    public Employee getEmployeeById(Long Id) {
-        return repository.findById(Id).orElseThrow(EmployeeNotFoundException::new);
+    public Employee getEmployeeById(Long id) {
+        return repository.findById(id).orElseThrow(
+                () -> new ResourceNotFoundException(
+                        Employee.class.getSimpleName(),
+                        "id",
+                        id.toString()
+                )
+        );
     }
 
-    public EmployeeResponseDTO getEmployeeResponseDTOById(Long Id) {
-        Employee employee = getEmployeeById(Id);
+    public EmployeeResponseDTO getEmployeeResponseDTOById(Long id) {
+        Employee employee = getEmployeeById(id);
         return mapper.toResponseDTO(employee);
     }
 
     public Employee getEmployeeByEmail(String email) {
-        return repository.findByEmail(email).orElseThrow(EmployeeNotFoundException::new);
+        return repository.findByEmail(email).orElseThrow(
+                () -> new ResourceNotFoundException(
+                        Employee.class.getSimpleName(),
+                        "email",
+                        email
+                )
+        );
     }
 
     public List<EmployeeResponseDTO> getAllEmployeesByClinicId(UUID clinicId) {
@@ -44,29 +57,30 @@ public class EmployeeService {
                 .map(mapper::toResponseDTO).toList();
     }
 
-    public boolean isEmployeeValid(String cpf, String email) {
-        return (isEmployeeValidByCpf(cpf) && isEmployeeValidByEmail(email));
-    }
+    public Map<String, String> getInvalidFields(EmployeeRegisterDTO data) {
+        Map<String, String> invalidFields = new HashMap<>();
 
-    public boolean isEmployeeValidByCpf(String cpf) {
-        if (repository.existsByCpf(cpf)) {
-            throw new InvalidEmployeeException("manager.cpf");
+        if (repository.existsByCpf(data.cpf())) {
+            invalidFields.put("cpf", data.cpf());
+        }
+        if (repository.existsByEmail(data.email())) {
+            invalidFields.put("email", data.email());
         }
 
-        return true;
-    }
-
-    public boolean isEmployeeValidByEmail(String email) {
-        if (repository.existsByEmail(email)) {
-            throw new InvalidEmployeeException("manager.email");
-        }
-
-        return true;
+        return invalidFields;
     }
 
     public EmployeeResponseDTO createEmployee(EmployeeRegisterDTO data, Clinic clinic) {
-        if (!isEmployeeValid(data.cpf(), data.email())) {
-            throw new InvalidEmployeeException();
+        List<ApiValidationError> errors = new ArrayList<>();
+        Map<String, String> invalidFields = getInvalidFields(data);
+
+        if (!invalidFields.isEmpty()) {
+            invalidFields.forEach((field, val) -> errors.add(new ApiValidationError(
+                    Employee.class.getSimpleName(),
+                    field,
+                    val
+            )));
+            throw new MultipleInvalidDataException(errors);
         }
 
         Role role = roleService.getRoleById(data.roleId());
@@ -79,14 +93,27 @@ public class EmployeeService {
     }
 
     public EmployeeResponseDTO updateEmployee(EmployeeRegisterDTO data, Long id) {
+        List<ApiValidationError> errors = new ArrayList<>();
         Employee existingEmployee = getEmployeeById(id);
 
         if (repository.existsByEmailAndIdNot(data.email(), id)) {
-            throw new InvalidEmployeeException("manager.email");
+            errors.add(new ApiValidationError(
+                            Employee.class.getSimpleName(),
+                            "email",
+                            data.email())
+            );
         }
 
         if (repository.existsByCpfAndIdNot(data.cpf(), id)) {
-            throw new InvalidEmployeeException("manager.cpf");
+            errors.add(new ApiValidationError(
+                            Employee.class.getSimpleName(),
+                            "cpf",
+                            data.cpf())
+            );
+        }
+
+        if (!errors.isEmpty()) {
+            throw new MultipleInvalidDataException(errors);
         }
 
         Role role = roleService.getRoleById(data.roleId());
