@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.math.BigDecimal;
 
 @Entity(name = "bills")
 @Data
@@ -24,7 +25,7 @@ public class Bill {
     private String name;
 
     @Column(columnDefinition = "NUMERIC(10,2)", nullable = false)
-    private Double pricing;
+    private BigDecimal pricing;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

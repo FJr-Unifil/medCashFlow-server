@@ -34,6 +34,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.LocalDateTime;
+import java.math.BigDecimal;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -251,7 +252,7 @@ public abstract class MedCashFlowApplicationTests {
     protected void createBill() {
         BillRegisterDTO billDTO = new BillRegisterDTO(
                 "Conta 1",
-                200.50,
+                new BigDecimal("200.50"),
                 "INCOME",
                 1L,
                 1L,

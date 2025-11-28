@@ -11,6 +11,8 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 @Service
 @RequiredArgsConstructor
@@ -24,16 +26,23 @@ public class InstallmentService {
 
     public void saveInstallments(Bill bill) {
         int installmentAmount = bill.getInstallmentsAmount();
-        double installmentPrice = bill.getPricing() / installmentAmount;
+        BigDecimal total = bill.getPricing();
+        BigDecimal base = total.divide(BigDecimal.valueOf(installmentAmount), 2, RoundingMode.DOWN);
+        BigDecimal sumBase = base.multiply(BigDecimal.valueOf(installmentAmount));
+        BigDecimal remainder = total.subtract(sumBase);
+        int centsToDistribute = remainder.movePointRight(2).intValue();
         LocalDateTime dueDate = bill.getDueDate();
 
         List<Installment> installmentList = new ArrayList<>();
         for (int i = 0; i < installmentAmount; i++) {
             Installment installment = new Installment();
-            installment.setId(repository.getNextId() + i);
             installment.setBill(bill);
-            installment.setInstallmentNumber(installmentAmount);
-            installment.setPricing(installmentPrice);
+            installment.setInstallmentNumber(i + 1);
+            BigDecimal price = base;
+            if (i < centsToDistribute) {
+                price = price.add(new BigDecimal("0.01"));
+            }
+            installment.setPricing(price);
             installment.setDueDate(dueDate);
             installmentList.add(installment);
             dueDate = dueDate.plusMonths(1);
