@@ -10,7 +10,7 @@ import example.medCashFlow.model.Employee;
 import example.medCashFlow.model.Role;
 import example.medCashFlow.repository.EmployeeRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,10 +21,9 @@ import java.util.UUID;
 public class EmployeeService {
 
     private final EmployeeRepository repository;
-
     private final EmployeeMapper mapper;
-
     private final RoleService roleService;
+    private final PasswordEncoder passwordEncoder;
 
     public Employee getEmployeeById(Long Id) {
         return repository.findById(Id).orElseThrow(EmployeeNotFoundException::new);
@@ -71,7 +70,7 @@ public class EmployeeService {
 
         Role role = roleService.getRoleById(data.roleId());
 
-        String encryptedPassword = new BCryptPasswordEncoder().encode(data.password());
+        String encryptedPassword = passwordEncoder.encode(data.password());
 
         Employee employee = mapper.toEmployee(data, clinic, role, encryptedPassword);
 
@@ -91,9 +90,9 @@ public class EmployeeService {
 
         Role role = roleService.getRoleById(data.roleId());
 
-        String encryptedPassword = new BCryptPasswordEncoder().encode(data.password());
+        String encryptedPassword = passwordEncoder.encode(data.password());
 
-        mapper.updateEmployee(existingEmployee,data, role, encryptedPassword);
+        mapper.updateEmployee(existingEmployee, data, role, encryptedPassword);
 
         return mapper.toResponseDTO(repository.save(existingEmployee));
     }
