@@ -10,6 +10,7 @@ import example.medCashFlow.repository.BillRepository;
 import lombok.RequiredArgsConstructor;
 import example.medCashFlow.mappers.BillMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
@@ -35,14 +36,17 @@ public class BillService {
         );
     }
 
+    @Transactional(readOnly = true)
     public Bill getBillById(Long id) {
         return repository.findById(id).orElseThrow(BillNotFoundException::new);
     }
 
+    @Transactional(readOnly = true)
     public List<BillResponseDTO> getAllBillsByClinicId(UUID clinicId) {
         return repository.findAllBillByClinicId(clinicId);
     }
 
+    @Transactional
     public void createBill(BillRegisterDTO data, Employee employee) {
         BillDependencies dependencies = fetchBillDependencies(data);
         Bill bill = mapper.toBill(data, employee, dependencies.involved(), dependencies.accountPlanning(), dependencies.paymentMethod());
@@ -50,6 +54,7 @@ public class BillService {
         installmentService.saveInstallments(savedBill);
     }
 
+    @Transactional
     public void updateBill(BillRegisterDTO data, Long id) {
         Bill existingBill = getBillById(id);
 
@@ -61,12 +66,14 @@ public class BillService {
         installmentService.saveInstallments(savedBill);
     }
 
+    @Transactional
     public void deleteBill(Long id) {
         Bill bill = getBillById(id);
         installmentService.deleteInstallmentByBillId(id);
         repository.delete(bill);
     }
 
+    @Transactional(readOnly = true)
     public BillOnlyResponseDTO getBillOnlyResponseDTO(Long id) {
         Bill bill = getBillById(id);
         return mapper.toBillOnlyResponseDTO(bill);

@@ -10,6 +10,7 @@ import example.medCashFlow.model.Involved;
 import example.medCashFlow.repository.InvolvedRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
@@ -22,15 +23,18 @@ public class InvolvedService {
 
     private final InvolvedMapper mapper;
 
+    @Transactional(readOnly = true)
     public Involved getInvolvedById(Long id) {
         return repository.findById(id).orElseThrow(InvolvedNotFoundException::new);
     }
 
+    @Transactional(readOnly = true)
     public InvolvedResponseDTO getInvolvedResponseDTOById(Long id) {
         Involved involved = getInvolvedById(id);
         return mapper.toResponseDTO(involved);
     }
 
+    @Transactional(readOnly = true)
     public List<InvolvedResponseDTO> getAllInvolvedsByClinicId(UUID clinicId) {
         return repository.findAllByClinicIdOrderById(clinicId).stream()
                 .map(mapper::toResponseDTO).toList();
@@ -54,6 +58,7 @@ public class InvolvedService {
         return true;
     }
 
+    @Transactional
     public InvolvedResponseDTO createInvolved(InvolvedRegisterDTO data, Clinic clinic) {
         if (!isInvolvedValid(data.document(), data.email())) {
             throw new InvalidInvolvedException();
@@ -65,6 +70,7 @@ public class InvolvedService {
         return mapper.toResponseDTO(involved);
     }
 
+    @Transactional
     public InvolvedResponseDTO updateInvolved(InvolvedRegisterDTO data, Clinic clinic, Long id) {
         Involved existingInvolved = getInvolvedById(id);
 
@@ -84,12 +90,14 @@ public class InvolvedService {
         return mapper.toResponseDTO(existingInvolved);
     }
 
+    @Transactional
     public void deleteInvolved(Long id) {
         Involved involved = getInvolvedById(id);
         involved.setActive(false);
         repository.save(involved);
     }
 
+    @Transactional
     public void activateInvolved(Long id) {
         Involved involved = getInvolvedById(id);
         involved.setActive(true);

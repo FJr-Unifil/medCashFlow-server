@@ -10,6 +10,7 @@ import example.medCashFlow.model.Clinic;
 import example.medCashFlow.repository.ClinicRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
@@ -23,16 +24,19 @@ public class ClinicService {
     private final ClinicMapper mapper;
     private final EmployeeService employeeService;
 
+    @Transactional(readOnly = true)
     public Clinic getClinicById(UUID id) {
         return repository.findById(id).orElseThrow(ClinicNotFoundException::new);
     }
 
+    @Transactional(readOnly = true)
     public List<ClinicResponseDTO> getAllClinics() {
         return repository.findAllByOrderByCreatedAtAsc().stream()
                 .map(mapper::toResponseDTO)
                 .toList();
     }
 
+    @Transactional
     public void createClinic(RegisterDTO data) {
         ClinicRegisterDTO clinicData = data.clinic();
 
@@ -45,6 +49,7 @@ public class ClinicService {
         employeeService.createEmployee(data.manager(), savedClinc);
     }
 
+    @Transactional
     public void activateClinic(UUID id) {
         Clinic clinic = getClinicById(id);
 
@@ -52,6 +57,7 @@ public class ClinicService {
         repository.save(clinic);
     }
 
+    @Transactional
     public void deactivateClinic(UUID id) {
         Clinic clinic = getClinicById(id);
 
