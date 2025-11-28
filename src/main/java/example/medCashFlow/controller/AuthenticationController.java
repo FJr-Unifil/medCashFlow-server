@@ -3,13 +3,7 @@ package example.medCashFlow.controller;
 import example.medCashFlow.dto.auth.AuthenticationDTO;
 import example.medCashFlow.dto.auth.LoginResponseDTO;
 import example.medCashFlow.dto.auth.RegisterDTO;
-import example.medCashFlow.dto.clinic.ClinicRegisterDTO;
-import example.medCashFlow.dto.employee.EmployeeRegisterDTO;
-import example.medCashFlow.dto.employee.EmployeeResponseDTO;
-import example.medCashFlow.model.Clinic;
-import example.medCashFlow.model.Employee;
 import example.medCashFlow.services.ClinicService;
-import example.medCashFlow.services.EmployeeService;
 import example.medCashFlow.services.TokenService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -25,9 +19,7 @@ import org.springframework.web.bind.annotation.*;
 public class AuthenticationController {
 
     private final AuthenticationManager authenticationManager;
-
     private final ClinicService clinicService;
-
     private final TokenService tokenService;
 
     @PostMapping("/login")
@@ -37,13 +29,8 @@ public class AuthenticationController {
 
         var auth = this.authenticationManager.authenticate(usernamePassword);
 
-        String token;
-        if (auth.getPrincipal() instanceof Employee) {
-            token = tokenService.generateToken((Employee) auth.getPrincipal());
-        } else {
-            UserDetails userDetails = (UserDetails) auth.getPrincipal();
-            token = tokenService.generateTokenForAdmin(userDetails);
-        }
+        UserDetails userDetails = (UserDetails) auth.getPrincipal();
+        String token = tokenService.generateToken(userDetails);
 
         return ResponseEntity.ok(new LoginResponseDTO(token));
     }
