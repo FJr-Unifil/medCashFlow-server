@@ -11,11 +11,13 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
+import java.time.temporal.ChronoUnit;
 
 @Service
 public class TokenService {
+
+    private static final String ISSUER = "auth-medCashFlow";
+    private static final long TOKEN_EXPIRATION_HOURS = 2;
 
     @Value("${api.security.token.secret:my-secret-key}")
     private String secret;
@@ -25,7 +27,7 @@ public class TokenService {
             Algorithm algorithm = Algorithm.HMAC256(secret);
 
             return JWT.create()
-                    .withIssuer("auth-medCashFlow")
+                    .withIssuer(ISSUER)
                     .withSubject(employee.getEmail())
                     .withClaim("roles", employee.getAuthorities().stream()
                             .map(GrantedAuthority::getAuthority)
@@ -33,7 +35,7 @@ public class TokenService {
                     .withExpiresAt(generateExpirationDate())
                     .sign(algorithm);
         } catch (JWTCreationException exception) {
-            throw new RuntimeException("Error while generation token", exception);
+            throw new RuntimeException("Error while generating token", exception);
         }
     }
 
@@ -42,7 +44,7 @@ public class TokenService {
             Algorithm algorithm = Algorithm.HMAC256(secret);
 
             return JWT.create()
-                    .withIssuer("auth-medCashFlow")
+                    .withIssuer(ISSUER)
                     .withSubject(admin.getUsername())
                     .withClaim("roles", admin.getAuthorities().stream()
                             .map(GrantedAuthority::getAuthority)
@@ -50,7 +52,7 @@ public class TokenService {
                     .withExpiresAt(generateExpirationDate())
                     .sign(algorithm);
         } catch (JWTCreationException exception) {
-            throw new RuntimeException("Error while generation token", exception);
+            throw new RuntimeException("Error while generating token", exception);
         }
     }
 
@@ -59,7 +61,7 @@ public class TokenService {
             Algorithm algorithm = Algorithm.HMAC256(secret);
 
             return JWT.require(algorithm)
-                    .withIssuer("auth-medCashFlow")
+                    .withIssuer(ISSUER)
                     .build()
                     .verify(token)
                     .getSubject();
@@ -70,7 +72,7 @@ public class TokenService {
 
 
     private Instant generateExpirationDate() {
-        return LocalDateTime.now().plusHours(2).toInstant(ZoneOffset.of("-03:00"));
+        return Instant.now().plus(TOKEN_EXPIRATION_HOURS, ChronoUnit.HOURS);
     }
 
 }
