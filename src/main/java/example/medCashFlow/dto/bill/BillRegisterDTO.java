@@ -1,10 +1,11 @@
 package example.medCashFlow.dto.bill;
 
 import java.time.LocalDateTime;
+import java.math.BigDecimal;
 
 public record BillRegisterDTO(
         String name,
-        Double pricing,
+        BigDecimal pricing,
         String type,
         Long involvedId,
         Long accountPlanningId,

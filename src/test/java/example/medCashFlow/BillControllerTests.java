@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 
 import java.time.LocalDateTime;
+import java.math.BigDecimal;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -35,7 +36,7 @@ public class BillControllerTests extends MedCashFlowApplicationTests {
     void whenAnonymousCreateBill_thenForbidden() throws Exception {
         BillRegisterDTO billDTO = new BillRegisterDTO(
                 "Test Bill",
-                100.00,
+                new BigDecimal("100.00"),
                 "INCOME",
                 1L,
                 1L,
@@ -54,7 +55,7 @@ public class BillControllerTests extends MedCashFlowApplicationTests {
     void whenAllowedEmployeeCreateBill_thenSucceeds() throws Exception {
         BillRegisterDTO billDTO = new BillRegisterDTO(
                 "Test Bill",
-                100.00,
+                new BigDecimal("100.00"),
                 "INCOME",
                 1L,
                 1L,
@@ -74,7 +75,7 @@ public class BillControllerTests extends MedCashFlowApplicationTests {
     void whenAdminCreateBill_thenForbidden() throws Exception {
         BillRegisterDTO billDTO = new BillRegisterDTO(
                 "Test Bill",
-                100.00,
+                new BigDecimal("100.00"),
                 "INCOME",
                 1L,
                 1L,
@@ -94,7 +95,7 @@ public class BillControllerTests extends MedCashFlowApplicationTests {
     void whenAnonymousUpdateBill_thenForbidden() throws Exception {
         BillRegisterDTO billDTO = new BillRegisterDTO(
                 "Updated Bill",
-                200.00,
+                new BigDecimal("200.00"),
                 "OUTCOME",
                 1L,
                 1L,
@@ -113,7 +114,7 @@ public class BillControllerTests extends MedCashFlowApplicationTests {
     void whenAllowedEmployeeUpdateBill_thenSucceeds() throws Exception {
         BillRegisterDTO updateDTO = new BillRegisterDTO(
                 "Updated Bill",
-                200.00,
+                new BigDecimal("200.00"),
                 "OUTCOME",
                 1L,
                 1L,
@@ -153,7 +154,7 @@ public class BillControllerTests extends MedCashFlowApplicationTests {
     void whenAllowedEmployeeUpdateNonExistentBill_thenNotFound() throws Exception {
         BillRegisterDTO billDTO = new BillRegisterDTO(
                 "Non-existent Bill",
-                100.00,
+                new BigDecimal("100.00"),
                 "INCOME",
                 1L,
                 1L,
