@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 public class Installment {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne

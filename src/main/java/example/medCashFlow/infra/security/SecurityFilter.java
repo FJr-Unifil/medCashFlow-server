@@ -1,5 +1,6 @@
 package example.medCashFlow.infra.security;
 
+import com.auth0.jwt.exceptions.JWTVerificationException;
 import example.medCashFlow.services.EmployeeService;
 import example.medCashFlow.services.TokenService;
 import jakarta.servlet.FilterChain;
@@ -36,22 +37,28 @@ public class SecurityFilter extends OncePerRequestFilter {
         var token = this.recoverToken(request);
 
         if (token != null) {
-            var username = tokenService.validateToken(token);
-            UserDetails user;
+            try {
+                var username = tokenService.validateToken(token);
+                
+                if (username != null && !username.isEmpty()) {
+                    UserDetails user;
 
-            if (username.equals(adminUsername)) {
-                user = User.builder()
-                        .username(adminUsername)
-                        .password("") // Password not needed for token validation
-                        .roles("ADMIN")
-                        .build();
-            } else {
-                user = employeeService.getEmployeeByEmail(username);
-            }
+                    if (username.equals(adminUsername)) {
+                        user = User.builder()
+                                .username(adminUsername)
+                                .password("")
+                                .roles("ADMIN")
+                                .build();
+                    } else {
+                        user = employeeService.getEmployeeByEmail(username);
+                    }
 
-            if (user != null) {
-                var authentication = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
-                SecurityContextHolder.getContext().setAuthentication(authentication);
+                    if (user != null) {
+                        var authentication = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
+                        SecurityContextHolder.getContext().setAuthentication(authentication);
+                    }
+                }
+            } catch (JWTVerificationException e) {
             }
         }
 
