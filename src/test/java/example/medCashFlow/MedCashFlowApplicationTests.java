@@ -25,7 +25,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -52,6 +52,9 @@ public abstract class MedCashFlowApplicationTests {
 
     @Autowired
     protected EmployeeService employeeService;
+
+    @Autowired
+    protected PasswordEncoder passwordEncoder;
 
     @Value("${api.security.admin.username}")
     protected String adminUsername;
@@ -306,18 +309,18 @@ public abstract class MedCashFlowApplicationTests {
 
         UserDetails admin = User.builder()
                 .username(adminUsername)
-                .password(new BCryptPasswordEncoder().encode(adminPassword))
+                .password(passwordEncoder.encode(adminPassword))
                 .roles("ADMIN")
                 .build();
-        adminToken = tokenService.generateTokenForAdmin(admin);
+        adminToken = tokenService.generateToken(admin);
 
         Employee manager = employeeService.getEmployeeByEmail("manager@manager.com");
         managerToken = tokenService.generateToken(manager);
 
-        Employee financialAnalyst = (Employee) employeeService.getEmployeeByEmail("financial@financial.com");
+        Employee financialAnalyst = employeeService.getEmployeeByEmail("financial@financial.com");
         financialAnalystToken = tokenService.generateToken(financialAnalyst);
 
-        Employee doctor = (Employee) employeeService.getEmployeeByEmail("doctor@doctor.com");
+        Employee doctor = employeeService.getEmployeeByEmail("doctor@doctor.com");
         doctorToken = tokenService.generateToken(doctor);
     }
 
