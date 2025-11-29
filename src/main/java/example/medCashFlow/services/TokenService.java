@@ -4,6 +4,7 @@ import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTCreationException;
 import com.auth0.jwt.exceptions.JWTVerificationException;
+import example.medCashFlow.infra.security.UserPrincipal;
 import example.medCashFlow.model.Employee;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.GrantedAuthority;
@@ -20,14 +21,14 @@ public class TokenService {
     @Value("${api.security.token.secret:my-secret-key}")
     private String secret;
 
-    public String generateToken(Employee employee) {
+    public String generateToken(UserPrincipal userPrincipal) {
         try {
             Algorithm algorithm = Algorithm.HMAC256(secret);
 
             return JWT.create()
                     .withIssuer("auth-medCashFlow")
-                    .withSubject(employee.getEmail())
-                    .withClaim("roles", employee.getAuthorities().stream()
+                    .withSubject(userPrincipal.getUsername())
+                    .withClaim("roles", userPrincipal.getAuthorities().stream()
                             .map(GrantedAuthority::getAuthority)
                             .toList())
                     .withExpiresAt(generateExpirationDate())
@@ -70,7 +71,7 @@ public class TokenService {
 
 
     private Instant generateExpirationDate() {
-        return LocalDateTime.now().plusHours(2).toInstant(ZoneOffset.of("-03:00"));
+        return LocalDateTime.now().plusHours(2).toInstant(ZoneOffset.UTC);
     }
 
 }

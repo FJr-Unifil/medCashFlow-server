@@ -2,13 +2,12 @@ package example.medCashFlow.controller;
 
 import example.medCashFlow.dto.employee.EmployeeRegisterDTO;
 import example.medCashFlow.dto.employee.EmployeeResponseDTO;
-import example.medCashFlow.exceptions.ForbiddenException;
-import example.medCashFlow.model.Employee;
+import example.medCashFlow.infra.security.SecurityService;
 import example.medCashFlow.services.EmployeeService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,71 +18,43 @@ import java.util.List;
 public class EmployeeController {
 
     private final EmployeeService employeeService;
+    private final SecurityService securityService;
 
     @GetMapping("/{id}")
-    public ResponseEntity<EmployeeResponseDTO> getEmployeeById(@AuthenticationPrincipal UserDetails loggedManager, @PathVariable Long id) {
-        if (!(loggedManager instanceof Employee)) {
-            throw new ForbiddenException();
-        }
-
+    @PreAuthorize("hasRole('MANAGER')")
+    public ResponseEntity<EmployeeResponseDTO> getEmployeeById(@PathVariable Long id) {
         return ResponseEntity.ok(employeeService.getEmployeeResponseDTOById(id));
     }
 
     @GetMapping("/list")
-    public ResponseEntity<List<EmployeeResponseDTO>> listAllEmployees(@AuthenticationPrincipal UserDetails loggedManager) {
-        if (!(loggedManager instanceof Employee)) {
-            throw new ForbiddenException();
-        }
-
-        List<EmployeeResponseDTO> employees = employeeService.getAllEmployeesByClinicId(((Employee) loggedManager).getClinic().getId());
+    @PreAuthorize("hasRole('MANAGER')")
+    public ResponseEntity<List<EmployeeResponseDTO>> listAllEmployees() {
+        List<EmployeeResponseDTO> employees = employeeService.getAllEmployeesByClinicId(securityService.getCurrentClinicId());
         return ResponseEntity.ok(employees);
     }
 
     @PostMapping("/create")
-    public ResponseEntity<EmployeeResponseDTO> createEmployee(@AuthenticationPrincipal UserDetails loggedManager, @RequestBody EmployeeRegisterDTO data) {
-        if (!(loggedManager instanceof Employee manager)) {
-            throw new ForbiddenException();
-        }
-
-        return ResponseEntity.ok(employeeService.createEmployee(data, manager.getClinic()));
+    @PreAuthorize("hasRole('MANAGER')")
+    public ResponseEntity<EmployeeResponseDTO> createEmployee(@Valid @RequestBody EmployeeRegisterDTO data) {
+        return ResponseEntity.ok(employeeService.createEmployee(data, securityService.getCurrentClinic()));
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<EmployeeResponseDTO> updateEmployee(
-            @AuthenticationPrincipal UserDetails loggedManager,
-            @PathVariable Long id,
-            @RequestBody EmployeeRegisterDTO data) {
-
-        if (!(loggedManager instanceof Employee)) {
-            throw new ForbiddenException();
-        }
-
+    @PreAuthorize("hasRole('MANAGER')")
+    public ResponseEntity<EmployeeResponseDTO> updateEmployee(@PathVariable Long id, @Valid @RequestBody EmployeeRegisterDTO data) {
         return ResponseEntity.ok(employeeService.updateEmployee(data, id));
     }
 
     @PutMapping("/activate/{id}")
-    public ResponseEntity<Void> activateEmployee(
-            @AuthenticationPrincipal UserDetails loggedManager,
-            @PathVariable Long id) {
-
-        if (!(loggedManager instanceof Employee)) {
-            throw new ForbiddenException();
-        }
-
+    @PreAuthorize("hasRole('MANAGER')")
+    public ResponseEntity<Void> activateEmployee(@PathVariable Long id) {
         employeeService.activateEmployee(id);
         return ResponseEntity.noContent().build();
     }
 
-
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<Void> deleteEmployee(
-            @AuthenticationPrincipal UserDetails loggedManager,
-            @PathVariable Long id) {
-
-        if (!(loggedManager instanceof Employee)) {
-            throw new ForbiddenException();
-        }
-
+    @PreAuthorize("hasRole('MANAGER')")
+    public ResponseEntity<Void> deleteEmployee(@PathVariable Long id) {
         employeeService.deleteEmployee(id);
         return ResponseEntity.noContent().build();
     }

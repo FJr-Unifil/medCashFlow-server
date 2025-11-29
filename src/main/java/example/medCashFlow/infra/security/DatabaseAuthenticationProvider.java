@@ -59,10 +59,11 @@ public class DatabaseAuthenticationProvider implements AuthenticationProvider {
             throw new BadCredentialsException("Invalid credentials");
         }
 
+        UserPrincipal userPrincipal = new UserPrincipal(employee);
         return new UsernamePasswordAuthenticationToken(
-                employee,
+                userPrincipal,
                 null,
-                employee.getAuthorities()
+                userPrincipal.getAuthorities()
         );
 
     }
