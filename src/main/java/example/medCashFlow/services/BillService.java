@@ -56,14 +56,13 @@ public class BillService {
         BillDependencies dependencies = fetchBillDependencies(data);
         mapper.updateBill(existingBill, data, dependencies.involved(), dependencies.accountPlanning(), dependencies.paymentMethod());
 
-        installmentService.deleteInstallmentByBillId(id);
+        existingBill.getInstallments().clear();
         Bill savedBill = repository.save(existingBill);
         installmentService.saveInstallments(savedBill);
     }
 
     public void deleteBill(Long id) {
         Bill bill = getBillById(id);
-        installmentService.deleteInstallmentByBillId(id);
         repository.delete(bill);
     }
 

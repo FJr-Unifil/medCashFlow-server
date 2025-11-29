@@ -1,5 +1,6 @@
 package example.medCashFlow.dto.bill;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 public record BillResponseDTO(
@@ -7,7 +8,7 @@ public record BillResponseDTO(
         Long installmentId,
         boolean isPaid,
         String name,
-        Double pricing,
+        BigDecimal pricing,
         String type,
         Long employeeId,
         Long involvedId,

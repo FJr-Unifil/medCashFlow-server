@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity(name = "installments")
@@ -14,6 +15,7 @@ import java.time.LocalDateTime;
 public class Installment {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne
@@ -23,8 +25,8 @@ public class Installment {
     @Column(nullable = false, name = "installment_number")
     private Integer installmentNumber;
 
-    @Column(nullable = false)
-    private Double pricing;
+    @Column(precision = 10, scale = 2, nullable = false)
+    private BigDecimal pricing;
 
     @Column(name = "due_date", nullable = false)
     private LocalDateTime dueDate;
