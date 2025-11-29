@@ -6,7 +6,9 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity(name = "bills")
@@ -23,8 +25,8 @@ public class Bill {
     @Column(nullable = false, length = 50)
     private String name;
 
-    @Column(columnDefinition = "NUMERIC(10,2)", nullable = false)
-    private Double pricing;
+    @Column(precision = 10, scale = 2, nullable = false)
+    private BigDecimal pricing;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -59,7 +61,7 @@ public class Bill {
     @Column(name = "installment_amount", nullable = false)
     private Integer installmentsAmount;
 
-    @OneToMany(mappedBy = "bill")
-    private List<Installment> installments;
+    @OneToMany(mappedBy = "bill", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<Installment> installments = new ArrayList<>();
 
 }

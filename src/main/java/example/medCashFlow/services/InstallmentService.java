@@ -9,6 +9,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,14 +28,15 @@ public class InstallmentService {
 
     public void saveInstallments(Bill bill) {
         int installmentAmount = bill.getInstallmentsAmount();
-        double installmentPrice = bill.getPricing() / installmentAmount;
+        BigDecimal installmentPrice = bill.getPricing()
+                .divide(BigDecimal.valueOf(installmentAmount), 2, RoundingMode.HALF_UP);
         LocalDateTime dueDate = bill.getDueDate();
 
         List<Installment> installmentList = new ArrayList<>();
         for (int i = 0; i < installmentAmount; i++) {
             Installment installment = new Installment();
             installment.setBill(bill);
-            installment.setInstallmentNumber(installmentAmount);
+            installment.setInstallmentNumber(i + 1);
             installment.setPricing(installmentPrice);
             installment.setDueDate(dueDate);
             installmentList.add(installment);

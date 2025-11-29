@@ -7,6 +7,7 @@ import example.medCashFlow.exceptions.ForbiddenException;
 import example.medCashFlow.model.Bill;
 import example.medCashFlow.model.Employee;
 import example.medCashFlow.services.BillService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -49,7 +50,7 @@ public class BillController {
     @PostMapping("/create")
     public ResponseEntity<Void> createBill(
             @AuthenticationPrincipal UserDetails loggedUser,
-            @RequestBody BillRegisterDTO data) {
+            @Valid @RequestBody BillRegisterDTO data) {
         if (!(loggedUser instanceof Employee employee)) {
             throw new ForbiddenException();
         }
@@ -64,7 +65,7 @@ public class BillController {
     public void updateBill(
             @AuthenticationPrincipal UserDetails loggedUser,
             @PathVariable Long id,
-            @RequestBody BillRegisterDTO data) {
+            @Valid @RequestBody BillRegisterDTO data) {
         if (!(loggedUser instanceof Employee)) {
             throw new ForbiddenException();
         }

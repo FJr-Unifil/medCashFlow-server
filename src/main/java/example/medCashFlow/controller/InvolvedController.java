@@ -6,6 +6,7 @@ import example.medCashFlow.exceptions.ForbiddenException;
 import example.medCashFlow.model.Employee;
 import example.medCashFlow.model.Involved;
 import example.medCashFlow.services.InvolvedService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -46,7 +47,7 @@ public class InvolvedController {
     @PostMapping("/create")
     public ResponseEntity<InvolvedResponseDTO> createInvolved(
             @AuthenticationPrincipal UserDetails loggedUser,
-            @RequestBody InvolvedRegisterDTO data) {
+            @Valid @RequestBody InvolvedRegisterDTO data) {
         if (!(loggedUser instanceof Employee employee)) {
             throw new ForbiddenException();
         }
@@ -58,7 +59,7 @@ public class InvolvedController {
     public ResponseEntity<InvolvedResponseDTO> updateInvolved(
             @AuthenticationPrincipal UserDetails loggedUser,
             @PathVariable Long id,
-            @RequestBody InvolvedRegisterDTO data) {
+            @Valid @RequestBody InvolvedRegisterDTO data) {
         if (!(loggedUser instanceof Employee employee)) {
             throw new ForbiddenException();
         }

@@ -6,6 +6,7 @@ import example.medCashFlow.exceptions.ForbiddenException;
 import example.medCashFlow.model.AccountPlanning;
 import example.medCashFlow.model.Employee;
 import example.medCashFlow.services.AccountPlanningService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -45,7 +46,7 @@ public class AccountPlanningController {
     @PostMapping("/create")
     public ResponseEntity<AccountPlanningResponseDTO> createAccountPlanning(
             @AuthenticationPrincipal UserDetails loggedUser,
-            @RequestBody AccountPlanningRegisterDTO data) {
+            @Valid @RequestBody AccountPlanningRegisterDTO data) {
 
         if (!(loggedUser instanceof Employee employee)) {
             throw new ForbiddenException();
@@ -58,7 +59,7 @@ public class AccountPlanningController {
     public ResponseEntity<AccountPlanningResponseDTO> updateAccountPlanning(
             @AuthenticationPrincipal UserDetails loggedUser,
             @PathVariable Long id,
-            @RequestBody AccountPlanningRegisterDTO data) {
+            @Valid @RequestBody AccountPlanningRegisterDTO data) {
         if (!(loggedUser instanceof Employee employee)) {
             throw new ForbiddenException();
         }
