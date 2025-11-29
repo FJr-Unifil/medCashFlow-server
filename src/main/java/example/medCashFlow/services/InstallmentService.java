@@ -7,6 +7,7 @@ import example.medCashFlow.model.Installment;
 import example.medCashFlow.repository.InstallmentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -14,6 +15,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class InstallmentService {
 
     private final InstallmentRepository repository;
@@ -30,7 +32,6 @@ public class InstallmentService {
         List<Installment> installmentList = new ArrayList<>();
         for (int i = 0; i < installmentAmount; i++) {
             Installment installment = new Installment();
-            installment.setId(repository.getNextId() + i);
             installment.setBill(bill);
             installment.setInstallmentNumber(installmentAmount);
             installment.setPricing(installmentPrice);
@@ -47,32 +48,24 @@ public class InstallmentService {
 
     public void updateInstallmentById(Long id, InstallmentUpdateDTO data) {
         Installment installment = getInstallmentById(id);
-
         installment.setDueDate(data.dueDate());
-
         repository.save(installment);
     }
 
     public void markInstallmentAsPaid(Long id) {
         Installment installment = getInstallmentById(id);
-
         installment.setPaid(true);
-
         repository.save(installment);
     }
 
     public void deleteInstallmentByBillId(Long id) {
         List<Installment> installments = getAllInstallmentsByBillId(id);
-
         repository.deleteAll(installments);
     }
 
-
     public void markInstallmentAsUnpaid(Long id) {
         Installment installment = getInstallmentById(id);
-
         installment.setPaid(false);
-
         repository.save(installment);
     }
 

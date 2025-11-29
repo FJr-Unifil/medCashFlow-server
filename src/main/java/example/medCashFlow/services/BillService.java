@@ -10,12 +10,14 @@ import example.medCashFlow.repository.BillRepository;
 import lombok.RequiredArgsConstructor;
 import example.medCashFlow.mappers.BillMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class BillService {
 
     private final InstallmentService installmentService;

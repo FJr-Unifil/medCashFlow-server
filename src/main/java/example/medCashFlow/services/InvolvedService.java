@@ -10,12 +10,14 @@ import example.medCashFlow.model.Involved;
 import example.medCashFlow.repository.InvolvedRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class InvolvedService {
 
     private final InvolvedRepository repository;
@@ -97,4 +99,3 @@ public class InvolvedService {
     }
 
 }
-
