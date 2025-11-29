@@ -12,6 +12,7 @@ import example.medCashFlow.repository.EmployeeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
@@ -26,19 +27,23 @@ public class EmployeeService {
 
     private final RoleService roleService;
 
+    @Transactional(readOnly = true)
     public Employee getEmployeeById(Long Id) {
         return repository.findById(Id).orElseThrow(EmployeeNotFoundException::new);
     }
 
+    @Transactional(readOnly = true)
     public EmployeeResponseDTO getEmployeeResponseDTOById(Long Id) {
         Employee employee = getEmployeeById(Id);
         return mapper.toResponseDTO(employee);
     }
 
+    @Transactional(readOnly = true)
     public Employee getEmployeeByEmail(String email) {
         return repository.findByEmail(email).orElseThrow(EmployeeNotFoundException::new);
     }
 
+    @Transactional(readOnly = true)
     public List<EmployeeResponseDTO> getAllEmployeesByClinicId(UUID clinicId) {
         return repository.findAllByClinicIdOrderById(clinicId).stream()
                 .map(mapper::toResponseDTO).toList();
@@ -64,6 +69,7 @@ public class EmployeeService {
         return true;
     }
 
+    @Transactional
     public EmployeeResponseDTO createEmployee(EmployeeRegisterDTO data, Clinic clinic) {
         if (!isEmployeeValid(data.cpf(), data.email())) {
             throw new InvalidEmployeeException();
@@ -78,6 +84,7 @@ public class EmployeeService {
         return mapper.toResponseDTO(repository.save(employee));
     }
 
+    @Transactional
     public EmployeeResponseDTO updateEmployee(EmployeeRegisterDTO data, Long id) {
         Employee existingEmployee = getEmployeeById(id);
 
@@ -98,6 +105,7 @@ public class EmployeeService {
         return mapper.toResponseDTO(repository.save(existingEmployee));
     }
 
+    @Transactional
     public void deleteEmployee(Long id) {
         Employee employee = getEmployeeById(id);
 
@@ -105,6 +113,7 @@ public class EmployeeService {
         repository.save(employee);
     }
 
+    @Transactional
     public void activateEmployee(Long id) {
         Employee employee = getEmployeeById(id);
 
