@@ -4,11 +4,13 @@ import example.medCashFlow.dto.bill.InstallmentUpdateDTO;
 import example.medCashFlow.services.InstallmentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/installments")
 @RequiredArgsConstructor
+@PreAuthorize("hasAnyAuthority('ROLE_MANAGER', 'ROLE_FINANCIAL_ANALYST')")
 public class InstallmentController {
 
     private final InstallmentService installmentService;
