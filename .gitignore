@@ -38,3 +38,6 @@ out/
 
 ### ENV ###
 .env
+
+### Kilo Code ###
+.kilocodemodes
