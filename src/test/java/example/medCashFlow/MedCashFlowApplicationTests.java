@@ -10,6 +10,7 @@ import example.medCashFlow.dto.clinic.ClinicRegisterDTO;
 import example.medCashFlow.dto.employee.EmployeeRegisterDTO;
 import example.medCashFlow.dto.involved.InvolvedRegisterDTO;
 import example.medCashFlow.exceptions.ClinicNotFoundException;
+import example.medCashFlow.infra.security.UserPrincipal;
 import example.medCashFlow.model.Clinic;
 import example.medCashFlow.model.Employee;
 import example.medCashFlow.repository.ClinicRepository;
@@ -99,7 +100,7 @@ public abstract class MedCashFlowApplicationTests {
                     .andExpect(status().isCreated());
 
             Employee manager = employeeService.getEmployeeByEmail("manager@manager.com");
-            managerToken = tokenService.generateToken(manager);
+            managerToken = tokenService.generateToken(new UserPrincipal(manager));
 
             createActiveFinancialAnalyst();
             createInactiveFinancialAnalyst();
@@ -312,13 +313,13 @@ public abstract class MedCashFlowApplicationTests {
         adminToken = tokenService.generateTokenForAdmin(admin);
 
         Employee manager = employeeService.getEmployeeByEmail("manager@manager.com");
-        managerToken = tokenService.generateToken(manager);
+        managerToken = tokenService.generateToken(new UserPrincipal(manager));
 
-        Employee financialAnalyst = (Employee) employeeService.getEmployeeByEmail("financial@financial.com");
-        financialAnalystToken = tokenService.generateToken(financialAnalyst);
+        Employee financialAnalyst = employeeService.getEmployeeByEmail("financial@financial.com");
+        financialAnalystToken = tokenService.generateToken(new UserPrincipal(financialAnalyst));
 
-        Employee doctor = (Employee) employeeService.getEmployeeByEmail("doctor@doctor.com");
-        doctorToken = tokenService.generateToken(doctor);
+        Employee doctor = employeeService.getEmployeeByEmail("doctor@doctor.com");
+        doctorToken = tokenService.generateToken(new UserPrincipal(doctor));
     }
 
 

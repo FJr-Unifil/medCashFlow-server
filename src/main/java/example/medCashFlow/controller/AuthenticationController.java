@@ -6,11 +6,13 @@ import example.medCashFlow.dto.auth.RegisterDTO;
 import example.medCashFlow.dto.clinic.ClinicRegisterDTO;
 import example.medCashFlow.dto.employee.EmployeeRegisterDTO;
 import example.medCashFlow.dto.employee.EmployeeResponseDTO;
+import example.medCashFlow.infra.security.UserPrincipal;
 import example.medCashFlow.model.Clinic;
 import example.medCashFlow.model.Employee;
 import example.medCashFlow.services.ClinicService;
 import example.medCashFlow.services.EmployeeService;
 import example.medCashFlow.services.TokenService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,15 +33,15 @@ public class AuthenticationController {
     private final TokenService tokenService;
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponseDTO> login(@RequestBody AuthenticationDTO data) {
+    public ResponseEntity<LoginResponseDTO> login(@Valid @RequestBody AuthenticationDTO data) {
 
         var usernamePassword = new UsernamePasswordAuthenticationToken(data.email(), data.password());
 
         var auth = this.authenticationManager.authenticate(usernamePassword);
 
         String token;
-        if (auth.getPrincipal() instanceof Employee) {
-            token = tokenService.generateToken((Employee) auth.getPrincipal());
+        if (auth.getPrincipal() instanceof UserPrincipal) {
+            token = tokenService.generateToken((UserPrincipal) auth.getPrincipal());
         } else {
             UserDetails userDetails = (UserDetails) auth.getPrincipal();
             token = tokenService.generateTokenForAdmin(userDetails);
@@ -50,7 +52,7 @@ public class AuthenticationController {
 
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
-    public void register(@RequestBody RegisterDTO data) {
+    public void register(@Valid @RequestBody RegisterDTO data) {
         clinicService.createClinic(data);
     }
 }

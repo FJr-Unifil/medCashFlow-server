@@ -16,14 +16,12 @@ public interface EmployeeMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "active", ignore = true)
-    @Mapping(target = "authorities", ignore = true)
     @Mapping(target = "role", source = "role")
     @Mapping(target = "password", source = "encryptedPassword")
     Employee toEmployee(EmployeeRegisterDTO data, Clinic clinic, Role role, String encryptedPassword);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "active", ignore = true)
-    @Mapping(target = "authorities", ignore = true)
     @Mapping(target = "clinic", ignore = true)
     @Mapping(target = "role", source = "role")
     @Mapping(target = "password", source = "encryptedPassword")

@@ -3,23 +3,66 @@ package example.medCashFlow.exceptions;
 import example.medCashFlow.dto.ExceptionDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.nio.file.AccessDeniedException;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestControllerAdvice
 public class CustomExceptionHandler {
 
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    private ResponseEntity<ExceptionDTO> handleValidationException(MethodArgumentNotValidException ex) {
+        Map<String, String> errors = new HashMap<>();
+        ex.getBindingResult().getAllErrors().forEach((error) -> {
+            String fieldName = ((FieldError) error).getField();
+            String errorMessage = error.getDefaultMessage();
+            errors.put(fieldName, errorMessage);
+        });
+        
+        String message = "Dados inválidos: " + errors.toString();
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ExceptionDTO(
+                400,
+                "Erro de Validação",
+                message,
+                LocalDateTime.now()
+        ));
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    private ResponseEntity<ExceptionDTO> handleConstraintViolationException(ConstraintViolationException ex) {
+        Map<String, String> errors = new HashMap<>();
+        for (ConstraintViolation<?> violation : ex.getConstraintViolations()) {
+            String fieldName = violation.getPropertyPath().toString();
+            String errorMessage = violation.getMessage();
+            errors.put(fieldName, errorMessage);
+        }
+        
+        String message = "Dados inválidos: " + errors.toString();
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ExceptionDTO(
+                400,
+                "Erro de Validação",
+                message,
+                LocalDateTime.now()
+        ));
+    }
+
     @ExceptionHandler(Exception.class)
-    private ResponseEntity<ExceptionDTO> handleSecurityException(Exception ex) {
-        return ResponseEntity.status(500).body(new ExceptionDTO(500,
-                ex.getClass().getName(),
-                ex.getMessage(),
+    private ResponseEntity<ExceptionDTO> handleGenericException(Exception ex) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ExceptionDTO(
+                500,
+                "Erro Interno do Servidor",
+                "Ocorreu um erro inesperado. Tente novamente mais tarde.",
                 LocalDateTime.now()
         ));
     }

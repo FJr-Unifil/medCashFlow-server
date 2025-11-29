@@ -1,7 +1,9 @@
 package example.medCashFlow.infra.security;
 
+import example.medCashFlow.model.Employee;
 import example.medCashFlow.services.EmployeeService;
 import example.medCashFlow.services.TokenService;
+import example.medCashFlow.infra.security.UserPrincipal;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -46,7 +48,8 @@ public class SecurityFilter extends OncePerRequestFilter {
                         .roles("ADMIN")
                         .build();
             } else {
-                user = employeeService.getEmployeeByEmail(username);
+                Employee employee = employeeService.getEmployeeByEmail(username);
+                user = employee != null ? new UserPrincipal(employee) : null;
             }
 
             if (user != null) {
