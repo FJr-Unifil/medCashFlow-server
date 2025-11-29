@@ -8,6 +8,7 @@ import example.medCashFlow.exceptions.InvalidClinicException;
 import example.medCashFlow.mappers.ClinicMapper;
 import example.medCashFlow.model.Clinic;
 import example.medCashFlow.repository.ClinicRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -33,6 +34,7 @@ public class ClinicService {
                 .toList();
     }
 
+    @Transactional
     public void createClinic(RegisterDTO data) {
         ClinicRegisterDTO clinicData = data.clinic();
 
@@ -45,6 +47,7 @@ public class ClinicService {
         employeeService.createEmployee(data.manager(), savedClinc);
     }
 
+    @Transactional
     public void activateClinic(UUID id) {
         Clinic clinic = getClinicById(id);
 
@@ -52,6 +55,7 @@ public class ClinicService {
         repository.save(clinic);
     }
 
+    @Transactional
     public void deactivateClinic(UUID id) {
         Clinic clinic = getClinicById(id);
 

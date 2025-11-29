@@ -8,6 +8,7 @@ import example.medCashFlow.mappers.InvolvedMapper;
 import example.medCashFlow.model.Clinic;
 import example.medCashFlow.model.Involved;
 import example.medCashFlow.repository.InvolvedRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -54,6 +55,7 @@ public class InvolvedService {
         return true;
     }
 
+    @Transactional
     public InvolvedResponseDTO createInvolved(InvolvedRegisterDTO data, Clinic clinic) {
         if (!isInvolvedValid(data.document(), data.email())) {
             throw new InvalidInvolvedException();
@@ -65,6 +67,7 @@ public class InvolvedService {
         return mapper.toResponseDTO(involved);
     }
 
+    @Transactional
     public InvolvedResponseDTO updateInvolved(InvolvedRegisterDTO data, Clinic clinic, Long id) {
         Involved existingInvolved = getInvolvedById(id);
 
@@ -84,12 +87,14 @@ public class InvolvedService {
         return mapper.toResponseDTO(existingInvolved);
     }
 
+    @Transactional
     public void deleteInvolved(Long id) {
         Involved involved = getInvolvedById(id);
         involved.setActive(false);
         repository.save(involved);
     }
 
+    @Transactional
     public void activateInvolved(Long id) {
         Involved involved = getInvolvedById(id);
         involved.setActive(true);
@@ -97,4 +102,3 @@ public class InvolvedService {
     }
 
 }
-

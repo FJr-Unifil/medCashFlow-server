@@ -7,6 +7,7 @@ import example.medCashFlow.mappers.AccountPlanningMapper;
 import example.medCashFlow.model.AccountPlanning;
 import example.medCashFlow.model.Clinic;
 import example.medCashFlow.repository.AccountPlanningRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -30,12 +31,14 @@ public class AccountPlanningService {
         return mapper.toResponseDTO(accountPlanning);
     }
 
+    @Transactional
     public AccountPlanningResponseDTO createAccountPlanning(AccountPlanningRegisterDTO data, Clinic clinic) {
         AccountPlanning accountPlanning = mapper.toAccountPlanning(data, clinic);
         repository.save(accountPlanning);
         return mapper.toResponseDTO(accountPlanning);
     }
 
+    @Transactional
     public AccountPlanningResponseDTO updateAccountPlanning(AccountPlanningRegisterDTO data, Clinic clinic, Long id) {
         AccountPlanning existingAccountPlanning = getAccountPlanningById(id);
 
@@ -45,6 +48,7 @@ public class AccountPlanningService {
         return mapper.toResponseDTO(existingAccountPlanning);
     }
 
+    @Transactional
     public void deleteAccountPlanning(Long id) {
         AccountPlanning accountPlanning = getAccountPlanningById(id);
         repository.delete(accountPlanning);

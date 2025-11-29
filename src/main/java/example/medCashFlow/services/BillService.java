@@ -7,6 +7,7 @@ import example.medCashFlow.dto.bill.BillResponseDTO;
 import example.medCashFlow.exceptions.BillNotFoundException;
 import example.medCashFlow.model.*;
 import example.medCashFlow.repository.BillRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import example.medCashFlow.mappers.BillMapper;
 import org.springframework.stereotype.Service;
@@ -43,6 +44,7 @@ public class BillService {
         return repository.findAllBillByClinicId(clinicId);
     }
 
+    @Transactional
     public void createBill(BillRegisterDTO data, Employee employee) {
         BillDependencies dependencies = fetchBillDependencies(data);
         Bill bill = mapper.toBill(data, employee, dependencies.involved(), dependencies.accountPlanning(), dependencies.paymentMethod());
@@ -50,6 +52,7 @@ public class BillService {
         installmentService.saveInstallments(savedBill);
     }
 
+    @Transactional
     public void updateBill(BillRegisterDTO data, Long id) {
         Bill existingBill = getBillById(id);
 
@@ -61,6 +64,7 @@ public class BillService {
         installmentService.saveInstallments(savedBill);
     }
 
+    @Transactional
     public void deleteBill(Long id) {
         Bill bill = getBillById(id);
         installmentService.deleteInstallmentByBillId(id);
