@@ -9,18 +9,21 @@ import example.medCashFlow.model.Clinic;
 import example.medCashFlow.repository.AccountPlanningRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class AccountPlanningService {
 
     private final AccountPlanningRepository repository;
     
     private final AccountPlanningMapper mapper;
 
+    @Transactional(readOnly = true)
     public AccountPlanning getAccountPlanningById(Long id) {
         return repository.findById(id).orElseThrow(AccountPlanningNotFoundException::new);
     }

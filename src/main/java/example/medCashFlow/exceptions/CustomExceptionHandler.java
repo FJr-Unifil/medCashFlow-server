@@ -144,4 +144,34 @@ public class CustomExceptionHandler {
                 LocalDateTime.now()
         ));
     }
+
+    @ExceptionHandler(InstallmentNotFoundException.class)
+    private ResponseEntity<ExceptionDTO> handleInstallmentNotFoundException(InstallmentNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ExceptionDTO(
+                404,
+                "Parcela Não Encontrada",
+                ex.getMessage(),
+                LocalDateTime.now()
+        ));
+    }
+
+    @ExceptionHandler(PaymentMethodNotFoundException.class)
+    private ResponseEntity<ExceptionDTO> handlePaymentMethodNotFoundException(PaymentMethodNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ExceptionDTO(
+                404,
+                "Método de Pagamento Não Encontrado",
+                ex.getMessage(),
+                LocalDateTime.now()
+        ));
+    }
+
+    @ExceptionHandler(RoleNotFoundException.class)
+    private ResponseEntity<ExceptionDTO> handleRoleNotFoundException(RoleNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ExceptionDTO(
+                404,
+                "Cargo Não Encontrado",
+                ex.getMessage(),
+                LocalDateTime.now()
+        ));
+    }
 }

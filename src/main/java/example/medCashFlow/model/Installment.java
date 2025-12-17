@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.time.LocalDateTime;
 
@@ -14,10 +15,12 @@ import java.time.LocalDateTime;
 public class Installment {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne
     @JoinColumn(name = "bill_id", nullable = false)
+    @ToString.Exclude
     private Bill bill;
 
     @Column(nullable = false, name = "installment_number")
