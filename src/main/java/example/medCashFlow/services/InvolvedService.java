@@ -2,6 +2,7 @@ package example.medCashFlow.services;
 
 import example.medCashFlow.dto.involved.InvolvedRegisterDTO;
 import example.medCashFlow.dto.involved.InvolvedResponseDTO;
+import example.medCashFlow.exceptions.ForbiddenException;
 import example.medCashFlow.exceptions.InvalidInvolvedException;
 import example.medCashFlow.exceptions.InvolvedNotFoundException;
 import example.medCashFlow.mappers.InvolvedMapper;
@@ -26,8 +27,16 @@ public class InvolvedService {
         return repository.findById(id).orElseThrow(InvolvedNotFoundException::new);
     }
 
-    public InvolvedResponseDTO getInvolvedResponseDTOById(Long id) {
+    public Involved getInvolvedByIdAndClinic(Long id, UUID clinicId) {
         Involved involved = getInvolvedById(id);
+        if (!involved.getClinic().getId().equals(clinicId)) {
+            throw new ForbiddenException();
+        }
+        return involved;
+    }
+
+    public InvolvedResponseDTO getInvolvedResponseDTOById(Long id, UUID clinicId) {
+        Involved involved = getInvolvedByIdAndClinic(id, clinicId);
         return mapper.toResponseDTO(involved);
     }
 
@@ -66,7 +75,7 @@ public class InvolvedService {
     }
 
     public InvolvedResponseDTO updateInvolved(InvolvedRegisterDTO data, Clinic clinic, Long id) {
-        Involved existingInvolved = getInvolvedById(id);
+        Involved existingInvolved = getInvolvedByIdAndClinic(id, clinic.getId());
 
         if (!data.email().equals(existingInvolved.getEmail())
                 && repository.existsByEmail(data.email())) {
@@ -84,14 +93,14 @@ public class InvolvedService {
         return mapper.toResponseDTO(existingInvolved);
     }
 
-    public void deleteInvolved(Long id) {
-        Involved involved = getInvolvedById(id);
+    public void deleteInvolved(Long id, UUID clinicId) {
+        Involved involved = getInvolvedByIdAndClinic(id, clinicId);
         involved.setActive(false);
         repository.save(involved);
     }
 
-    public void activateInvolved(Long id) {
-        Involved involved = getInvolvedById(id);
+    public void activateInvolved(Long id, UUID clinicId) {
+        Involved involved = getInvolvedByIdAndClinic(id, clinicId);
         involved.setActive(true);
         repository.save(involved);
     }

@@ -3,9 +3,9 @@ package example.medCashFlow.controller;
 import example.medCashFlow.dto.accountPlanning.AccountPlanningRegisterDTO;
 import example.medCashFlow.dto.accountPlanning.AccountPlanningResponseDTO;
 import example.medCashFlow.exceptions.ForbiddenException;
-import example.medCashFlow.model.AccountPlanning;
 import example.medCashFlow.model.Employee;
 import example.medCashFlow.services.AccountPlanningService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -23,11 +23,11 @@ public class AccountPlanningController {
 
     @GetMapping("/{id}")
     public ResponseEntity<AccountPlanningResponseDTO> getAccountPlanningById(@AuthenticationPrincipal UserDetails loggedUser, @PathVariable("id") Long id) {
-        if (!(loggedUser instanceof Employee)) {
+        if (!(loggedUser instanceof Employee employee)) {
             throw new ForbiddenException();
         }
 
-        return ResponseEntity.ok(accountPlanningService.getAccountPlanningResponseDTOById(id));
+        return ResponseEntity.ok(accountPlanningService.getAccountPlanningResponseDTOById(id, employee.getClinic().getId()));
     }
 
     @GetMapping("/list")
@@ -45,7 +45,7 @@ public class AccountPlanningController {
     @PostMapping("/create")
     public ResponseEntity<AccountPlanningResponseDTO> createAccountPlanning(
             @AuthenticationPrincipal UserDetails loggedUser,
-            @RequestBody AccountPlanningRegisterDTO data) {
+            @Valid @RequestBody AccountPlanningRegisterDTO data) {
 
         if (!(loggedUser instanceof Employee employee)) {
             throw new ForbiddenException();
@@ -58,7 +58,7 @@ public class AccountPlanningController {
     public ResponseEntity<AccountPlanningResponseDTO> updateAccountPlanning(
             @AuthenticationPrincipal UserDetails loggedUser,
             @PathVariable Long id,
-            @RequestBody AccountPlanningRegisterDTO data) {
+            @Valid @RequestBody AccountPlanningRegisterDTO data) {
         if (!(loggedUser instanceof Employee employee)) {
             throw new ForbiddenException();
         }
@@ -70,11 +70,11 @@ public class AccountPlanningController {
     public ResponseEntity<Void> deleteAccountPlanning(
             @AuthenticationPrincipal UserDetails loggedUser,
             @PathVariable Long id) {
-        if (!(loggedUser instanceof Employee)) {
+        if (!(loggedUser instanceof Employee employee)) {
             throw new ForbiddenException();
         }
 
-        accountPlanningService.deleteAccountPlanning(id);
+        accountPlanningService.deleteAccountPlanning(id, employee.getClinic().getId());
         return ResponseEntity.noContent().build();
     }
 }

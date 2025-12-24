@@ -4,8 +4,8 @@ import example.medCashFlow.dto.involved.InvolvedRegisterDTO;
 import example.medCashFlow.dto.involved.InvolvedResponseDTO;
 import example.medCashFlow.exceptions.ForbiddenException;
 import example.medCashFlow.model.Employee;
-import example.medCashFlow.model.Involved;
 import example.medCashFlow.services.InvolvedService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -24,11 +24,11 @@ public class InvolvedController {
 
     @GetMapping("/{id}")
     public ResponseEntity<InvolvedResponseDTO> getInvolvedById(@AuthenticationPrincipal UserDetails loggedUser, @PathVariable("id") Long id) {
-        if (!(loggedUser instanceof Employee)) {
+        if (!(loggedUser instanceof Employee employee)) {
             throw new ForbiddenException();
         }
 
-        return ResponseEntity.ok(involvedService.getInvolvedResponseDTOById(id));
+        return ResponseEntity.ok(involvedService.getInvolvedResponseDTOById(id, employee.getClinic().getId()));
     }
 
     @GetMapping("/list")
@@ -46,7 +46,7 @@ public class InvolvedController {
     @PostMapping("/create")
     public ResponseEntity<InvolvedResponseDTO> createInvolved(
             @AuthenticationPrincipal UserDetails loggedUser,
-            @RequestBody InvolvedRegisterDTO data) {
+            @Valid @RequestBody InvolvedRegisterDTO data) {
         if (!(loggedUser instanceof Employee employee)) {
             throw new ForbiddenException();
         }
@@ -58,7 +58,7 @@ public class InvolvedController {
     public ResponseEntity<InvolvedResponseDTO> updateInvolved(
             @AuthenticationPrincipal UserDetails loggedUser,
             @PathVariable Long id,
-            @RequestBody InvolvedRegisterDTO data) {
+            @Valid @RequestBody InvolvedRegisterDTO data) {
         if (!(loggedUser instanceof Employee employee)) {
             throw new ForbiddenException();
         }
@@ -70,11 +70,11 @@ public class InvolvedController {
     public ResponseEntity<Void> deleteInvolved(
             @AuthenticationPrincipal UserDetails loggedUser,
             @PathVariable Long id) {
-        if (!(loggedUser instanceof Employee)) {
+        if (!(loggedUser instanceof Employee employee)) {
             throw new ForbiddenException();
         }
 
-        involvedService.deleteInvolved(id);
+        involvedService.deleteInvolved(id, employee.getClinic().getId());
         return ResponseEntity.noContent().build();
     }
 
@@ -82,11 +82,11 @@ public class InvolvedController {
     public ResponseEntity<Void> activateInvolved(
             @AuthenticationPrincipal UserDetails loggedUser,
             @PathVariable Long id) {
-        if (!(loggedUser instanceof Employee)) {
+        if (!(loggedUser instanceof Employee employee)) {
             throw new ForbiddenException();
         }
 
-        involvedService.activateInvolved(id);
+        involvedService.activateInvolved(id, employee.getClinic().getId());
         return ResponseEntity.noContent().build();
     }
 

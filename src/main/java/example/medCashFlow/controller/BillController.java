@@ -4,9 +4,9 @@ import example.medCashFlow.dto.bill.BillOnlyResponseDTO;
 import example.medCashFlow.dto.bill.BillRegisterDTO;
 import example.medCashFlow.dto.bill.BillResponseDTO;
 import example.medCashFlow.exceptions.ForbiddenException;
-import example.medCashFlow.model.Bill;
 import example.medCashFlow.model.Employee;
 import example.medCashFlow.services.BillService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,11 +27,11 @@ public class BillController {
     public ResponseEntity<BillOnlyResponseDTO> getBillById(
             @AuthenticationPrincipal UserDetails loggedUser,
             @PathVariable Long id) {
-        if (!(loggedUser instanceof Employee )) {
+        if (!(loggedUser instanceof Employee employee)) {
             throw new ForbiddenException();
         }
 
-        BillOnlyResponseDTO bill = billService.getBillOnlyResponseDTO(id);
+        BillOnlyResponseDTO bill = billService.getBillOnlyResponseDTO(id, employee.getClinic().getId());
         return ResponseEntity.ok(bill);
     }
 
@@ -49,7 +49,7 @@ public class BillController {
     @PostMapping("/create")
     public ResponseEntity<Void> createBill(
             @AuthenticationPrincipal UserDetails loggedUser,
-            @RequestBody BillRegisterDTO data) {
+            @Valid @RequestBody BillRegisterDTO data) {
         if (!(loggedUser instanceof Employee employee)) {
             throw new ForbiddenException();
         }
@@ -64,23 +64,23 @@ public class BillController {
     public void updateBill(
             @AuthenticationPrincipal UserDetails loggedUser,
             @PathVariable Long id,
-            @RequestBody BillRegisterDTO data) {
-        if (!(loggedUser instanceof Employee)) {
+            @Valid @RequestBody BillRegisterDTO data) {
+        if (!(loggedUser instanceof Employee employee)) {
             throw new ForbiddenException();
         }
 
-        billService.updateBill(data, id);
+        billService.updateBill(data, id, employee.getClinic().getId());
     }
 
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<Void> deleteBill(
             @AuthenticationPrincipal UserDetails loggedUser,
             @PathVariable Long id) {
-        if (!(loggedUser instanceof Employee)) {
+        if (!(loggedUser instanceof Employee employee)) {
             throw new ForbiddenException();
         }
 
-        billService.deleteBill(id);
+        billService.deleteBill(id, employee.getClinic().getId());
         return ResponseEntity.noContent().build();
     }
 
