@@ -5,6 +5,7 @@ import example.medCashFlow.dto.bill.BillOnlyResponseDTO;
 import example.medCashFlow.dto.bill.BillRegisterDTO;
 import example.medCashFlow.dto.bill.BillResponseDTO;
 import example.medCashFlow.exceptions.BillNotFoundException;
+import example.medCashFlow.exceptions.ForbiddenException;
 import example.medCashFlow.model.*;
 import example.medCashFlow.repository.BillRepository;
 import lombok.RequiredArgsConstructor;
@@ -39,6 +40,14 @@ public class BillService {
         return repository.findById(id).orElseThrow(BillNotFoundException::new);
     }
 
+    public Bill getBillByIdAndClinic(Long id, UUID clinicId) {
+        Bill bill = getBillById(id);
+        if (!bill.getClinic().getId().equals(clinicId)) {
+            throw new ForbiddenException();
+        }
+        return bill;
+    }
+
     public List<BillResponseDTO> getAllBillsByClinicId(UUID clinicId) {
         return repository.findAllBillByClinicId(clinicId);
     }
@@ -50,8 +59,8 @@ public class BillService {
         installmentService.saveInstallments(savedBill);
     }
 
-    public void updateBill(BillRegisterDTO data, Long id) {
-        Bill existingBill = getBillById(id);
+    public void updateBill(BillRegisterDTO data, Long id, UUID clinicId) {
+        Bill existingBill = getBillByIdAndClinic(id, clinicId);
 
         BillDependencies dependencies = fetchBillDependencies(data);
         mapper.updateBill(existingBill, data, dependencies.involved(), dependencies.accountPlanning(), dependencies.paymentMethod());
@@ -61,14 +70,14 @@ public class BillService {
         installmentService.saveInstallments(savedBill);
     }
 
-    public void deleteBill(Long id) {
-        Bill bill = getBillById(id);
+    public void deleteBill(Long id, UUID clinicId) {
+        Bill bill = getBillByIdAndClinic(id, clinicId);
         installmentService.deleteInstallmentByBillId(id);
         repository.delete(bill);
     }
 
-    public BillOnlyResponseDTO getBillOnlyResponseDTO(Long id) {
-        Bill bill = getBillById(id);
+    public BillOnlyResponseDTO getBillOnlyResponseDTO(Long id, UUID clinicId) {
+        Bill bill = getBillByIdAndClinic(id, clinicId);
         return mapper.toBillOnlyResponseDTO(bill);
     }
 

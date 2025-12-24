@@ -3,6 +3,7 @@ package example.medCashFlow.services;
 import example.medCashFlow.dto.employee.EmployeeRegisterDTO;
 import example.medCashFlow.dto.employee.EmployeeResponseDTO;
 import example.medCashFlow.exceptions.EmployeeNotFoundException;
+import example.medCashFlow.exceptions.ForbiddenException;
 import example.medCashFlow.exceptions.InvalidEmployeeException;
 import example.medCashFlow.mappers.EmployeeMapper;
 import example.medCashFlow.model.Clinic;
@@ -30,8 +31,16 @@ public class EmployeeService {
         return repository.findById(Id).orElseThrow(EmployeeNotFoundException::new);
     }
 
-    public EmployeeResponseDTO getEmployeeResponseDTOById(Long Id) {
-        Employee employee = getEmployeeById(Id);
+    public Employee getEmployeeByIdAndClinic(Long id, UUID clinicId) {
+        Employee employee = getEmployeeById(id);
+        if (!employee.getClinic().getId().equals(clinicId)) {
+            throw new ForbiddenException();
+        }
+        return employee;
+    }
+
+    public EmployeeResponseDTO getEmployeeResponseDTOById(Long id, UUID clinicId) {
+        Employee employee = getEmployeeByIdAndClinic(id, clinicId);
         return mapper.toResponseDTO(employee);
     }
 
@@ -78,8 +87,8 @@ public class EmployeeService {
         return mapper.toResponseDTO(repository.save(employee));
     }
 
-    public EmployeeResponseDTO updateEmployee(EmployeeRegisterDTO data, Long id) {
-        Employee existingEmployee = getEmployeeById(id);
+    public EmployeeResponseDTO updateEmployee(EmployeeRegisterDTO data, Long id, UUID clinicId) {
+        Employee existingEmployee = getEmployeeByIdAndClinic(id, clinicId);
 
         if (repository.existsByEmailAndIdNot(data.email(), id)) {
             throw new InvalidEmployeeException("manager.email");
@@ -98,15 +107,15 @@ public class EmployeeService {
         return mapper.toResponseDTO(repository.save(existingEmployee));
     }
 
-    public void deleteEmployee(Long id) {
-        Employee employee = getEmployeeById(id);
+    public void deleteEmployee(Long id, UUID clinicId) {
+        Employee employee = getEmployeeByIdAndClinic(id, clinicId);
 
         employee.setActive(false);
         repository.save(employee);
     }
 
-    public void activateEmployee(Long id) {
-        Employee employee = getEmployeeById(id);
+    public void activateEmployee(Long id, UUID clinicId) {
+        Employee employee = getEmployeeByIdAndClinic(id, clinicId);
 
         employee.setActive(true);
         repository.save(employee);

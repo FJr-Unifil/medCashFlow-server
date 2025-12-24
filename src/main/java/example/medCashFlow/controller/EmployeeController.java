@@ -5,6 +5,7 @@ import example.medCashFlow.dto.employee.EmployeeResponseDTO;
 import example.medCashFlow.exceptions.ForbiddenException;
 import example.medCashFlow.model.Employee;
 import example.medCashFlow.services.EmployeeService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -22,11 +23,11 @@ public class EmployeeController {
 
     @GetMapping("/{id}")
     public ResponseEntity<EmployeeResponseDTO> getEmployeeById(@AuthenticationPrincipal UserDetails loggedManager, @PathVariable Long id) {
-        if (!(loggedManager instanceof Employee)) {
+        if (!(loggedManager instanceof Employee employee)) {
             throw new ForbiddenException();
         }
 
-        return ResponseEntity.ok(employeeService.getEmployeeResponseDTOById(id));
+        return ResponseEntity.ok(employeeService.getEmployeeResponseDTOById(id, employee.getClinic().getId()));
     }
 
     @GetMapping("/list")
@@ -40,7 +41,7 @@ public class EmployeeController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<EmployeeResponseDTO> createEmployee(@AuthenticationPrincipal UserDetails loggedManager, @RequestBody EmployeeRegisterDTO data) {
+    public ResponseEntity<EmployeeResponseDTO> createEmployee(@AuthenticationPrincipal UserDetails loggedManager, @Valid @RequestBody EmployeeRegisterDTO data) {
         if (!(loggedManager instanceof Employee manager)) {
             throw new ForbiddenException();
         }
@@ -52,13 +53,13 @@ public class EmployeeController {
     public ResponseEntity<EmployeeResponseDTO> updateEmployee(
             @AuthenticationPrincipal UserDetails loggedManager,
             @PathVariable Long id,
-            @RequestBody EmployeeRegisterDTO data) {
+            @Valid @RequestBody EmployeeRegisterDTO data) {
 
-        if (!(loggedManager instanceof Employee)) {
+        if (!(loggedManager instanceof Employee employee)) {
             throw new ForbiddenException();
         }
 
-        return ResponseEntity.ok(employeeService.updateEmployee(data, id));
+        return ResponseEntity.ok(employeeService.updateEmployee(data, id, employee.getClinic().getId()));
     }
 
     @PutMapping("/activate/{id}")
@@ -66,11 +67,11 @@ public class EmployeeController {
             @AuthenticationPrincipal UserDetails loggedManager,
             @PathVariable Long id) {
 
-        if (!(loggedManager instanceof Employee)) {
+        if (!(loggedManager instanceof Employee employee)) {
             throw new ForbiddenException();
         }
 
-        employeeService.activateEmployee(id);
+        employeeService.activateEmployee(id, employee.getClinic().getId());
         return ResponseEntity.noContent().build();
     }
 
@@ -80,11 +81,11 @@ public class EmployeeController {
             @AuthenticationPrincipal UserDetails loggedManager,
             @PathVariable Long id) {
 
-        if (!(loggedManager instanceof Employee)) {
+        if (!(loggedManager instanceof Employee employee)) {
             throw new ForbiddenException();
         }
 
-        employeeService.deleteEmployee(id);
+        employeeService.deleteEmployee(id, employee.getClinic().getId());
         return ResponseEntity.noContent().build();
     }
 

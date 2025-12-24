@@ -2,6 +2,16 @@ package example.medCashFlow.dto.auth;
 
 import example.medCashFlow.dto.clinic.ClinicRegisterDTO;
 import example.medCashFlow.dto.employee.EmployeeRegisterDTO;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 
-public record RegisterDTO(ClinicRegisterDTO clinic, EmployeeRegisterDTO manager) {
+public record RegisterDTO(
+        @NotNull(message = "Clinic data is required")
+        @Valid
+        ClinicRegisterDTO clinic,
+
+        @NotNull(message = "Manager data is required")
+        @Valid
+        EmployeeRegisterDTO manager
+) {
 }

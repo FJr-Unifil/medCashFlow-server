@@ -3,14 +3,10 @@ package example.medCashFlow.controller;
 import example.medCashFlow.dto.auth.AuthenticationDTO;
 import example.medCashFlow.dto.auth.LoginResponseDTO;
 import example.medCashFlow.dto.auth.RegisterDTO;
-import example.medCashFlow.dto.clinic.ClinicRegisterDTO;
-import example.medCashFlow.dto.employee.EmployeeRegisterDTO;
-import example.medCashFlow.dto.employee.EmployeeResponseDTO;
-import example.medCashFlow.model.Clinic;
 import example.medCashFlow.model.Employee;
 import example.medCashFlow.services.ClinicService;
-import example.medCashFlow.services.EmployeeService;
 import example.medCashFlow.services.TokenService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -50,7 +46,7 @@ public class AuthenticationController {
 
     @PostMapping("/register")
     @ResponseStatus(HttpStatus.CREATED)
-    public void register(@RequestBody RegisterDTO data) {
+    public void register(@Valid @RequestBody RegisterDTO data) {
         clinicService.createClinic(data);
     }
 }
