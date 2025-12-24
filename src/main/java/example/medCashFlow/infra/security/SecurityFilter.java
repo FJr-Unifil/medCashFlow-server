@@ -46,7 +46,11 @@ public class SecurityFilter extends OncePerRequestFilter {
                         .roles("ADMIN")
                         .build();
             } else {
-                user = employeeService.getEmployeeByEmail(username);
+                try {
+                    user = employeeService.getEmployeeByEmail(username);
+                } catch (Exception e) {
+                    user = null;
+                }
             }
 
             if (user != null) {
