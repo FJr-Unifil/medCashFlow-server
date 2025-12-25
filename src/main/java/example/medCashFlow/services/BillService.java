@@ -5,11 +5,13 @@ import example.medCashFlow.dto.bill.BillOnlyResponseDTO;
 import example.medCashFlow.dto.bill.BillRegisterDTO;
 import example.medCashFlow.dto.bill.BillResponseDTO;
 import example.medCashFlow.exceptions.BillNotFoundException;
+import example.medCashFlow.exceptions.ForbiddenException;
 import example.medCashFlow.model.*;
 import example.medCashFlow.repository.BillRepository;
 import lombok.RequiredArgsConstructor;
 import example.medCashFlow.mappers.BillMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
@@ -39,10 +41,19 @@ public class BillService {
         return repository.findById(id).orElseThrow(BillNotFoundException::new);
     }
 
+    public Bill getBillByIdAndValidateClinic(Long id, UUID clinicId) {
+        Bill bill = getBillById(id);
+        if (!bill.getClinic().getId().equals(clinicId)) {
+            throw new ForbiddenException("Você não tem permissão para acessar esta conta");
+        }
+        return bill;
+    }
+
     public List<BillResponseDTO> getAllBillsByClinicId(UUID clinicId) {
         return repository.findAllBillByClinicId(clinicId);
     }
 
+    @Transactional
     public void createBill(BillRegisterDTO data, Employee employee) {
         BillDependencies dependencies = fetchBillDependencies(data);
         Bill bill = mapper.toBill(data, employee, dependencies.involved(), dependencies.accountPlanning(), dependencies.paymentMethod());
@@ -50,8 +61,9 @@ public class BillService {
         installmentService.saveInstallments(savedBill);
     }
 
-    public void updateBill(BillRegisterDTO data, Long id) {
-        Bill existingBill = getBillById(id);
+    @Transactional
+    public void updateBill(BillRegisterDTO data, Long id, UUID clinicId) {
+        Bill existingBill = getBillByIdAndValidateClinic(id, clinicId);
 
         BillDependencies dependencies = fetchBillDependencies(data);
         mapper.updateBill(existingBill, data, dependencies.involved(), dependencies.accountPlanning(), dependencies.paymentMethod());
@@ -61,14 +73,15 @@ public class BillService {
         installmentService.saveInstallments(savedBill);
     }
 
-    public void deleteBill(Long id) {
-        Bill bill = getBillById(id);
+    @Transactional
+    public void deleteBill(Long id, UUID clinicId) {
+        Bill bill = getBillByIdAndValidateClinic(id, clinicId);
         installmentService.deleteInstallmentByBillId(id);
         repository.delete(bill);
     }
 
-    public BillOnlyResponseDTO getBillOnlyResponseDTO(Long id) {
-        Bill bill = getBillById(id);
+    public BillOnlyResponseDTO getBillOnlyResponseDTO(Long id, UUID clinicId) {
+        Bill bill = getBillByIdAndValidateClinic(id, clinicId);
         return mapper.toBillOnlyResponseDTO(bill);
     }
 
