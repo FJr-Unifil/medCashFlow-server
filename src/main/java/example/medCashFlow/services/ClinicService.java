@@ -10,6 +10,7 @@ import example.medCashFlow.model.Clinic;
 import example.medCashFlow.repository.ClinicRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
@@ -33,6 +34,7 @@ public class ClinicService {
                 .toList();
     }
 
+    @Transactional
     public void createClinic(RegisterDTO data) {
         ClinicRegisterDTO clinicData = data.clinic();
 

@@ -27,11 +27,11 @@ public class BillController {
     public ResponseEntity<BillOnlyResponseDTO> getBillById(
             @AuthenticationPrincipal UserDetails loggedUser,
             @PathVariable Long id) {
-        if (!(loggedUser instanceof Employee )) {
+        if (!(loggedUser instanceof Employee employee)) {
             throw new ForbiddenException();
         }
 
-        BillOnlyResponseDTO bill = billService.getBillOnlyResponseDTO(id);
+        BillOnlyResponseDTO bill = billService.getBillOnlyResponseDTO(id, employee.getClinic().getId());
         return ResponseEntity.ok(bill);
     }
 
@@ -65,22 +65,22 @@ public class BillController {
             @AuthenticationPrincipal UserDetails loggedUser,
             @PathVariable Long id,
             @RequestBody BillRegisterDTO data) {
-        if (!(loggedUser instanceof Employee)) {
+        if (!(loggedUser instanceof Employee employee)) {
             throw new ForbiddenException();
         }
 
-        billService.updateBill(data, id);
+        billService.updateBill(data, id, employee.getClinic().getId());
     }
 
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<Void> deleteBill(
             @AuthenticationPrincipal UserDetails loggedUser,
             @PathVariable Long id) {
-        if (!(loggedUser instanceof Employee)) {
+        if (!(loggedUser instanceof Employee employee)) {
             throw new ForbiddenException();
         }
 
-        billService.deleteBill(id);
+        billService.deleteBill(id, employee.getClinic().getId());
         return ResponseEntity.noContent().build();
     }
 

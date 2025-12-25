@@ -3,6 +3,7 @@ package example.medCashFlow.services;
 import example.medCashFlow.dto.accountPlanning.AccountPlanningRegisterDTO;
 import example.medCashFlow.dto.accountPlanning.AccountPlanningResponseDTO;
 import example.medCashFlow.exceptions.AccountPlanningNotFoundException;
+import example.medCashFlow.exceptions.ForbiddenException;
 import example.medCashFlow.mappers.AccountPlanningMapper;
 import example.medCashFlow.model.AccountPlanning;
 import example.medCashFlow.model.Clinic;
@@ -25,8 +26,16 @@ public class AccountPlanningService {
         return repository.findById(id).orElseThrow(AccountPlanningNotFoundException::new);
     }
 
-    public AccountPlanningResponseDTO getAccountPlanningResponseDTOById(Long id) {
+    public AccountPlanning getAccountPlanningByIdAndValidateClinic(Long id, UUID clinicId) {
         AccountPlanning accountPlanning = getAccountPlanningById(id);
+        if (!accountPlanning.getClinic().getId().equals(clinicId)) {
+            throw new ForbiddenException("Você não tem permissão para acessar este plano de contas");
+        }
+        return accountPlanning;
+    }
+
+    public AccountPlanningResponseDTO getAccountPlanningResponseDTOById(Long id, UUID clinicId) {
+        AccountPlanning accountPlanning = getAccountPlanningByIdAndValidateClinic(id, clinicId);
         return mapper.toResponseDTO(accountPlanning);
     }
 
@@ -37,7 +46,7 @@ public class AccountPlanningService {
     }
 
     public AccountPlanningResponseDTO updateAccountPlanning(AccountPlanningRegisterDTO data, Clinic clinic, Long id) {
-        AccountPlanning existingAccountPlanning = getAccountPlanningById(id);
+        AccountPlanning existingAccountPlanning = getAccountPlanningByIdAndValidateClinic(id, clinic.getId());
 
         mapper.updateAccountPlanning(existingAccountPlanning, data);
 
@@ -45,8 +54,8 @@ public class AccountPlanningService {
         return mapper.toResponseDTO(existingAccountPlanning);
     }
 
-    public void deleteAccountPlanning(Long id) {
-        AccountPlanning accountPlanning = getAccountPlanningById(id);
+    public void deleteAccountPlanning(Long id, UUID clinicId) {
+        AccountPlanning accountPlanning = getAccountPlanningByIdAndValidateClinic(id, clinicId);
         repository.delete(accountPlanning);
     }
 

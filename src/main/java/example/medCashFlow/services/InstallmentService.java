@@ -30,9 +30,8 @@ public class InstallmentService {
         List<Installment> installmentList = new ArrayList<>();
         for (int i = 0; i < installmentAmount; i++) {
             Installment installment = new Installment();
-            installment.setId(repository.getNextId() + i);
             installment.setBill(bill);
-            installment.setInstallmentNumber(installmentAmount);
+            installment.setInstallmentNumber(i + 1);
             installment.setPricing(installmentPrice);
             installment.setDueDate(dueDate);
             installmentList.add(installment);
